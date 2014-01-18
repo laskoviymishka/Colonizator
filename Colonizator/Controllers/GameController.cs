@@ -34,18 +34,7 @@ namespace Colonizator.Controllers
         [HttpGet]
 		public ActionResult Map(string token)
 		{
-			token = token ?? string.Empty;
-
-			MapController map;
-
-			if (!_maps.TryGetValue(token, out map))
-			{
-				map = new MapController();
-
-				map.Initialize();
-
-				_maps.Add(token, map);
-			}
+			MapController map = GetMap(token);
 
 			return Json(
 				map.GetMap().Select(
@@ -53,10 +42,59 @@ namespace Colonizator.Controllers
 						x.Select(y => 
 							new HexagonModel() 
 							{ 
-								FaceNumber = y.FaceNumber,
-								ResourceType = y.ResourceType
+								FaceNumber = y.Index > 0 ? y.FaceNumber : 0,
+								ResourceType = y.Index == 10 ? 8 : y.Index > 0 ? y.ResourceType + 2 : y.ResourceType % 2
 							}))).ToList(),
 				JsonRequestBehavior.AllowGet);
+		}
+
+		[HttpGet]
+		public ActionResult MapState(string token)
+		{
+			MapController map = GetMap(token);
+
+			return Json(
+				new MapStateModel()
+				{
+					Cities = map.Nodes.Select(x => 
+						new CityModel()
+						{
+							HexagonIndex = x.HexagonA.Index,
+							Position = x.OrderA,
+							CitySize = x.CitySize,
+							PlayerId = x.PlayerId
+						}).ToList(),
+					Roads = map.Edges.Select(x =>
+						new RoadModel()
+						{
+							HexagonIndex = x.HexagonA.Index,
+							Position = x.OrderA,
+							PlayerId = x.PlayerId
+						}).ToList(),
+				},
+				JsonRequestBehavior.AllowGet);
+		}
+
+		private MapController GetMap(string token)
+		{
+			token = token ?? string.Empty;
+
+			lock (_maps)
+			{
+				MapController result;
+
+				if (!_maps.TryGetValue(token, out result))
+				{
+					result = new MapController();
+
+					result.Initialize();
+					result.Randomize();
+
+					_maps.Add(token, result);
+				}
+
+				return result;
+			}
 		}
 	}
 }

@@ -118,9 +118,47 @@ namespace Model
 			}
 		}
 
+		public void Randomize()
+		{
+			Random random = new Random();
+
+			foreach(Node node in _nodes.Values)
+			{
+				if (random.Next(5) == 1)
+				{
+					node.PlayerId = 1 + random.Next(6);
+					node.CitySize = 1 + random.Next(2);
+				}
+			}
+
+			foreach (Edge edge in _edges.Values)
+			{
+				if (random.Next(3) == 1)
+				{
+					edge.PlayerId = 1 + random.Next(6);
+				}
+			}
+		}
+
 		public Hexagon[][] GetMap()
 		{
 			return _map;
+		}
+
+		public IEnumerable<Node> Nodes
+		{
+			get
+			{
+				return _nodes.Values;
+			}
+		}
+
+		public IEnumerable<Edge> Edges
+		{
+			get
+			{
+				return _edges.Values;
+			}
 		}
 
 		private void AddEdge(int currentIndex, int nextIndex, int order)
