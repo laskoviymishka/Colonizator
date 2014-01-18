@@ -4,7 +4,9 @@ var tileWidth = a * COS_30 * 2;
 var tileHeight = a * 2;
 
 var hexMap = {};
-
+var townSize = { w: 70, h: 70 };
+var villageSize = { w: 50, h: 40 };
+var roadSize = { w: 70, h: 14 };
 
 function DrawField(field) {
     var maxFieldsInRow = field.length;
@@ -29,14 +31,14 @@ function DrawField(field) {
         var offsetPy = i * 3 / 2 * a + 'px';
         for (var j = 0; j < field[i].length; j++) {
             var newTile = tile.cloneNode(true);
-            newTile.style.background = 'url(/Sprites/f' + field[i][j].type + '.png)';
+            newTile.style.background = 'url(/Sprites/f' + field[i][j].ResourceType + '.png)';
             newTile.style.left = offsetPx + 'px';
             newTile.style.top = offsetPy;
             canvas.appendChild(newTile);
 
-            if (field[i][j].number > 0) {
+            if (field[i][j].FaceNumber >= 0) {
                 var newNumber = numberElement.cloneNode(true);
-                newNumber.innerHTML = field[i][j].number;
+                newNumber.innerHTML = field[i][j].FaceNumber;
                 newTile.appendChild(newNumber);
             }
             newTile.style.backgroundSize = '100% auto';
@@ -66,20 +68,52 @@ function GetTownRelativePosition(num) {
     return { dx: dx, dy: dy };
 }
 
+function GetRoadAngle(num) {
+    return num * 60 + 30;
+}
+
 function DrawTowns(towns) {
+    var canvas = document.getElementById('canvas');
     var townElement = document.createElement('div');
     townElement.style.position = 'absolute';
+    townElement.style.zIndex = '3';
     townElement.innerHTML = '&nbsp;';
-
+    townElement.setAttribute('object-type', 'town');
     for (var i = 0; i < towns.length; i++) {
-        var delta = GetTownRelativePosition(towns[i].vertex);
-        var spriteUrl = 'url(/Sprites/' + towns[i].type + towns[i].user + '.png)';
+        var delta = GetTownRelativePosition(towns[i].Position);
         var newTown = townElement.cloneNode(true);
-        newTown.style.left = hexMap[towns[i].hex].offsetWidth + delta.dx - (towns[i].type == 'v' ? 100 : 150) / 2 + 'px';
-        newTown.style.top = hexMap[towns[i].hex].offsetHeight + delta.dy - 50 + 'px';
-        newTown.style.background = spriteUrl;
+        var size = towns[i].CitySize == 'v' ? villageSize : townSize;
+        newTown.style.width = size.w + 'px';
+        newTown.style.height = size.h + 'px';
+        newTown.style.left = hexMap[towns[i].HexagonIndex].offsetLeft + delta.dx - size.w / 2 + 'px';
+        newTown.style.top = hexMap[towns[i].HexagonIndex].offsetTop + delta.dy - size.h * 2 / 3 + 'px';
+        newTown.style.background = 'url(/Sprites/' + towns[i].CitySize + towns[i].PlayerId + '.png)';
+        newTown.style.backgroundSize = '100% auto';
 
-        var canvas = document.getElementById('canvas');
         canvas.appendChild(newTown);
+    }
+}
+
+function DrawRoads(roads) {
+    var canvas = document.getElementById('canvas');
+    var townRoad = document.createElement('div');
+    townRoad.style.position = 'absolute';
+    townRoad.innerHTML = '&nbsp;';
+    townRoad.setAttribute('object-type', 'road');
+
+    for (var i = 0; i < roads.length; i++) {
+        var angle = GetRoadAngle(roads[i].Position);
+        var startPoint = GetTownRelativePosition(roads[i].Position);
+        var newRoad = townRoad.cloneNode(true);
+        newRoad.style.width = roadSize.w + 'px';
+        newRoad.style.height = roadSize.h + 'px';
+        newRoad.style.left = hexMap[roads[i].HexagonIndex].offsetLeft + startPoint.dx + 'px';
+        newRoad.style.top = hexMap[roads[i].HexagonIndex].offsetTop + startPoint.dy - roadSize.h / 2 + 'px';
+        newRoad.style.background = 'url(/Sprites/r' + roads[i].PlayerId + '.png)';
+        newRoad.style.backgroundSize = '100% auto';
+        newRoad.style.transform = 'rotate(' + angle + 'deg)';
+        newRoad.style.transformOrigin = 'left';
+
+        canvas.appendChild(newRoad);
     }
 }
