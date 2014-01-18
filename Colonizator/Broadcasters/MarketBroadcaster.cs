@@ -38,7 +38,7 @@ namespace Colonizator.Broadcasters
             foreach (var player in map.Players)
             {
                 player.Resources.CollectionChanged += ResourcesOnCollectionChanged;
-                _context.Clients.Client(player.PlayerId).playerOrder(_market.GetOrders(player));
+                _context.Clients.Client(player.PlayerId).playerOrder(_market.GetOrders(player.PlayerId));
             }
         }
 
