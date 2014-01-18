@@ -130,7 +130,9 @@ function DrawRoads(roads, isPossible) {
         newRoad.style.background = 'url(/Sprites/r' + r.PlayerId + '.png)';
         newRoad.style.backgroundSize = '100% auto';
         newRoad.style.transform = 'rotate(' + angle + 'deg)';
+        newRoad.style['WebkitTransform'] = 'rotate(' + angle + 'deg)';
         newRoad.style.transformOrigin = 'left';
+        newRoad.style['WebkitTransformOrigin'] = 'left';
         $(newRoad).on('click', function () {
             $.post("/Game/PostRoad", r);
             console.log('clicked road',  r.HexagonIndex);
