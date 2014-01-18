@@ -83,11 +83,13 @@ namespace Colonizator.Controllers
 			
 			if (playerId != game.CurrentPlayerId)
 			{
-				return Json(new MapStateModel()
+				return Json(
+					new MapStateModel()
 					{
 						Cities = new List<CityModel>(),
 						Roads = new List<RoadModel>()
-					});
+					},
+					JsonRequestBehavior.AllowGet);
 			}
 
 			MapController map = game.MapController;
