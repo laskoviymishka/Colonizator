@@ -100,10 +100,12 @@ function DrawTowns(towns, isPossible) {
         newTown.style.top = hexMap[t.HexagonIndex].offsetTop + delta.dy - size.h * 2 / 3 + 'px';
         newTown.style.background = 'url(/Sprites/' + t.CitySize + t.PlayerId + '.png)';
         newTown.style.backgroundSize = '100% auto';
-        $(newTown).on('click', function () {
-            $.post("/Game/PostTown", t);
-            console.log('clicked town', t.HexagonIndex, t.CitySize);
-        });
+        if (isPossible) {
+            $(newTown).on('click', function() {
+                $.post("/Game/PostTown", t);
+                console.log('clicked town', t.HexagonIndex, t.CitySize);
+            });
+        }
 
         canvas.appendChild(newTown);
         townsContainer.push(newTown);
@@ -133,10 +135,12 @@ function DrawRoads(roads, isPossible) {
         newRoad.style['WebkitTransform'] = 'rotate(' + angle + 'deg)';
         newRoad.style.transformOrigin = 'left';
         newRoad.style['WebkitTransformOrigin'] = 'left';
-        $(newRoad).on('click', function () {
-            $.post("/Game/PostRoad", r);
-            console.log('clicked road',  r.HexagonIndex);
-        });
+        if (isPossible) {
+            $(newRoad).on('click', function () {
+                $.post("/Game/PostRoad", r);
+                console.log('clicked road', r.HexagonIndex);
+            });
+        }
 
         canvas.appendChild(newRoad);
         roadsContainer.push(newRoad);
