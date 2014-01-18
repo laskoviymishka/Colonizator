@@ -1,12 +1,17 @@
 ﻿using System.Collections.Generic;
 using GameLogic.Game;
 
-namespace GameLogic.Broadcaster
+namespace GameLogic.Search
 {
     public class SearchGameQueue
     {
         public event UpdateGameQueue UpdateGameQueue;
-        public List<Player> Players; 
+        public List<Player> Players;
+
+        public SearchGameQueue()
+        {
+            Players = new List<Player>();
+        }
 
         public void SearchGame(Player player)
         {
@@ -14,11 +19,8 @@ namespace GameLogic.Broadcaster
             var eventArgs = new UpdateGameQueueArgs();
             if (Players.Count == 5)
             {
-                eventArgs.Map = new Map {Id = "test"};
-                foreach (var queuePlayer in Players)
-                {
-                    eventArgs.Map.Players.AddRange(Players);
-                }
+                eventArgs.Map = new Map {Id = "test", Players = Players};
+                eventArgs.Players = new List<Player>();
             }
             else
             {

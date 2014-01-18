@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using GameLogic.Game;
 
-namespace GameLogic.Broadcaster
+namespace GameLogic.Search
 {
     public class UpdateGameQueueArgs
     {

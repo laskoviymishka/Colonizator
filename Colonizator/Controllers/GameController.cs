@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using Colonizator.Broadcasters;
 using Colonizator.Models;
-using GameLogic.Broadcaster;
+using GameLogic.Market;
 using Model;
 
 namespace Colonizator.Controllers
@@ -22,10 +23,15 @@ namespace Colonizator.Controllers
 
         public ActionResult All()
         {
-            return View(MapBroadcaster.Maps);
+            return View(MapBroadcaster.Instance.Maps);
         }
 
-		[HttpGet]
+        public ActionResult MarketPartial(string mapId)
+        {
+            return PartialView(new List<Order>());
+        }
+
+        [HttpGet]
 		public ActionResult Map(string token)
 		{
 			token = token ?? string.Empty;
