@@ -90,6 +90,12 @@ namespace Model
 			_map = map.ToArray();
 		}
 
+		public EventHandler StateChanged
+		{
+			get;
+			set;
+		}
+
 		public void Initialize()
 		{
 			Random random = new Random();
@@ -309,6 +315,16 @@ namespace Model
 		private static int ReverseOrder(int order)
 		{
 			return (order + 3) % 6;
+		}
+
+		private void OnStateChanged()
+		{
+			EventHandler handler = StateChanged;
+
+			if (handler != null)
+			{
+				handler(this, EventArgs.Empty);
+			}
 		}
 	}
 }

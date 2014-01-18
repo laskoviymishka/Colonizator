@@ -14,13 +14,30 @@ namespace Colonizator.Broadcasters
     {
         private static MarketBroadcaster _instance;
         private IHubContext _context;
-        private Map _map;
+        private MapBroadcaster _broadcaster;
         private IMarket _market;
 
         private MarketBroadcaster()
         {
             _context = GlobalHost.ConnectionManager.GetHubContext<MarketHub>();
+            _broadcaster = MapBroadcaster.Instance;
+            foreach (var game in _broadcaster.Games)
+            {
+                game.OrderUpdate += GameOnOrderUpdate;
+                game.ResourceUpdate += GameOnResourceUpdate;
+            }
         }
+
+        private void GameOnResourceUpdate(Map sender, ResourceUpdateArgs args)
+        {
+            _context.Clients.Client(args.Player.PlayerId).updateResource(args.Player.Resources);
+        }
+
+        private void GameOnOrderUpdate(Map sender, OrderUpdateArgs args)
+        {
+            _context.Clients.Client(args.Player.PlayerId).updateOrder(args.Player.Orders);
+        }
+
         public static MarketBroadcaster Instance
         {
             get
@@ -33,12 +50,13 @@ namespace Colonizator.Broadcasters
             }
         }
 
-        public void InitMarket(Map map)
+        public void InitMarket()
         {
-            foreach (var player in map.Players)
+            _broadcaster = MapBroadcaster.Instance;
+            foreach (var game in _broadcaster.Games)
             {
-                player.Resources.CollectionChanged += ResourcesOnCollectionChanged;
-                _context.Clients.Client(player.PlayerId).playerOrder(_market.GetOrders(player.PlayerId));
+                game.OrderUpdate += GameOnOrderUpdate;
+                game.ResourceUpdate += GameOnResourceUpdate;
             }
         }
 

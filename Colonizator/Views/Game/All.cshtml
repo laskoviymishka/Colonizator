@@ -20,9 +20,7 @@
         };
 
         mapHub.client.gameStart = function (eventArgs) {
-            var fields = $.get('Map/' + eventArgs);
-            alert(JSON.parse(fields));
-            DrawField(JSON.parse(fields));
+            $('#userQueue').html(eventArgs.toString());
         };
 
         $('#displayname').focus();
