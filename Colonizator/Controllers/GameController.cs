@@ -77,10 +77,19 @@ namespace Colonizator.Controllers
 		}
 
 		[HttpGet]
-		public ActionResult AvailableMap(string token)
+		public ActionResult AvailableMap(string token, int playerId)
 		{
 			Map game = GetMap(token);
-			int playerId = game.CurrentPlayerId;
+			
+			if (playerId != game.CurrentPlayerId)
+			{
+				return Json(new MapStateModel()
+					{
+						Cities = new List<CityModel>(),
+						Roads = new List<RoadModel>()
+					});
+			}
+
 			MapController map = game.MapController;
 
 			return Json(
@@ -106,10 +115,15 @@ namespace Colonizator.Controllers
 		}
 
 		[HttpPost]
-		public void BuildCity(string token, int haxagonIndex, int position)
+		public void BuildCity(string token, int playerId, int haxagonIndex, int position)
 		{
 			Map game = GetMap(token);
-			int playerId = game.CurrentPlayerId;
+
+			if (playerId != game.CurrentPlayerId)
+			{
+				throw new InvalidOperationException("Invalid player");
+			}
+
 			MapController map = game.MapController;
 			
 			if (!_broadcaster.CanBuildCity(token, playerId))
@@ -127,10 +141,15 @@ namespace Colonizator.Controllers
 		}
 
 		[HttpPost]
-		public void BuildRoad(string token, int haxagonIndex, int position)
+		public void BuildRoad(string token, int playerId, int haxagonIndex, int position)
 		{
 			Map game = GetMap(token);
-			int playerId = game.CurrentPlayerId;
+
+			if (playerId != game.CurrentPlayerId)
+			{
+				throw new InvalidOperationException("Invalid player");
+			}
+			
 			MapController map = game.MapController;
 			
 			if (!_broadcaster.CanBuildRoad(token, playerId))

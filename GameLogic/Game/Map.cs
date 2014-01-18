@@ -33,7 +33,10 @@ namespace GameLogic.Game
 
 		public void NextPlayer()
 		{
-			CurrentPlayerId = (CurrentPlayerId + 1) % 3;
+			if (Players.Count > 0)
+			{
+				CurrentPlayerId = (CurrentPlayerId + 1) % Players.Count;
+			}
 		}
 
         public string Id { get; set; }
