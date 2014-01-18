@@ -42,6 +42,14 @@ namespace Colonizator.Broadcasters
             }
         }
 
+        private void OrdersOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs notifyCollectionChangedEventArgs)
+        {
+            if (sender is Order)
+            {
+
+            }
+        }
+
         private void ResourcesOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs notifyCollectionChangedEventArgs)
         {
 

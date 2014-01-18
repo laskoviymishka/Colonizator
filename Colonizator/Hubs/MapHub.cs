@@ -20,7 +20,7 @@ namespace Colonizator.Hubs
 
         public Task JoinGame(string mapId)
         {
-            var map = _broadcaster.Maps.Find(m => m.Id == mapId) ?? _broadcaster.CreateGame(mapId);
+            var map = _broadcaster.Games.Find(m => m.Id == mapId) ?? _broadcaster.CreateGame(mapId);
 
             if (!map.Players.Any(p => p.PlayerId == Context.ConnectionId) && map.Players.Count < 5)
             {

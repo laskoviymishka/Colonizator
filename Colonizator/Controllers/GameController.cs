@@ -13,7 +13,7 @@ namespace Colonizator.Controllers
     public class GameController : Controller
     {
 		private static readonly Dictionary<string, MapController> _maps = new Dictionary<string, MapController>();
-
+        private readonly MapBroadcaster _broadcaster = MapBroadcaster.Instance;
         //
         // GET: /Game/
         public ActionResult Index(string id)
@@ -23,7 +23,7 @@ namespace Colonizator.Controllers
 
         public ActionResult All()
         {
-            return View(MapBroadcaster.Instance.Maps);
+            return View(MapBroadcaster.Instance.Games);
         }
 
         public ActionResult MarketPartial(string mapId)
@@ -104,24 +104,7 @@ namespace Colonizator.Controllers
 
 		private MapController GetMap(string token)
 		{
-			token = token ?? string.Empty;
-
-			lock (_maps)
-			{
-				MapController result;
-
-				if (!_maps.TryGetValue(token, out result))
-				{
-					result = new MapController();
-
-					result.Initialize();
-					result.Randomize();
-
-					_maps.Add(token, result);
-				}
-
-				return result;
-			}
+            return _broadcaster.GameById(token).MapController;
 		}
 	}
 }
