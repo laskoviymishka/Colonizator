@@ -20,7 +20,7 @@
             if (userId < 0) {
                 userId = eventArgs -1;
             }
-            $('#userQueue').html(userId.toString());
+            $('#displayGame').html(userId.toString());
         };
 
         mapHub.client.gameStart = function (eventArgs) {
@@ -35,7 +35,6 @@
                         DrawTowns(data2.Cities, true);
                         DrawRoads(data2.Roads, true);
                     });
-
                 });
             });
         };
@@ -59,7 +58,7 @@
 </script>
 <h1 id="userQueue"></h1>
 <input type="text" id="displayname" />
+<h1 type="text" id="displayGame" ></h1>
 <button id="search">search</button>
 <div id="canvas" style="position:relative;width:100%;height:700px;">
 </div>
-@{Html.RenderAction("MarketPartial");}
