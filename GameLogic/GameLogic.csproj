@@ -39,7 +39,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Broadcaster\UpdateGameQueueArgs.cs" />
     <Compile Include="Broadcaster\MapBroadcaster.cs" />
+    <Compile Include="Broadcaster\SearchGameQueue.cs" />
     <Compile Include="Game\Color.cs" />
     <Compile Include="Game\Map.cs" />
     <Compile Include="Market\Market.cs" />
