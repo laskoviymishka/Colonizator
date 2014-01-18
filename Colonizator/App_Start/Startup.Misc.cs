@@ -32,7 +32,12 @@ namespace Colonizator
             //   appId: "",
             //   appSecret: "");
 
-            //app.UseGoogleAuthentication();
+            app.UseGoogleAuthentication();
+        }
+
+        public void ConfigurationSignalr(IAppBuilder app)
+        {
+            app.MapSignalR();
         }
     }
 }

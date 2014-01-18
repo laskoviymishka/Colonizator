@@ -9,6 +9,7 @@ namespace Colonizator
         public void Configuration(IAppBuilder app)
         {
             ConfigureAuth(app);
+            ConfigurationSignalr(app);
         }
     }
 }
