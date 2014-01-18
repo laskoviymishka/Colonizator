@@ -5,7 +5,7 @@ namespace Model.Elements
 	[Serializable]
 	public sealed class Edge
 	{
-		public Edge(Hexagon hexagonA, Hexagon hexagonB)
+		public Edge(Hexagon hexagonA, Hexagon hexagonB, int orderA)
 		{
 			if (hexagonA == null)
 			{
@@ -18,11 +18,18 @@ namespace Model.Elements
 			}
 
 			HexagonA = hexagonA;
+			OrderA = orderA;
 			HexagonB = hexagonB;
 			PlayerId = -1;
 		}
 
 		public Hexagon HexagonA
+		{
+			get;
+			private set;
+		}
+
+		public int OrderA
 		{
 			get;
 			private set;

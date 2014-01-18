@@ -104,7 +104,7 @@ namespace Model
 					}
 					if (hexagon.Index > 0)
 					{
-						hexagon.ResourceType = random.Next(5) + 1;
+						hexagon.ResourceType = random.Next(6) + 1;
 
 						int faceNumber = 1 + random.Next(12);
 
@@ -133,7 +133,7 @@ namespace Model
 				{
 					Hexagon next = GetOrCreateHexagon(nextIndex);
 
-					Edge edge = new Edge(current, next);
+					Edge edge = new Edge(current, next, order);
 
 					_edges.Add(new EdgeKey(currentIndex, nextIndex), edge);
 
@@ -157,7 +157,8 @@ namespace Model
 					{
 						Hexagon bottom = GetOrCreateHexagon(bottomIndex);
 
-						Node node = new Node(current, right, bottom);
+						int orderA = _nodeMappings[mappingIndex, 0];
+						Node node = new Node(current, right, bottom, orderA);
 
 						_nodes.Add(new NodeKey(currentIndex, rightIndex, bottomIndex), node);
 
