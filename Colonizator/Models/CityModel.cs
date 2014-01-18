@@ -20,7 +20,7 @@
 			set;
 		}
 
-		public int CitySize
+		public char CitySize
 		{
 			get;
 			set;

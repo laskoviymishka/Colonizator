@@ -56,15 +56,15 @@ namespace Colonizator.Controllers
 			return Json(
 				new MapStateModel()
 				{
-					Cities = map.Nodes.Select(x => 
+					Cities = map.Nodes.Where(x => x.PlayerId >=0).Select(x => 
 						new CityModel()
 						{
 							HexagonIndex = x.HexagonA.Index,
 							Position = x.OrderA,
-							CitySize = x.CitySize,
+							CitySize = x.CitySize > 1 ? 't' : 'v',
 							PlayerId = x.PlayerId
 						}).ToList(),
-					Roads = map.Edges.Select(x =>
+					Roads = map.Edges.Where(x => x.PlayerId >= 0).Select(x =>
 						new RoadModel()
 						{
 							HexagonIndex = x.HexagonA.Index,
