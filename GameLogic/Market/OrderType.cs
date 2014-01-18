@@ -4,9 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GameLogic.Game
+namespace GameLogic.Market
 {
-    class Order
+    public enum OrderType
     {
+        Buy = 0,
+        Sell = 1
     }
 }
