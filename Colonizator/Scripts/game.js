@@ -56,6 +56,15 @@ function DrawField(field) {
             hexMap[tileNum] = newTile;
         }
     }
+
+    $.connection.mapHub.client.updateState = function (data) {
+        DrawTowns(data.Cities);
+        DrawRoads(data.Roads);
+        $.getJSON('/Game/AvailableMap?playerId=1', function (data2) {
+            DrawTowns(data2.Cities, true);
+            DrawRoads(data2.Roads, true);
+        });
+    };
 }
 
 function GetTownRelativePosition(num) {
@@ -100,10 +109,12 @@ function DrawTowns(towns, isPossible) {
         newTown.style.top = hexMap[t.HexagonIndex].offsetTop + delta.dy - size.h * 2 / 3 + 'px';
         newTown.style.background = 'url(/Sprites/' + t.CitySize + t.PlayerId + '.png)';
         newTown.style.backgroundSize = '100% auto';
+        newTown.id = i;
         if (isPossible) {
-            $(newTown).on('click', function() {
-                $.post("/Game/PostTown", t);
-                console.log('clicked town', t.HexagonIndex, t.CitySize);
+            $(newTown).on('click', function () {
+                var t1 = towns[this.id];
+                $.post("/Game/BuildCity", {token:'', playerId: 12, haxagonIndex : t1.HexagonIndex, position: t1.Position});
+                console.log('clicked town', t1.HexagonIndex, t1.CitySize, t1.Position);
             });
         }
 
@@ -135,10 +146,12 @@ function DrawRoads(roads, isPossible) {
         newRoad.style['WebkitTransform'] = 'rotate(' + angle + 'deg)';
         newRoad.style.transformOrigin = 'left';
         newRoad.style['WebkitTransformOrigin'] = 'left';
+        newRoad.id = i;
         if (isPossible) {
             $(newRoad).on('click', function () {
-                $.post("/Game/PostRoad", r);
-                console.log('clicked road', r.HexagonIndex);
+                var r1 = roads[this.id];
+                $.post("/Game/BuildRoad", { token: '', playerId: 12, haxagonIndex: r1.HexagonIndex, position: r1.Position });
+                console.log('clicked road', r1.HexagonIndex);
             });
         }
 
