@@ -8,17 +8,32 @@ namespace GameLogic.Market
 {
 	public class Market : IMarket
 	{
-		public bool PlaceOrder(string playerId, Order order)
+		public IEnumerable<Order> GetOrders()
 		{
 			throw new NotImplementedException();
 		}
 
-		public bool AcceptOder(string playerId, Guid orderId)
+		public IEnumerable<Order> GetOrders(string playerId)
 		{
 			throw new NotImplementedException();
 		}
 
-		public void ScavengeOders(IEnumerable<string> palyerIds)
+		public bool PlaceOrder(Order order)
+		{
+			throw new NotImplementedException();
+		}
+
+		public bool AcceptOder(Game.Player acceptedBy, Guid orderId, Game.Player orderOwner)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void SyncOrders(IEnumerable<Order> orders)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void ScavengeOrders(IEnumerable<Game.Player> players)
 		{
 			throw new NotImplementedException();
 		}

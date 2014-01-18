@@ -10,11 +10,13 @@ namespace GameLogic.Market
 {
 	public interface IMarket
 	{
-	    Order GetOrders(Player player);
+		IEnumerable<Order> GetOrders();
+		IEnumerable<Order> GetOrders(string playerId);
 
-		bool PlaceOrder(string playerId, Order order);
-		bool AcceptOder(string playerId, Guid orderId);
+		bool PlaceOrder(Order order);
+		bool AcceptOder(Player acceptedBy, Guid orderId, Player orderOwner);
 
-		void ScavengeOders(IEnumerable<string> palyerIds);
+		void SyncOrders(IEnumerable<Order> orders);
+		void ScavengeOrders(IEnumerable<Player> players);
 	}
 }
