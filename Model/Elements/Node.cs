@@ -5,7 +5,7 @@ namespace Model.Elements
 	[Serializable]
 	public sealed class Node
 	{
-		public Node(Hexagon hexagonA, Hexagon hexagonB, Hexagon hexagonC, int orderA)
+		public Node(HexagonPosition hexagonA, HexagonPosition hexagonB, HexagonPosition hexagonC)
 		{
 			if (hexagonA == null)
 			{
@@ -23,31 +23,24 @@ namespace Model.Elements
 			}
 
 			HexagonA = hexagonA;
-			OrderA = orderA;
 			HexagonB = hexagonB;
 			HexagonC = hexagonC;
 			PlayerId = -1;
 		}
 
-		public Hexagon HexagonA
+		public HexagonPosition HexagonA
 		{
 			get;
 			private set;
 		}
 
-		public int OrderA
+		public HexagonPosition HexagonB
 		{
 			get;
 			private set;
 		}
 
-		public Hexagon HexagonB
-		{
-			get;
-			private set;
-		}
-
-		public Hexagon HexagonC
+		public HexagonPosition HexagonC
 		{
 			get;
 			private set;
@@ -67,7 +60,7 @@ namespace Model.Elements
 
 		public override string ToString()
 		{
-			return string.Format("[{0} : {1} : {2}]-> P:{3}, C:{4}", HexagonA.Index, HexagonB.Index, HexagonC.Index, PlayerId, CitySize);
+			return string.Format("[{0} : {1} : {2}]-> P:{3}, C:{4}", HexagonA.Hexagon.Index, HexagonB.Hexagon.Index, HexagonC.Hexagon.Index, PlayerId, CitySize);
 		}
 	}
 }

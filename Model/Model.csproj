@@ -49,6 +49,7 @@
     <Compile Include="Elements\Hexagon.cs" />
     <Compile Include="Elements\Node.cs" />
     <Compile Include="Elements\NodeKey.cs" />
+    <Compile Include="Elements\HexagonPosition.cs" />
     <Compile Include="MapController.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

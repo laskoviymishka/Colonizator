@@ -11,6 +11,10 @@ namespace Model
 		{
 			MapController map = new MapController();
 
+			map.Initialize();
+			map.Randomize();
+
+
 		}
 	}
 }

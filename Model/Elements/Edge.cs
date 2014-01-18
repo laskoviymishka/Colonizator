@@ -5,7 +5,7 @@ namespace Model.Elements
 	[Serializable]
 	public sealed class Edge
 	{
-		public Edge(Hexagon hexagonA, Hexagon hexagonB, int orderA)
+		public Edge(HexagonPosition hexagonA, HexagonPosition hexagonB)
 		{
 			if (hexagonA == null)
 			{
@@ -18,24 +18,17 @@ namespace Model.Elements
 			}
 
 			HexagonA = hexagonA;
-			OrderA = orderA;
 			HexagonB = hexagonB;
 			PlayerId = -1;
 		}
 
-		public Hexagon HexagonA
+		public HexagonPosition HexagonA
 		{
 			get;
 			private set;
 		}
 
-		public int OrderA
-		{
-			get;
-			private set;
-		}
-
-		public Hexagon HexagonB
+		public HexagonPosition HexagonB
 		{
 			get;
 			private set;
@@ -49,7 +42,7 @@ namespace Model.Elements
 
 		public override string ToString()
 		{
-			return string.Format("[{0} : {1}]-> P:{2}", HexagonA.Index, HexagonB.Index, PlayerId);
+			return string.Format("[{0} : {1}]-> P:{2}", HexagonA.Hexagon.Index, HexagonB.Hexagon.Index, PlayerId);
 		}
 	}
 }

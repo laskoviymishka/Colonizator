@@ -140,6 +140,63 @@ namespace Model
 			}
 		}
 
+		public void BuildRoad(int hexagonIndex, int position, int playerId)
+		{
+			Hexagon hexagon = _hexagones[hexagonIndex];
+			Edge edge = hexagon.Edges[position];
+
+			edge.PlayerId = playerId;
+		}
+
+		public void BuildCity(int hexagonIndex, int position, int playerId, int citySize)
+		{
+			Hexagon hexagon = _hexagones[hexagonIndex];
+			Node node = hexagon.Nodes[position];
+
+			node.PlayerId = playerId;
+			node.CitySize = citySize;
+		}
+
+		public IEnumerable<Node> GetAvailableNodes(int playerId)
+		{
+			HashSet<Node> potentialNodes = new HashSet<Node>();
+
+			foreach (Edge edge in _edges.Values)
+			{
+				if (edge.PlayerId == playerId)
+				{
+					potentialNodes.Add(edge.HexagonA.FirstNode);
+					potentialNodes.Add(edge.HexagonA.SecondNode);
+					potentialNodes.Add(edge.HexagonB.FirstNode);
+					potentialNodes.Add(edge.HexagonB.SecondNode);
+				}
+			}
+
+			IEnumerable<Node> result = potentialNodes.Count > 0 ? (IEnumerable<Node>)potentialNodes : (IEnumerable<Node>)_nodes.Values;
+
+			return result.Where(x => x != null && ((x.PlayerId == playerId) || (x.PlayerId < 0)));
+		}
+
+		public IEnumerable<Edge> GetAvailableEdges(int playerId)
+		{
+			HashSet<Edge> result = new HashSet<Edge>();
+
+			foreach (Node node in _nodes.Values)
+			{
+				if (node.PlayerId == playerId)
+				{
+					result.Add(node.HexagonA.FirstEdge);
+					result.Add(node.HexagonA.SecondEdge);
+					result.Add(node.HexagonB.FirstEdge);
+					result.Add(node.HexagonB.SecondEdge);
+					result.Add(node.HexagonC.FirstEdge);
+					result.Add(node.HexagonC.SecondEdge);
+				}
+			}
+
+			return result.Where(x => x != null && x.PlayerId < 0);
+		}
+
 		public Hexagon[][] GetMap()
 		{
 			return _map;
@@ -161,22 +218,26 @@ namespace Model
 			}
 		}
 
-		private void AddEdge(int currentIndex, int nextIndex, int order)
+		private void AddEdge(int currentIndex, int nextIndex, int positionCurrent)
 		{
 			if (currentIndex != 0)
 			{
 				Hexagon current = GetOrCreateHexagon(currentIndex);
 
-				if (nextIndex != 0)
+				if ((nextIndex > 0) || (currentIndex > 0))
 				{
 					Hexagon next = GetOrCreateHexagon(nextIndex);
 
-					Edge edge = new Edge(current, next, order);
+					int positionNext = ReverseOrder(positionCurrent);
+
+					Edge edge = new Edge(
+						new HexagonPosition(current, positionCurrent),
+						new HexagonPosition(next, positionNext));
 
 					_edges.Add(new EdgeKey(currentIndex, nextIndex), edge);
 
-					current.Edges[order] = edge;
-					next.Edges[ReverseOrder(order)] = edge;
+					current.Edges[positionCurrent] = edge;
+					next.Edges[positionNext] = edge;
 				}
 			}
 		}
@@ -195,14 +256,20 @@ namespace Model
 					{
 						Hexagon bottom = GetOrCreateHexagon(bottomIndex);
 
-						int orderA = _nodeMappings[mappingIndex, 0];
-						Node node = new Node(current, right, bottom, orderA);
+						int positionCurrent = _nodeMappings[mappingIndex, 0];
+						int positionRight = _nodeMappings[mappingIndex, 1];
+						int positionBottom = _nodeMappings[mappingIndex, 2];
+
+						Node node = new Node(
+							new HexagonPosition(current, positionCurrent),
+							new HexagonPosition(right, positionRight),
+							new HexagonPosition(bottom, positionBottom));
 
 						_nodes.Add(new NodeKey(currentIndex, rightIndex, bottomIndex), node);
 
-						current.Nodes[_nodeMappings[mappingIndex, 0]] = node;
-						right.Nodes[_nodeMappings[mappingIndex, 1]] = node;
-						bottom.Nodes[_nodeMappings[mappingIndex, 2]] = node;
+						current.Nodes[positionCurrent] = node;
+						right.Nodes[positionRight] = node;
+						bottom.Nodes[positionBottom] = node;
 					}
 				}
 			}
