@@ -21,6 +21,13 @@ namespace Model
 				{    0,    0,    0,    0,    0,    0,    0,    0,    0},
 			};
 
+		private static int[,] _nodeMappings =
+			new int[,]
+			{
+				{ 2, 4, 0},
+				{ 3, 5, 1}
+			};
+
 		private static int _minIndex = -19;
 		private static int _maxIndex = 19;
 
@@ -62,12 +69,12 @@ namespace Model
 						int bottomIndex = _hexagonIndices[i + 1, j - (i & 1)];
 						int rightBottomIndex = _hexagonIndices[i + 1, j + 1 - (i & 1)];
 
-						AddEdge(currentIndex, rightIndex);
-						AddEdge(currentIndex, bottomIndex);
-						AddEdge(currentIndex, rightBottomIndex);
+						AddEdge(currentIndex, rightIndex, 1);
+						AddEdge(currentIndex, rightBottomIndex, 2);
+						AddEdge(currentIndex, bottomIndex, 3);
 
-						AddNode(currentIndex, rightIndex, rightBottomIndex);
-						AddNode(currentIndex, bottomIndex, rightBottomIndex);
+						AddNode(currentIndex, rightIndex, rightBottomIndex, 0);
+						AddNode(currentIndex, rightBottomIndex, bottomIndex, 1);
 
 						row.Add(GetOrCreateHexagon(currentIndex));
 					}
@@ -116,7 +123,7 @@ namespace Model
 			return _map;
 		}
 
-		private void AddEdge(int currentIndex, int nextIndex)
+		private void AddEdge(int currentIndex, int nextIndex, int order)
 		{
 			if (currentIndex != 0)
 			{
@@ -130,13 +137,13 @@ namespace Model
 
 					_edges.Add(new EdgeKey(currentIndex, nextIndex), edge);
 
-					current.Edges.Add(edge);
-					next.Edges.Add(edge);
+					current.Edges[order] = edge;
+					next.Edges[ReverseOrder(order)] = edge;
 				}
 			}
 		}
 
-		private void AddNode(int currentIndex, int rightIndex, int bottomIndex)
+		private void AddNode(int currentIndex, int rightIndex, int bottomIndex, int mappingIndex)
 		{
 			if (currentIndex != 0)
 			{
@@ -154,9 +161,9 @@ namespace Model
 
 						_nodes.Add(new NodeKey(currentIndex, rightIndex, bottomIndex), node);
 
-						current.Nodes.Add(node);
-						right.Nodes.Add(node);
-						bottom.Nodes.Add(node);
+						current.Nodes[_nodeMappings[mappingIndex, 0]] = node;
+						right.Nodes[_nodeMappings[mappingIndex, 1]] = node;
+						bottom.Nodes[_nodeMappings[mappingIndex, 2]] = node;
 					}
 				}
 			}
@@ -176,6 +183,11 @@ namespace Model
 			}
 
 			return result;
+		}
+
+		private static int ReverseOrder(int order)
+		{
+			return (order + 3) % 6;
 		}
 	}
 }

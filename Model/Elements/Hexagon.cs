@@ -11,8 +11,8 @@ namespace Model.Elements
 		public Hexagon(int index)
 		{
 			Index = index;
-			Edges = new List<Edge>();
-			Nodes = new List<Node>();
+			Edges = new Edge[6];
+			Nodes = new Node[6];
 		}
 
 		public int Index
@@ -33,13 +33,13 @@ namespace Model.Elements
 			set;
 		}
 
-		public List<Edge> Edges
+		public Edge[] Edges
 		{
 			get;
 			private set;
 		}
 
-		public List<Node> Nodes
+		public Node[] Nodes
 		{
 			get;
 			private set;

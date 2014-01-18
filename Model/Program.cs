@@ -9,7 +9,7 @@ namespace Model
 	{
 		static void Main(string[] args)
 		{
-
+			MapController map = new MapController();
 
 		}
 	}
