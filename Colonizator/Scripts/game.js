@@ -60,9 +60,13 @@ function DrawField(field) {
     $.connection.mapHub.client.updateState = function (data) {
         DrawTowns(data.Cities);
         DrawRoads(data.Roads);
-        $.getJSON('/Game/AvailableMap?playerId=1', function (data2) {
-            DrawTowns(data2.Cities, true);
-            DrawRoads(data2.Roads, true);
+        $.getJSON('/Game/AvailableMap',
+            function (data2) {
+                DrawTowns(data2.Cities, true);
+                DrawRoads(data2.Roads, true);
+            },
+        function (e) {
+            alert(e.message);
         });
     };
 }
@@ -113,7 +117,10 @@ function DrawTowns(towns, isPossible) {
         if (isPossible) {
             $(newTown).on('click', function () {
                 var t1 = towns[this.id];
-                $.post("/Game/BuildCity", {token:'', playerId: 12, haxagonIndex : t1.HexagonIndex, position: t1.Position});
+                $.post(
+                    "/Game/BuildCity",
+                    { token: '', playerId: 12, haxagonIndex: t1.HexagonIndex, position: t1.Position },
+                    function (e) { alert(e.message); });
                 console.log('clicked town', t1.HexagonIndex, t1.CitySize, t1.Position);
             });
         }
@@ -150,7 +157,9 @@ function DrawRoads(roads, isPossible) {
         if (isPossible) {
             $(newRoad).on('click', function () {
                 var r1 = roads[this.id];
-                $.post("/Game/BuildRoad", { token: '', playerId: 12, haxagonIndex: r1.HexagonIndex, position: r1.Position });
+                $.post("/Game/BuildRoad",
+                    { token: '', playerId: 12, haxagonIndex: r1.HexagonIndex, position: r1.Position },
+                    function (e) { alert(e.message); });
                 console.log('clicked road', r1.HexagonIndex);
             });
         }
