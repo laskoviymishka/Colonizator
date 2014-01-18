@@ -89,14 +89,14 @@ namespace Colonizator.Controllers
 							HexagonIndex = x.HexagonA.Hexagon.Index,
 							Position = x.HexagonA.Position,
 							CitySize = x.CitySize > 0 ? 't' : 'v',
-							PlayerId = x.PlayerId
+							PlayerId = playerId
 						}).ToList(),
 					Roads = map.GetAvailableEdges(playerId).Select(x =>
 						new RoadModel()
 						{
 							HexagonIndex = x.HexagonA.Hexagon.Index,
 							Position = x.HexagonA.Position,
-							PlayerId = x.PlayerId
+							PlayerId = playerId
 						}).ToList(),
 				},
 				JsonRequestBehavior.AllowGet);
