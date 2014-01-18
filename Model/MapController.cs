@@ -107,6 +107,7 @@ namespace Model
 					if (hexagon.Index == 10)
 					{
 						hexagon.FaceNumber = 7;
+						hexagon.ResourceType = 7;
 					}
 					if (hexagon.Index > 0)
 					{
@@ -118,7 +119,7 @@ namespace Model
 					}
 					else
 					{
-						hexagon.ResourceType = random.Next(7);
+						hexagon.ResourceType = 0;
 					}
 				}
 			}
@@ -132,7 +133,7 @@ namespace Model
 			{
 				if (random.Next(5) == 1)
 				{
-					node.PlayerId = 1 + random.Next(6);
+					node.PlayerId = random.Next(5);
 					node.CitySize = 1 + random.Next(2);
 				}
 			}
@@ -141,7 +142,7 @@ namespace Model
 			{
 				if (random.Next(3) == 1)
 				{
-					edge.PlayerId = 1 + random.Next(6);
+					edge.PlayerId = random.Next(5);
 				}
 			}
 		}
