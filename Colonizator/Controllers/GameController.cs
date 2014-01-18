@@ -88,7 +88,7 @@ namespace Colonizator.Controllers
 						{
 							HexagonIndex = x.HexagonA.Hexagon.Index,
 							Position = x.HexagonA.Position,
-							CitySize = x.CitySize > 1 ? 't' : 'v',
+							CitySize = x.CitySize > 0 ? 't' : 'v',
 							PlayerId = x.PlayerId
 						}).ToList(),
 					Roads = map.GetAvailableEdges(playerId).Select(x =>
