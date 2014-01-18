@@ -63,7 +63,7 @@ namespace Colonizator.Broadcasters
                     _context.Groups.Add(arg.PlayerId, args.Map.Id);
                 }
 
-                _context.Clients.Group(args.Map.Id).gameStart(args.Map);
+                _context.Clients.Group(args.Map.Id).gameStart(args.Map.Id);
             }
             else
             {

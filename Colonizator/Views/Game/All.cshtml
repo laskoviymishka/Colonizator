@@ -6,6 +6,7 @@
 <script src="~/Scripts/jquery-1.10.2.min.js"></script>
 <script src="~/Scripts/jquery.signalR-2.0.1.min.js"></script>
 <script src="~/signalr/hubs"></script>
+<script src="~/Scripts/game.js"></script>
 <ul>
 </ul>
 <script>
@@ -15,11 +16,13 @@
     $(function () {
         mapHub = $.connection.mapHub;
         mapHub.client.updateQueue = function (eventArgs) {
-            alert(eventArgs.toString());
+            $('#userQueue').html(eventArgs.toString());
         };
 
         mapHub.client.gameStart = function (eventArgs) {
-            alert(eventArgs.toString());
+            var fields = $.get('Map/' + eventArgs);
+            alert(JSON.parse(fields));
+            DrawField(JSON.parse(fields));
         };
 
         $('#displayname').focus();
@@ -39,7 +42,9 @@
     function toQueue() {
     }
 </script>
+<h1 id="userQueue"></h1>
 <input type="text" id="displayname" />
 <button id="search">search</button>
-
+<div id="canvas" style="position:relative;width:100%;height:700px;">
+</div>
 @{Html.RenderAction("MarketPartial");}
