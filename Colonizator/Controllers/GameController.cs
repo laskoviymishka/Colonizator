@@ -102,6 +102,32 @@ namespace Colonizator.Controllers
 				JsonRequestBehavior.AllowGet);
 		}
 
+		[HttpPost]
+		public void BuildCity(string token, int playerId, int haxagonIndex, int position)
+		{
+			MapController map = GetMap(token);
+
+			if (!map.IsNodeAvailable(haxagonIndex, position, playerId))
+			{
+				throw new InvalidOperationException("Node is not available.");
+			}
+
+			map.BuildCity(haxagonIndex, position, playerId, map.GetCitySize(haxagonIndex, position) + 1);
+		}
+
+		[HttpPost]
+		public void BuildRoad(string token, int playerId, int haxagonIndex, int position)
+		{
+			MapController map = GetMap(token);
+
+			if (!map.IsEdgeAvailable(haxagonIndex, position, playerId))
+			{
+				throw new InvalidOperationException("Edge is not available.");
+			}
+
+			map.BuildRoad(haxagonIndex, position, playerId);
+		}
+
 		private MapController GetMap(string token)
 		{
             return _broadcaster.GameById(token).MapController;

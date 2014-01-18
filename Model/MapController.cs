@@ -197,6 +197,21 @@ namespace Model
 			return result.Where(x => x != null && x.PlayerId < 0);
 		}
 
+		public bool IsEdgeAvailable(int hexagonIndex, int position, int playerId)
+		{
+			return true;
+		}
+
+		public bool IsNodeAvailable(int hexagonIndex, int position, int playerId)
+		{
+			return true;
+		}
+
+		public int GetCitySize(int hexagonIndex, int position)
+		{
+			return _hexagones[hexagonIndex].Nodes[position].CitySize;
+		}
+
 		public Hexagon[][] GetMap()
 		{
 			return _map;
