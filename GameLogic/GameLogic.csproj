@@ -39,12 +39,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Broadcaster\UpdateGameQueueArgs.cs" />
     <Compile Include="Broadcaster\MapBroadcaster.cs" />
+    <Compile Include="Broadcaster\SearchGameQueue.cs" />
     <Compile Include="Game\Color.cs" />
     <Compile Include="Game\Map.cs" />
-    <Compile Include="Game\Order.cs" />
+    <Compile Include="Market\Market.cs" />
+    <Compile Include="Market\Order.cs" />
     <Compile Include="Game\Player.cs" />
     <Compile Include="Game\Resource.cs" />
+    <Compile Include="Game\ResourceType.cs" />
+    <Compile Include="Market\IMarket.cs" />
+    <Compile Include="Market\OrderType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

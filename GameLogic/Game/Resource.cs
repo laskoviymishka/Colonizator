@@ -9,7 +9,7 @@ namespace GameLogic.Game
 {
     public class Resource
     {
-        public ResourceType ResourceType { get; set; }
+        public ResourceType Type { get; set; }
         public int Qty { get; set; }
     }
 }

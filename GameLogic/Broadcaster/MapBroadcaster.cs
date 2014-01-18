@@ -17,9 +17,11 @@ namespace GameLogic.Broadcaster
             get { return _maps; }
         }
 
-        public static void CreateGame(string gameName)
+        public static Map CreateGame(string gameName)
         {
-            _maps.Add(new Map() { Id = gameName });
+            var map = new Map() {Id = gameName};
+            _maps.Add(map);
+            return map;
         }
     }
 }
