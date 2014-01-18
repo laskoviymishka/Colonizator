@@ -14,6 +14,7 @@
     var mapHub;
     var markethub;
     var userId = -1;
+    var token;
     $(function () {
         mapHub = $.connection.mapHub;
         mapHub.client.updateQueue = function (eventArgs) {
@@ -24,7 +25,8 @@
         };
 
         mapHub.client.gameStart = function (eventArgs) {
-            $('#userQueue').html(eventArgs.toString());
+            $('#userQueue').html(2);
+            token = eventArgs;
             $.getJSON('/Game/Map?token=' + eventArgs.toString(), function (data) {
                 DrawField(data);
 
