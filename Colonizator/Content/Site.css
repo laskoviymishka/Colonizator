@@ -57,3 +57,11 @@ input[type="checkbox"].input-validation-error {
     text-align: center;
     font-size: 14pt;
 }
+
+.possible-town {
+    opacity: 0;
+}
+
+    .possible-town:hover {
+        opacity: 0.5;
+    }
