@@ -35,7 +35,7 @@ namespace Colonizator.Controllers
         [HttpGet]
 		public ActionResult Map(string token)
 		{
-			MapController map = GetMap(token);
+			MapController map = GetMap(token).MapController;
 
 			return Json(
 				map.GetMap().Select(
@@ -44,7 +44,7 @@ namespace Colonizator.Controllers
 							new HexagonModel() 
 							{ 
 								FaceNumber = y.Index > 0 ? y.FaceNumber : 0,
-								ResourceType = y.Index == 10 ? 8 : y.Index > 0 ? y.ResourceType + 2 : y.ResourceType % 2
+								ResourceType = y.ResourceType
 							}))).ToList(),
 				JsonRequestBehavior.AllowGet);
 		}
@@ -52,7 +52,7 @@ namespace Colonizator.Controllers
 		[HttpGet]
 		public ActionResult MapState(string token)
 		{
-			MapController map = GetMap(token);
+			MapController map = GetMap(token).MapController;
 
 			return Json(
 				new MapStateModel()
@@ -77,9 +77,11 @@ namespace Colonizator.Controllers
 		}
 
 		[HttpGet]
-		public ActionResult AvailableMap(string token, int playerId)
+		public ActionResult AvailableMap(string token)
 		{
-			MapController map = GetMap(token);
+			Map game = GetMap(token);
+			int playerId = game.CurrentPlayerId;
+			MapController map = game.MapController;
 
 			return Json(
 				new MapStateModel()
@@ -104,10 +106,13 @@ namespace Colonizator.Controllers
 		}
 
 		[HttpPost]
-		public void BuildCity(string token, int playerId, int haxagonIndex, int position)
+		public void BuildCity(string token, int haxagonIndex, int position)
 		{
-			MapController map = GetMap(token);
-            if (!_broadcaster.CanBuildCity(token, playerId))
+			Map game = GetMap(token);
+			int playerId = game.CurrentPlayerId;
+			MapController map = game.MapController;
+			
+			if (!_broadcaster.CanBuildCity(token, playerId))
             {
                 throw new InvalidOperationException("not available resource");
             }
@@ -116,14 +121,19 @@ namespace Colonizator.Controllers
 				throw new InvalidOperationException("Node is not available.");
 			}
 
+			game.NextPlayer();
+
 			map.BuildCity(haxagonIndex, position, playerId, map.GetCitySize(haxagonIndex, position) + 1);
 		}
 
 		[HttpPost]
-		public void BuildRoad(string token, int playerId, int haxagonIndex, int position)
+		public void BuildRoad(string token, int haxagonIndex, int position)
 		{
-			MapController map = GetMap(token);
-		    if (!_broadcaster.CanBuildRoad(token, playerId))
+			Map game = GetMap(token);
+			int playerId = game.CurrentPlayerId;
+			MapController map = game.MapController;
+			
+			if (!_broadcaster.CanBuildRoad(token, playerId))
 		    {
                 throw new InvalidOperationException("not available resource");
 		    }
@@ -132,12 +142,14 @@ namespace Colonizator.Controllers
 				throw new InvalidOperationException("Edge is not available.");
 			}
 
+			game.NextPlayer();
+
 			map.BuildRoad(haxagonIndex, position, playerId);
 		}
 
-		private MapController GetMap(string token)
+		private Map GetMap(string token)
 		{
-            return _broadcaster.GameById(token).MapController;
+            return _broadcaster.GameById(token);
 		}
 
         private Map GetGame(string token)

@@ -13,14 +13,31 @@
     var gameHub;
     var mapHub;
     var markethub;
+    var userId = -1;
     $(function () {
         mapHub = $.connection.mapHub;
         mapHub.client.updateQueue = function (eventArgs) {
-            $('#userQueue').html(eventArgs.toString());
+            if (userId < 0) {
+                userId = eventArgs -1;
+            }
+            $('#userQueue').html(userId.toString());
         };
 
         mapHub.client.gameStart = function (eventArgs) {
             $('#userQueue').html(eventArgs.toString());
+            $.getJSON('/Game/Map?token=' + eventArgs.toString(), function (data) {
+                DrawField(data);
+
+                $.getJSON('/Game/MapState?token=' + eventArgs.toString(), function (data1) {
+                    DrawTowns(data1.Cities);
+                    DrawRoads(data1.Roads);
+                    $.getJSON('/Game/AvailableMap?playerId=1', function (data2) {
+                        DrawTowns(data2.Cities, true);
+                        DrawRoads(data2.Roads, true);
+                    });
+
+                });
+            });
         };
 
         $('#displayname').focus();

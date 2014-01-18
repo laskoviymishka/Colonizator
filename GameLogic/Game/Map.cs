@@ -25,6 +25,17 @@ namespace GameLogic.Game
             }
         }
 
+		public int CurrentPlayerId
+		{
+			get;
+			private set;
+		}
+
+		public void NextPlayer()
+		{
+			CurrentPlayerId = (CurrentPlayerId + 1) % 3;
+		}
+
         public string Id { get; set; }
         public List<Player> Players { get; set; }
         public MapController MapController { get; set; }
