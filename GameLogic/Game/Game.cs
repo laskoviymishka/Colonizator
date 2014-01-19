@@ -22,7 +22,8 @@ namespace GameLogic.Game
 
         public event ResourceUpdate ResourceUpdate;
         public event OrderUpdate OrderUpdate;
-        public event GameStateUpdate GameStateUpdate;
+        public event GameStateUpdate GameMoveUpdate;
+
         #endregion
 
         #region Constructor
@@ -38,6 +39,38 @@ namespace GameLogic.Game
                 player.Orders.CollectionChanged += (sender, args) => OrderUpdate(this, new OrderUpdateArgs() { Player = player });
             }
             CurrentPlayer = Players[_currentPlayerId];
+            Market = new Market.Market();
+            Market.PlaceOrder(new Order
+            {
+                OrderConsumerId = players[0],
+                HasConsumerAcceptance = true,
+                AcceptedResources = new List<Resource>
+                {
+                    new Resource { Type = ResourceType.Minerals, Qty = 1 },
+                    new Resource { Type = ResourceType.Wool, Qty = 1 },
+                },
+                ProposedResources = new List<Resource>
+                {
+                    new Resource { Type = ResourceType.Corn, Qty = 1 },
+                    new Resource { Type = ResourceType.Wood, Qty = 1 },
+                }
+            });
+
+            Market.PlaceOrder(new Order
+            {
+                OrderOwnerId = players[1],
+                HasOwnerAcceptance = true,
+                AcceptedResources = new List<Resource>
+                {
+                    new Resource { Type = ResourceType.Minerals, Qty = 1 },
+                    new Resource { Type = ResourceType.Wool, Qty = 1 },
+                },
+                ProposedResources = new List<Resource>
+                {
+                    new Resource { Type = ResourceType.Soil, Qty = 1 },
+                    new Resource { Type = ResourceType.Wood, Qty = 1 },
+                }
+            });
         }
 
         #endregion
@@ -53,6 +86,7 @@ namespace GameLogic.Game
         public string Id { get; set; }
         public List<Player> Players { get; set; }
         public MapController MapController { get; set; }
+        public IMarket Market { get; set; }
 
         #endregion
 
@@ -64,41 +98,39 @@ namespace GameLogic.Game
                 throw new InvalidOperationException("Invalid player");
             }
 
-            if (CurrentPlayer.Resources.All(r => r.Type != ResourceType.Soil)
-                || CurrentPlayer.Resources.All(r => r.Type != ResourceType.Wood)
-                || CurrentPlayer.Resources.All(r => r.Type != ResourceType.Wool)
-                || CurrentPlayer.Resources.All(r => r.Type != ResourceType.Corn))
-            {
-                throw new InvalidOperationException("not available resource");
-            }
             if (!MapController.IsNodeAvailable(hexA, hexB, hexC, playerId, hexIndex))
             {
-                throw new InvalidOperationException("Node is not available.");
+                if (!MapController.IsUpgradeTown(hexA, hexB, hexC, playerId, hexIndex))
+                {
+                    throw new InvalidOperationException("Node is not available.");
+                }
+                else
+                {
+                    this.UpgradeCity(token, playerId, hexA, hexB, hexC, hexIndex);
+                }
             }
-
-            MapController.BuildCity(playerId, hexA, hexB, hexC, hexIndex);
-            NextPlayer();
+            else
+            {
+                Market.BuildCity(Players[playerId]);
+                MapController.BuildCity(playerId, hexA, hexB, hexC, hexIndex);
+                CurrentPlayer.PlayerScore++;
+                NextPlayer();
+            }
         }
 
-        public void BuildRoad(string token, int playerId, int haxagonIndex, int position)
+        public void BuildRoad(string token, int playerId, int haxagonIndex, int hexA, int hexB)
         {
             if (Players[playerId] != CurrentPlayer)
             {
                 throw new InvalidOperationException("Invalid player");
             }
-            if (!CurrentPlayer.Resources.Any(r => r.Type == ResourceType.Soil)
-                || !CurrentPlayer.Resources.Any(r => r.Type == ResourceType.Wood)
-                || !CurrentPlayer.Resources.Any(r => r.Type == ResourceType.Wool)
-                || !CurrentPlayer.Resources.Any(r => r.Type == ResourceType.Corn))
-            {
-                throw new InvalidOperationException("not available resource");
-            }
-            if (!MapController.IsEdgeAvailable(haxagonIndex, position, playerId))
+            if (!MapController.IsEdgeAvailable(haxagonIndex, hexA, hexB))
             {
                 throw new InvalidOperationException("Edge is not available.");
             }
 
-            MapController.BuildRoad(haxagonIndex, position, playerId);
+            Market.BuildRoad(Players[playerId]);
+            MapController.BuildRoad(haxagonIndex, hexA, hexB, playerId);
             NextPlayer();
         }
 
@@ -109,17 +141,9 @@ namespace GameLogic.Game
                 throw new InvalidOperationException("Invalid player");
             }
 
-            if (CurrentPlayer.Resources.Count(r => r.Type == ResourceType.Minerals) <= 3
-                && CurrentPlayer.Resources.Count(r => r.Type == ResourceType.Corn) <= 2)
-            {
-                throw new InvalidOperationException("not available resource");
-            }
-            if (!MapController.IsNodeAvailable(hexA, hexB, hexC, playerId, hexIndex))
-            {
-                throw new InvalidOperationException("Node is not available.");
-            }
-
+            Market.UpgardeCity(Players[playerId]);
             MapController.BuildCity(playerId, hexA, hexB, hexC, hexIndex);
+            CurrentPlayer.PlayerScore++;
             NextPlayer();
         }
 
@@ -192,7 +216,7 @@ namespace GameLogic.Game
             var result = new List<RoadModel>();
             foreach (var edge in MapController.Edges)
             {
-                if (edge.PlayerId > 0)
+                if (edge.PlayerId >= 0 && edge.PlayerId < 5)
                 {
                     result.Add(new RoadModel
                     {
@@ -217,14 +241,12 @@ namespace GameLogic.Game
                 _currentPlayerId = (_currentPlayerId + 1) % Players.Count;
             }
             CurrentPlayer = Players[_currentPlayerId];
-            GameStateUpdate(this, new GameStateUpdateArgs());
+            GameMoveUpdate(this, new GameStateUpdateArgs());
         }
         #endregion
     }
 
     public delegate void OrderUpdate(Game sender, OrderUpdateArgs args);
-
     public delegate void ResourceUpdate(Game sender, ResourceUpdateArgs args);
     public delegate void GameStateUpdate(Game sender, GameStateUpdateArgs args);
-
 }

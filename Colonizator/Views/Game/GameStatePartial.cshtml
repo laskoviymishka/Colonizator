@@ -1,0 +1,71 @@
+﻿@model Colonizator.Models.GameStateViewModel
+<h1>@Model.CurrentPlayer.PlayerName</h1>
+<script>
+    userId = @Model.PlayerId
+</script>
+<table class="table">
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Score</th>
+        <th>Color</th>
+    </tr>
+
+    @foreach (var player in Model.Game.Players)
+    {
+        <tr>
+            <td>@player.PlayerId</td>
+            <td>@player.PlayerName</td>
+            <td>@player.PlayerScore</td>
+            <td>@player.Color</td>
+        </tr>
+    }
+</table>
+
+<table class="table">
+    <tr>
+        <th>Player</th>
+        <th>@GameLogic.Game.ResourceType.Corn</th>
+        <th>@GameLogic.Game.ResourceType.Minerals</th>
+        <th>@GameLogic.Game.ResourceType.Soil</th>
+        <th>@GameLogic.Game.ResourceType.Wood</th>
+        <th>@GameLogic.Game.ResourceType.Wool</th>
+    </tr>
+
+    @foreach (var player in Model.Game.Players)
+    {
+        <tr>
+            <td>@player.PlayerName</td>
+            <td>
+                @if (player.Resources.Any(r => r.Type == GameLogic.Game.ResourceType.Corn))
+                {
+                    @player.Resources.First(r => r.Type == GameLogic.Game.ResourceType.Corn).Qty
+                }
+            </td>
+            <td>
+                @if (player.Resources.Any(r => r.Type == GameLogic.Game.ResourceType.Minerals))
+                {
+                    @player.Resources.First(r => r.Type == GameLogic.Game.ResourceType.Minerals).Qty
+                }
+        </td>
+        <td>
+            @if (player.Resources.Any(r => r.Type == GameLogic.Game.ResourceType.Soil))
+            {
+                @player.Resources.First(r => r.Type == GameLogic.Game.ResourceType.Soil).Qty
+            }
+        </td>
+        <td>
+            @if (player.Resources.Any(r => r.Type == GameLogic.Game.ResourceType.Wood))
+            {
+                @player.Resources.First(r => r.Type == GameLogic.Game.ResourceType.Wood).Qty
+            }
+        </td>
+        <td>
+            @if (player.Resources.Any(r => r.Type == GameLogic.Game.ResourceType.Wool))
+            {
+                @player.Resources.First(r => r.Type == GameLogic.Game.ResourceType.Wool).Qty
+            }
+        </td>
+    </tr>
+    }
+</table>

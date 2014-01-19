@@ -157,10 +157,10 @@ namespace Model
 
         #region Building
 
-        public void BuildRoad(int hexagonIndex, int position, int playerId)
+
+        public void BuildRoad(int hexIndex, int hexA, int hexB, int playerId)
         {
-            Hexagon hexagon = _hexagones[hexagonIndex];
-            Edge edge = hexagon.Edges[position];
+            Edge edge = GetEdge(hexA, hexB, hexIndex);
 
             edge.PlayerId = playerId;
 
@@ -188,6 +188,15 @@ namespace Model
                     n =>
                         n.HexagonA.Position == hexA && n.HexagonB.Position == hexB &&
                         n.HexagonC.Position == hexC && n.HexagonA.Hexagon.Index == hexIndex);
+        }
+
+        public Edge GetEdge(int hexA, int hexB, int hexIndex)
+        {
+            return
+                Edges.First(
+                    n =>
+                        n.HexagonA.Hexagon.Index == hexA
+                        && n.HexagonB.Hexagon.Index == hexB);
         }
 
         public IEnumerable<Node> GetAvailableNodes(int playerId)
@@ -230,7 +239,7 @@ namespace Model
             return result.Where(x => x != null && x.PlayerId < 0);
         }
 
-        public bool IsEdgeAvailable(int hexagonIndex, int position, int playerId)
+        public bool IsEdgeAvailable(int hexagonIndex, int hexA, int hexB)
         {
             return true;
         }
@@ -360,6 +369,17 @@ namespace Model
 
         public bool IsNodeAvailable(int hexA, int hexB, int hexC, int playerId, int hexIndex)
         {
+            var node = GetNode(hexA, hexB, hexC, hexIndex);
+            if (node.PlayerId != playerId && node.PlayerId >= 0) { return false; }
+            if (node.CitySize != 0) { return false; }
+            return true;
+        }
+
+        public bool IsUpgradeTown(int hexA, int hexB, int hexC, int playerId, int hexIndex)
+        {
+            var node = GetNode(hexA, hexB, hexC, hexIndex);
+            if (node.PlayerId != playerId) { return false; }
+            if (node.CitySize != 1) { return false; }
             return true;
         }
     }

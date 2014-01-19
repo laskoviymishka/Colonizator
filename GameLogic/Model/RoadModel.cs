@@ -20,7 +20,6 @@
             set;
         }
 
-
         public int HexA
         {
             get;

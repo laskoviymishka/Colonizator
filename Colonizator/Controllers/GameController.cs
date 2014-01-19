@@ -27,10 +27,19 @@ namespace Colonizator.Controllers
         {
             return View(MapBroadcaster.Instance.Games);
         }
-
-        public ActionResult MarketPartial(string mapId)
+        public ActionResult GameStatePartial(string token, int playerId)
         {
-            return PartialView(new List<Order>());
+            var model = new GameStateViewModel();
+            model.Game = GetGame(token);
+            model.CurrentPlayer = model.Game.Players[playerId];
+            model.PlayerId = playerId;
+            return PartialView(model);
+        }
+        public ActionResult MarketPartial(string token, int playerId)
+        {
+            var game = GetGame(token);
+            ViewBag.IsAvaibleAction = game.CurrentPlayer == game.Players[playerId];
+            return PartialView(game.Market.GetOrders());
         }
 
         [HttpGet]
@@ -72,7 +81,9 @@ namespace Colonizator.Controllers
                         {
                             HexagonIndex = x.HexagonA.Hexagon.Index,
                             Position = x.HexagonA.Position,
-                            PlayerId = x.PlayerId
+                            PlayerId = x.PlayerId,
+                            HexA = x.HexagonA.Hexagon.Index,
+                            HexB = x.HexagonB.Hexagon.Index
                         }).ToList(),
                 };
             return Json(model, JsonRequestBehavior.AllowGet);
@@ -85,7 +96,7 @@ namespace Colonizator.Controllers
             var model = new MapStateModel()
             {
                 Cities = map.GetCities(),
-                Roads =map.GetRoads(),
+                Roads = map.GetRoads(),
             };
             return Json(model, JsonRequestBehavior.AllowGet);
         }
@@ -127,7 +138,9 @@ namespace Colonizator.Controllers
                         {
                             HexagonIndex = x.HexagonA.Hexagon.Index,
                             Position = x.HexagonA.Position,
-                            PlayerId = playerId
+                            PlayerId = playerId,
+                            HexA = x.HexagonA.Hexagon.Index,
+                            HexB = x.HexagonB.Hexagon.Index
                         }).ToList(),
                 },
                 JsonRequestBehavior.AllowGet);
@@ -140,18 +153,11 @@ namespace Colonizator.Controllers
             game.BuildCity(token, playerId, hexA, hexB, hexC, hexIndex);
         }
 
-        //[HttpPost]
-        //public void BuildCity(string token, int playerId, int hexagonIndex, int position)
-        //{
-        //    Game game = GetMap(token);
-        //    game.BuildCity(token, playerId, hexagonIndex, position);
-        //}
-
         [HttpPost]
-        public void BuildRoad(string token, int playerId, int haxagonIndex, int position)
+        public void BuildRoad(string token, int playerId, int haxagonIndex, int hexA, int hexB)
         {
             Game game = GetMap(token);
-            game.BuildRoad(token, playerId, haxagonIndex, position);
+            game.BuildRoad(token, playerId, haxagonIndex, hexA, hexB);
         }
 
         private Game GetMap(string token)

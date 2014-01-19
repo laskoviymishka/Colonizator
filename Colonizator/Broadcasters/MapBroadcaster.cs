@@ -80,35 +80,14 @@ namespace Colonizator.Broadcasters
             var mapControll = new MapController();
             mapControll.Initialize();
             var game = new Game(mapId, Players, mapControll);
-            game.GameStateUpdate += game_GameStateUpdate;
+            game.GameMoveUpdate += game_GameStateUpdate;
             _games.Add(game);
             return game;
         }
 
         private void game_GameStateUpdate(Game sender, GameStateUpdateArgs args)
         {
-            var model = new MapStateModel()
-            {
-                Cities = sender.MapController.Nodes.Select(x =>
-                    new CityModel()
-                    {
-                        HexagonIndex = x.HexagonA.Hexagon.Index,
-                        Position = x.HexagonA.Position,
-                        HexA = x.HexagonA.Position,
-                        HexB = x.HexagonB.Position,
-                        HexC = x.HexagonC.Position,
-                        CitySize = x.CitySize > 1 ? 't' : 'v',
-                        PlayerId = x.PlayerId
-                    }).ToList(),
-                Roads = sender.MapController.Edges.Where(x => x.PlayerId >= 0).Select(x =>
-                    new RoadModel()
-                    {
-                        HexagonIndex = x.HexagonA.Hexagon.Index,
-                        Position = x.HexagonA.Position,
-                        PlayerId = x.PlayerId
-                    }).ToList(),
-            };
-            _context.Clients.Group(sender.Id).updateState(model);
+            _context.Clients.Group(sender.Id).updateState(sender.CurrentPlayer);
         }
 
         public void SearchGame(string playerId, string playerName)
@@ -118,10 +97,11 @@ namespace Colonizator.Broadcasters
             player.PlayerName = playerName;
             player.Color = (Color)Players.Count;
             player.Resources = new ObservableCollection<Resource>();
-            player.Resources.Add(new Resource() { Type = ResourceType.Corn, Qty = 1 });
-            player.Resources.Add(new Resource() { Type = ResourceType.Wool, Qty = 1 });
-            player.Resources.Add(new Resource() { Type = ResourceType.Wood, Qty = 1 });
-            player.Resources.Add(new Resource() { Type = ResourceType.Soil, Qty = 1 });
+            player.Resources.Add(new Resource() { Type = ResourceType.Corn, Qty = 10 });
+            player.Resources.Add(new Resource() { Type = ResourceType.Wool, Qty = 10 });
+            player.Resources.Add(new Resource() { Type = ResourceType.Wood, Qty = 10 });
+            player.Resources.Add(new Resource() { Type = ResourceType.Soil, Qty = 10 });
+            player.Resources.Add(new Resource() { Type = ResourceType.Minerals, Qty = 10 });
 
             player.Orders = new ObservableCollection<Order>();
 
@@ -129,8 +109,8 @@ namespace Colonizator.Broadcasters
             var eventArgs = new UpdateGameQueueArgs();
             if (Players.Count == 3)
             {
-                eventArgs.Game = CreateGame(Guid.NewGuid().ToString().Substring(0, 6));
                 eventArgs.Players = Players;
+                eventArgs.Game = CreateGame(Guid.NewGuid().ToString().Substring(0, 6));
                 Players = new List<Player>();
             }
             else
@@ -155,15 +135,14 @@ namespace Colonizator.Broadcasters
                     _context.Groups.Remove(arg.PlayerId, InQueueUsers);
                 }
 
-                _context.Clients.Group(args.Game.Id).gameStart(new { token = args.Game.Id, playerCount = args.Game.Players.Count });
+                _context.Clients.Group(args.Game.Id).gameStart(new { token = args.Game.Id, playerCount = args.Game.Players.Count, player = args.Game.Players.Last() });
             }
             else
             {
                 foreach (var arg in args.Players)
                 {
-                    _context.Groups.Add(arg.PlayerId, InQueueUsers);
+                    _context.Clients.Client(arg.PlayerId).updateQueue(new { playerCount = args.Players.Count(), player = args.Players.Last() });
                 }
-                _context.Clients.Group(InQueueUsers).updateQueue(args.Players.Count());
             }
         }
 

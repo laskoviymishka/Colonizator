@@ -9,117 +9,166 @@ using GameLogic.Helpers;
 
 namespace GameLogic.Market
 {
-	public class Market : IMarket
-	{
-		private readonly object _syncObject = new object();
-		private readonly Dictionary<string, List<Order>> _orders = new Dictionary<string, List<Order>>();
+    public class Market : IMarket
+    {
+        #region Private Fields
 
-		public bool PlaceOrder(Order order)
-		{
-			ExceptionHelper.ThrowIfNull(order, "order");
-			ExceptionHelper.ThrowIfNull(order.Qty, 0, "order.Qty");
-			ExceptionHelper.ThrowIfNull(order.OrderOwnerId, "order.OrderOwnerId");
-			if (order.Id == Guid.Empty)
-				throw new ArgumentNullException("order.Guid");
+        private readonly object _syncObject = new object();
+        private readonly List<Order> _orders = new List<Order>();
 
-			lock (_syncObject)
-			{
-				List<Order> playerOrders;
-				if (!_orders.TryGetValue(order.OrderOwnerId, out playerOrders))
-				{
-					playerOrders = new List<Order>(32);
-					_orders.Add(order.OrderOwnerId, playerOrders);
-				}
+        #endregion
 
-				playerOrders.Add(order);
-			}
+        #region Trade
 
-			throw new NotImplementedException();
-		}
+        public bool PlaceOrder(Order order)
+        {
+            lock (_syncObject)
+            {
+                List<Order> playerOrders;
+                if (!_orders.Contains(order))
+                {
+                    _orders.Add(order);
+                }
+            }
+            return true;
+        }
 
-		public bool AcceptOder(Player acceptedBy, Guid orderId, Player orderOwner)
-		{
-			throw new NotImplementedException();
-		}
+        public bool AcceptOder(Player acceptedBy, Guid orderId, Player orderOwner)
+        {
+            throw new NotImplementedException();
+        }
 
-		public IEnumerable<Order> GetOrders()
-		{
-			Order[] allOrders;
+        public IEnumerable<Order> GetOrders()
+        {
+            IEnumerable<Order> allOrders;
 
-			lock (_syncObject)
-			{
-				allOrders = _orders.Values.SelectMany(o => o).ToArray();
-			}
+            lock (_syncObject)
+            {
+                allOrders = _orders;
+            }
 
-			return allOrders;
-		}
+            return allOrders;
+        }
 
-		public IEnumerable<Order> GetOrders(string playerId)
-		{
-			ExceptionHelper.ThrowIfNull(playerId, "playerId");
+        public IEnumerable<Order> GetOrders(string playerId)
+        {
+            ExceptionHelper.ThrowIfNull(playerId, "playerId");
 
-			List<Order> playerOrders;
+            IEnumerable<Order> playerOrders;
 
-			lock (_syncObject)
-			{
-				if (!_orders.TryGetValue(playerId, out playerOrders))
-				{
-					playerOrders = new List<Order>();
-				}
-			}
+            lock (_syncObject)
+            {
+                    playerOrders = _orders.Where(p => p.OrderConsumerId.PlayerId == playerId || p.OrderOwnerId.PlayerId == playerId);
+            }
 
-			return playerOrders.ToArray();
-		}
+            return playerOrders;
+        }
 
-		public void SyncOrders(IEnumerable<Order> orders)
-		{
-			throw new NotImplementedException();
-		}
+        public void SyncOrders(IEnumerable<Order> orders)
+        {
+            throw new NotImplementedException();
+        }
 
-		public void ScavengeOrders(IEnumerable<Player> players)
-		{
-			ExceptionHelper.ThrowIfNull(players, "players");
+        public void ScavengeOrders(IEnumerable<Player> players)
+        {
+            ExceptionHelper.ThrowIfNull(players, "players");
 
-			List<Order> ordersList;
-			List<Order> ordersToRemove = new List<Order>();
+            List<Order> ordersList;
+            List<Order> ordersToRemove = new List<Order>();
 
-			foreach (Player p in players)
-			{
-				ordersToRemove.Clear();
+            foreach (Player p in players)
+            {
+                ordersToRemove.Clear();
 
-				lock (_syncObject)
-				{
-					if (_orders.TryGetValue(p.PlayerId, out ordersList))
-					{
-						ResourceType rsType;
-						for (int i = 0; i < ordersList.Count; i++)
-						{
-							if (p.PlayerId != ordersList[i].OrderOwnerId)
-								throw new InvalidOperationException("Order owner (OrderOwnerId) is invalid");
+                lock (_syncObject)
+                {
+                    //if (_orders.TryGetValue(p.PlayerId, out ordersList))
+                    //{
+                    //    ResourceType rsType;
+                    //    for (int i = 0; i < ordersList.Count; i++)
+                    //    {
+                    //        //if (p.PlayerId != ordersList[i].OrderOwnerId)
+                    //        //    throw new InvalidOperationException("Order owner (OrderOwnerId) is invalid");
 
-							if (ordersList[i].OrderType == OrderType.Sell)
-							{
-								rsType = ordersList[i].ResourceType;
-								Resource playerResource = p.Resources.FirstOrDefault(r => r.Type == rsType);
+                    //        if (ordersList[i].OrderType == OrderType.Sell)
+                    //        {
+                    //            rsType = ordersList[i].ResourceType;
+                    //            Resource playerResource = p.Resources.FirstOrDefault(r => r.Type == rsType);
 
-								if (playerResource == null || playerResource.Qty == 0)
-								{
-									ordersToRemove.Add(ordersList[i]);
-									continue;
-								}
+                    //            if (playerResource == null || playerResource.Qty == 0)
+                    //            {
+                    //                ordersToRemove.Add(ordersList[i]);
+                    //                continue;
+                    //            }
 
-								ordersList[i].Qty = playerResource.Qty;
-							}
-						}
+                    //            ordersList[i].Qty = playerResource.Qty;
+                    //        }
+                    //    }
 
-						foreach (Order o in ordersToRemove)
-						{
-							ordersList.Remove(o);
-						}
-					}
-				}
-			}
-		}
+                    //    foreach (Order o in ordersToRemove)
+                    //    {
+                    //        ordersList.Remove(o);
+                    //    }
+                    //}
+                }
+            }
+        }
 
-	}
+        #endregion
+
+        #region Builds
+
+        public void BuildCity(Player player)
+        {
+            if (player.Resources.First(r => r.Type == ResourceType.Soil).Qty >= 1
+                && player.Resources.First(r => r.Type == ResourceType.Wood).Qty >= 1
+                && player.Resources.First(r => r.Type == ResourceType.Wool).Qty >= 1
+                && player.Resources.First(r => r.Type == ResourceType.Corn).Qty >= 1)
+            {
+                player.Resources.First(r => r.Type == ResourceType.Soil).Qty--;
+                player.Resources.First(r => r.Type == ResourceType.Wood).Qty--;
+                player.Resources.First(r => r.Type == ResourceType.Wool).Qty--;
+                player.Resources.First(r => r.Type == ResourceType.Corn).Qty--;
+            }
+            else
+            {
+                throw new InvalidOperationException("not available resource");
+            }
+        }
+
+        public void UpgardeCity(Player player)
+        {
+            if (player.Resources.First(r => r.Type == ResourceType.Minerals).Qty >= 3
+                && player.Resources.First(r => r.Type == ResourceType.Corn).Qty >= 2)
+            {
+                player.Resources.First(r => r.Type == ResourceType.Minerals).Qty = player.Resources.First(r => r.Type == ResourceType.Minerals).Qty - 3;
+                player.Resources.First(r => r.Type == ResourceType.Corn).Qty = player.Resources.First(r => r.Type == ResourceType.Minerals).Qty - 2;
+            }
+            else
+            {
+                throw new InvalidOperationException("not available resource");
+            }
+        }
+
+        public void BuildRoad(Player player)
+        {
+            if (player.Resources.First(r => r.Type == ResourceType.Soil).Qty >= 1
+                && player.Resources.First(r => r.Type == ResourceType.Wood).Qty >= 1)
+            {
+                player.Resources.First(r => r.Type == ResourceType.Soil).Qty--;
+                player.Resources.First(r => r.Type == ResourceType.Wood).Qty--;
+            }
+            else
+            {
+                throw new InvalidOperationException("not available resource");
+            }
+        }
+
+        public void RobberTime(IEnumerable<Player> players)
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
+    }
 }

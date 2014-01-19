@@ -6,8 +6,8 @@ var tester;
 var hexMap = {};
 var roadsContainer = [];
 var townsContainer = [];
-var townSize = { w: 70, h: 70 };
-var villageSize = { w: 50, h: 40 };
+var townSize = { w: 50, h: 50 };
+var villageSize = { w: 45, h: 36 };
 var roadSize = { w: 70, h: 14 };
 
 function DrawField(field) {
@@ -126,7 +126,7 @@ function DrawTowns(towns, isPossible) {
 				var t1 = towns[this.id];
 				$.post(
                     "/Game/BuildCity",
-                    { token: token, playerId: userId, hexA: t1.HexA, hexB: t1.HexB, hexC: t1.HexC , hexIndex : t1.HexagonIndex});
+                    { token: token, playerId: userId, hexA: t1.HexA, hexB: t1.HexB, hexC: t1.HexC, hexIndex: t1.HexagonIndex });
 				console.log('clicked town', t1.HexagonIndex, t1.Position, t1.HexA, t1.HexB, t1.HexC);
 			});
 		}
@@ -169,13 +169,10 @@ function DrawRoads(roads, isPossible) {
 				var r1 = roads[this.id];
 				$.post("/Game/BuildRoad",
                     {
-                    	token: token, playerId: userId, haxagonIndex: r1.HexagonIndex, position: r1.Position
-                    },
-                    function (e) {
-                    	alert(e.message);
+                    	token: token, playerId: userId, haxagonIndex: r1.HexagonIndex, hexA: r1.HexA, hexB: r1.HexB
                     }
 				);
-				console.log('clicked road', r1.HexagonIndex);
+				console.log('clicked road', r1.HexagonIndex, r1.HexA, r1.HexB);
 			});
 		}
 

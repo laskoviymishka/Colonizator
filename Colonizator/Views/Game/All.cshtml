@@ -1,6 +1,5 @@
-﻿@model List<GameLogic.Game.Game>
-@{
-    ViewBag.Title = "All";
+﻿@{
+    ViewBag.Title = "Игра";
 }
 
 <script src="~/Scripts/jquery-1.10.2.min.js"></script>
@@ -13,31 +12,45 @@
     var mapHub;
     var markethub;
     var userId = -1;
+    var userMove;
     var userName;
     var isInQueue = false;
     var token;
     var global_data;
+    var currentUser;
     $(function () {
         mapHub = $.connection.mapHub;
         mapHub.client.updateQueue = function (eventArgs) {
             console.log("update queue");
             if (!isInQueue) {
-                userId = eventArgs - 1;
+                userId = eventArgs.playerCount - 1;
                 isInQueue = true;
+                currentUser = eventArgs.player;
             }
-            $('#userQueue').html("Начат поиск игры вы " + userId + "-й в очереди");
+            $('#userQueue').html("Начат поиск игры вы " + (userId +1) + "-й в очереди");
         };
 
         mapHub.client.updateState = function (data) {
             console.log("update state");
+            userMove = data;
             GetCitiesAdnRoads();
+            $.get('/Game/GameStatePartial?playerId=' + userId + '&token=' + token, function (data) {
+                console.log('/Game/GameStatePartial?playerId=' + userId + '&token=' + token);
+                $('#gameState').html(data);
+            });
+            $.get('/Game/MarketPartial?playerId=' + userId + '&token=' + token, function (data) {
+                console.log('/Game/MarketPartial?playerId=' + userId + '&token=' + token);
+                $('#gameMarket').html(data);
+            });
         };
 
         mapHub.client.gameStart = function (eventArgs) {
             console.log("start game");
-            $('#userQueue').hide();
+            $('#preGameState').hide();
+
             if (!isInQueue) {
                 userId = eventArgs.playerCount - 1;
+                currentUser = eventArgs.player;
                 isInQueue = true;
             }
             token = eventArgs.token;
@@ -45,7 +58,7 @@
             $('#UserColor').html(userId);
             $('#tokenGame').html(token);
 
-            $.getJSON('/Game/Map?token=' +token, function (data) {
+            $.getJSON('/Game/Map?token=' + token, function (data) {
                 DrawField(data);
 
                 $.getJSON('/Game/MapState?token=' + token, function (data1) {
@@ -58,6 +71,14 @@
                         DrawRoads(data2.Roads, true);
                     });
                 });
+            });
+            $.get('/Game/GameStatePartial?playerId=' + userId + '&token=' + token, function (data) {
+                console.log('/Game/GameStatePartial?playerId=' + userId + '&token=' + token);
+                $('#gameState').html(data);
+            });
+            $.get('/Game/MarketPartial?playerId=' + userId + '&token=' + token, function (data) {
+                console.log('/Game/MarketPartial?playerId=' + userId + '&token=' + token);
+                $('#gameMarket').html(data);
             });
         };
 
@@ -81,17 +102,30 @@
     function toQueue() {
     }
 </script>
-<h1 id="userQueue">Начать искать игру</h1>
-<div id="creatingGame">
-    <input type="text" id="displayname" value="введите имя..." />
-    <button id="search">Найти игру</button>
-</div>
-<p id="tokenGame"></p>
-<table class="table" style="width: 200px; height:100px">
-    <tbody>
-        <tr id="UserName"></tr>
-        <tr id="UserColor"></tr>
-    </tbody>
-</table>
-<div id="canvas" style="position:relative;width:100%;height:700px;">
+
+<div style="width: 100%">
+    <div style="position:relative;width:70%;height:700px; float: left">
+        <div id="canvas" style="position:relative;width:100%;height:700px;">
+        </div>
+    </div>
+    <div style="position: relative; width: 29%; float: right">
+        <div id="preGameState">
+            <h1 id="userQueue">Начать искать игру</h1>
+            <div id="creatingGame">
+                <input type="text" id="displayname" value="введите имя..." />
+                <button id="search">Найти игру</button>
+            </div>
+            <p id="tokenGame"></p>
+            <table class="table" style="width: 200px; height: 100px;">
+                <tbody>
+                    <tr id="UserName"></tr>
+                    <tr id="UserColor"></tr>
+                </tbody>
+            </table>
+        </div>
+        <div id="gameState">
+        </div>
+        <div id="gameMarket">
+        </div>
+    </div>
 </div>
