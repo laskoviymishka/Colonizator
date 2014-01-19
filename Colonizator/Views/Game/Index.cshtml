@@ -20,6 +20,11 @@
         $.getJSON('/Game/MapState', function(data1) {
             DrawTowns(data1.Cities);
             DrawRoads(data1.Roads);
+            $.getJSON('/Game/AvailableMap?playerId=1', function (data2) {
+                DrawTowns(data2.Cities, true);
+                DrawRoads(data2.Roads, true);
+            });
+
         });
     });
 
