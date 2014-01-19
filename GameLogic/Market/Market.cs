@@ -22,5 +22,10 @@ namespace GameLogic.Market
 		{
 			throw new NotImplementedException();
 		}
-	}
+
+        public Order GetOrders(Game.Player player)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }

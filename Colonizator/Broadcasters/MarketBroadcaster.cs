@@ -38,7 +38,16 @@ namespace Colonizator.Broadcasters
             foreach (var player in map.Players)
             {
                 player.Resources.CollectionChanged += ResourcesOnCollectionChanged;
+                player.Orders.CollectionChanged += OrdersOnCollectionChanged;
                 _context.Clients.Client(player.PlayerId).playerOrder(_market.GetOrders(player));
+            }
+        }
+
+        private void OrdersOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs notifyCollectionChangedEventArgs)
+        {
+            if (sender is Order)
+            {
+
             }
         }
 

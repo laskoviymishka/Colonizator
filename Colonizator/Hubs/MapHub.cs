@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Colonizator.Broadcasters;
@@ -19,13 +20,13 @@ namespace Colonizator.Hubs
 
         public Task JoinGame(string mapId)
         {
-            var map = _broadcaster.Maps.Find(m => m.Id == mapId) ?? _broadcaster.CreateGame(mapId);
+            var map = _broadcaster.Games.Find(m => m.Id == mapId) ?? _broadcaster.CreateGame(mapId);
 
             if (!map.Players.Any(p => p.PlayerId == Context.ConnectionId) && map.Players.Count < 5)
             {
                 var player = new Player();
                 player.PlayerScore = 0;
-                player.Resources = new List<Resource>();
+                player.Resources = new ObservableCollection<Resource>();
 
                 var colors = map.Players.Select(p => p.Color).ToList();
 

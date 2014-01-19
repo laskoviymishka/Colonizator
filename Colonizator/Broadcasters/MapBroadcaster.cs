@@ -5,13 +5,14 @@ using Colonizator.Hubs;
 using GameLogic.Game;
 using GameLogic.Search;
 using Microsoft.AspNet.SignalR;
+using Model;
 
 namespace Colonizator.Broadcasters
 {
     public class MapBroadcaster
     {
         private static MapBroadcaster _instance;
-        private List<Map> _maps;
+        private List<Map> _games;
         private SearchGameQueue _queue;
         private const string InQueueUsers = "in_queue_users";
         private IHubContext _context;
@@ -36,12 +37,24 @@ namespace Colonizator.Broadcasters
         }
 
 
-        public List<Map> Maps { get { return _maps; } }
+        public List<Map> Games { get { return _games; } }
+
+        public Map GameById(string mapId)
+        {
+            if (Games.Any(g => g.Id == mapId))
+            {
+                return Games.First(g => g.Id == mapId);
+            }
+            else
+            {
+                return CreateGame(mapId);
+            }
+        }
 
         public Map CreateGame(string mapId)
         {
-            var map = new Map() { Id = mapId };
-            _maps.Add(map);
+            var map = new Map {Id = mapId, MapController = new MapController()};
+            _games.Add(map);
             return map;
         }
 
@@ -71,7 +84,6 @@ namespace Colonizator.Broadcasters
                 {
                     _context.Groups.Add(arg.PlayerId, InQueueUsers);
                 }
-
                 _context.Clients.Group(InQueueUsers).updateQueue(args.Players.Count());
             }
         }
