@@ -38,8 +38,12 @@ namespace Colonizator.Broadcasters
             foreach (var player in map.Players)
             {
                 player.Resources.CollectionChanged += ResourcesOnCollectionChanged;
+<<<<<<< HEAD
                 player.Orders.CollectionChanged += OrdersOnCollectionChanged;
                 _context.Clients.Client(player.PlayerId).playerOrder(_market.GetOrders(player));
+=======
+                _context.Clients.Client(player.PlayerId).playerOrder(_market.GetOrders(player.PlayerId));
+>>>>>>> 97e4703faed58a66ea0ffe7a6e4d8ce2cb69bb8c
             }
         }
 
