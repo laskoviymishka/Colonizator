@@ -26,6 +26,7 @@
 
         mapHub.client.gameStart = function (eventArgs) {
             $('#userQueue').html(2);
+            userId = 2;
             token = eventArgs;
             $.getJSON('/Game/Map?token=' + eventArgs.toString(), function (data) {
                 DrawField(data);
