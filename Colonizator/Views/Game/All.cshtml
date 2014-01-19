@@ -24,10 +24,13 @@
 
         mapHub.client.updateState = function (data) {
             console.log("update state");
-            userMove = data;
+            userMove = data.movePlayer;
             GetCitiesAdnRoads();
             GetPartials();
-            NeedThrowDice();
+            if (!data.isStartUp)
+            {
+                NeedThrowDice();
+            }
             PassMoveAvaible();
         };
 

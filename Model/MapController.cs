@@ -143,8 +143,14 @@ namespace Model
                         tiles.Remove(randomPossibleTile);
 
                         int faceNumber = 1 + random.Next(12);
-
-                        hexagon.FaceNumber = faceNumber >= 7 ? faceNumber + 1 : faceNumber;
+                        if (randomPossibleTile == 2)
+                        {
+                            hexagon.FaceNumber = 7;
+                        }
+                        else
+                        {
+                            hexagon.FaceNumber = faceNumber >= 7 ? faceNumber + 1 : faceNumber;
+                        }
                     }
                     else
                     {

@@ -93,7 +93,13 @@ namespace Colonizator.Broadcasters
 
         private void game_GameStateUpdate(Game sender, GameStateUpdateArgs args)
         {
-            _context.Clients.Group(sender.Id).updateState(sender.CurrentPlayer);
+            _context.Clients.Group(sender.Id).updateState(
+                new
+                {
+                    movePlayer = sender.CurrentPlayer,
+                    isStartUp = sender.IsStartUp
+                }
+            );
         }
 
         public void SearchGame(string playerId, string playerName)

@@ -15,6 +15,10 @@ namespace GameLogic.Game
         #region Private Fields
 
         private int _currentPlayerId = 0;
+        private bool _isStartUp = true;
+        private Dictionary<Player, int> _startUpTowns = new Dictionary<Player, int>();
+        private Dictionary<Player, int> _startUpRoads = new Dictionary<Player, int>();
+
 
         #endregion
 
@@ -35,6 +39,13 @@ namespace GameLogic.Game
             MapController = controller;
             Players = players;
             CurrentPlayer = Players[_currentPlayerId];
+
+            foreach (var player in players)
+            {
+                _startUpRoads.Add(player, 2);
+                _startUpTowns.Add(player, 2);
+            }
+
             Market = new Market.Market();
             Market.PlaceOrder(new Order
             {
@@ -84,11 +95,28 @@ namespace GameLogic.Game
         public MapController MapController { get; set; }
         public IMarket Market { get; set; }
 
+        public bool IsStartUp { get { return _isStartUp; } }
+
         #endregion
 
         #region Game Methods
         public void BuildCity(string token, int playerId, int hexA, int hexB, int hexC, int hexIndex)
         {
+            if (_isStartUp)
+            {
+                if (_startUpTowns[CurrentPlayer] > 0
+                    && _startUpTowns[CurrentPlayer] == _startUpRoads[CurrentPlayer])
+                {
+                    MapController.BuildCity(playerId, hexA, hexB, hexC, hexIndex);
+                    _startUpTowns[CurrentPlayer]--;
+                    GameMoveUpdate(this, new GameStateUpdateArgs());
+                    return;
+                }
+                else
+                {
+                    throw new InvalidOperationException("Illegal move player");
+                }
+            }
             if (Players[playerId] != CurrentPlayer)
             {
                 throw new InvalidOperationException("Invalid player");
@@ -116,6 +144,31 @@ namespace GameLogic.Game
 
         public void BuildRoad(string token, int playerId, int haxagonIndex, int hexA, int hexB)
         {
+            if (_isStartUp)
+            {
+                if (_startUpRoads[CurrentPlayer] > 0
+                    && _startUpTowns[CurrentPlayer] < _startUpRoads[CurrentPlayer]
+                    && _startUpTowns[CurrentPlayer] == (_startUpRoads[CurrentPlayer] - 1))
+                {
+                    MapController.BuildRoad(haxagonIndex, hexA, hexB, playerId);
+                    _startUpRoads[CurrentPlayer]--;
+                    if (!_startUpRoads.Any(k => k.Value != 0))
+                    {
+                        _isStartUp = false;
+                    }
+                    NextPlayer();
+                    return;
+                }
+                else
+                {
+                    throw new InvalidOperationException("Illegal move player");
+                }
+            }
+            if (Players[playerId] != CurrentPlayer)
+            {
+                throw new InvalidOperationException("Invalid player");
+            }
+
             if (Players[playerId] != CurrentPlayer)
             {
                 throw new InvalidOperationException("Invalid player");
@@ -185,7 +238,7 @@ namespace GameLogic.Game
                         {
                             if (node.PlayerId >= 0 && node.PlayerId <= 5)
                             {
-                                Players[node.PlayerId].Resources.First(r => r.Type == (ResourceType)(hexagon.ResourceType-3)).Qty += node.CitySize;
+                                Players[node.PlayerId].Resources.First(r => r.Type == (ResourceType)(hexagon.ResourceType - 3)).Qty += node.CitySize;
                             }
                         }
                     }
