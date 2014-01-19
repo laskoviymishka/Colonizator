@@ -102,6 +102,12 @@ namespace Colonizator.Controllers
         }
 
         [HttpGet]
+        public ActionResult ThrowDice(string token, int playerId)
+        {
+            Game game = GetGame(token);
+            return Json(game.ThrowDice(), JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet]
         public ActionResult AvailableMap(string token, int playerId)
         {
             Game game = GetMap(token);

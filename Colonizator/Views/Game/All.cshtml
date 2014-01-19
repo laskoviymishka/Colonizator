@@ -6,7 +6,8 @@
 <script src="~/Scripts/jquery.signalR-2.0.1.min.js"></script>
 <script src="~/signalr/hubs"></script>
 <script src="~/Scripts/game.js"></script>
-<ul></ul>
+<script src="~/Scripts/bootstrap.min.js"></script>
+
 <script>
     var gameHub;
     var mapHub;
@@ -20,6 +21,17 @@
     var currentUser;
     $(function () {
         mapHub = $.connection.mapHub;
+
+        mapHub.client.updateState = function (data) {
+            console.log("update state");
+            userMove = data;
+            GetCitiesAdnRoads();
+            GetPartials()
+            NeedThrowDice()
+        };
+
+        mapHub.client.throwenDice = throwenDice;
+
         mapHub.client.updateQueue = function (eventArgs) {
             console.log("update queue");
             if (!isInQueue) {
@@ -27,21 +39,7 @@
                 isInQueue = true;
                 currentUser = eventArgs.player;
             }
-            $('#userQueue').html("Начат поиск игры вы " + (userId +1) + "-й в очереди");
-        };
-
-        mapHub.client.updateState = function (data) {
-            console.log("update state");
-            userMove = data;
-            GetCitiesAdnRoads();
-            $.get('/Game/GameStatePartial?playerId=' + userId + '&token=' + token, function (data) {
-                console.log('/Game/GameStatePartial?playerId=' + userId + '&token=' + token);
-                $('#gameState').html(data);
-            });
-            $.get('/Game/MarketPartial?playerId=' + userId + '&token=' + token, function (data) {
-                console.log('/Game/MarketPartial?playerId=' + userId + '&token=' + token);
-                $('#gameMarket').html(data);
-            });
+            $('#userQueue').html("Начат поиск игры вы " + (userId + 1) + "-й в очереди");
         };
 
         mapHub.client.gameStart = function (eventArgs) {
@@ -72,14 +70,7 @@
                     });
                 });
             });
-            $.get('/Game/GameStatePartial?playerId=' + userId + '&token=' + token, function (data) {
-                console.log('/Game/GameStatePartial?playerId=' + userId + '&token=' + token);
-                $('#gameState').html(data);
-            });
-            $.get('/Game/MarketPartial?playerId=' + userId + '&token=' + token, function (data) {
-                console.log('/Game/MarketPartial?playerId=' + userId + '&token=' + token);
-                $('#gameMarket').html(data);
-            });
+            GetPartials()
         };
 
         $('#displayname').focus();
@@ -92,6 +83,13 @@
                 $('#userQueue').html("Начат поиск игры");
             });
         });
+        $('#throwDiceBtn').click(function () {
+            $.get('/Game/ThrowDice?playerId=' + userId + '&token=' + token, function (data) {
+                console.log('/Game/ThrowDice?playerId=' + userId + '&token=' + token);
+                $('#throwDiceResult').html(data);
+                $('#throwDiceCloseBtn').show();
+            });
+        });
     });
     // This optional function html-encodes messages for display in the page.
     function htmlEncode(value) {
@@ -100,6 +98,44 @@
     }
 
     function toQueue() {
+    }
+
+    function NeedThrowDice() {
+        console.log('NeedThrowDice');
+        if (currentUser.PlayerId == userMove.PlayerId) {
+            $('#throwDiceResult').html('Ваш ход, бросьте кубики')
+            $('#throwDiceModal').modal('show')
+            $('#throwDiceCloseBtn').hide()
+            $('#throwDiceBtn').show()
+        } else {
+            $('#throwDiceResult').html('Ход ' + userMove.PlayerName + ' , ждите пока он бросит кубики')
+            $('#throwDiceModal').modal('show')
+            $('#throwDiceCloseBtn').hide()
+            $('#throwDiceBtn').hide()
+        }
+    }
+
+    function throwenDice(data) {
+        console.log('throwenDice', data);
+        if (currentUser.PlayerId == userMove.PlayerId) {
+            $('#throwDiceResult').html('Вам выпало ' + data)
+        } else {
+            $('#throwDiceResult').html(userMove.PlayerName + ' выпало ' + data)
+        }
+        $('#throwDiceCloseBtn').show()
+        $('#throwDiceBtn').hide()
+        GetPartials()
+    }
+
+    function GetPartials() {
+        $.get('/Game/GameStatePartial?playerId=' + userId + '&token=' + token, function (data) {
+            console.log('/Game/GameStatePartial?playerId=' + userId + '&token=' + token);
+            $('#gameState').html(data);
+        });
+        $.get('/Game/MarketPartial?playerId=' + userId + '&token=' + token, function (data) {
+            console.log('/Game/MarketPartial?playerId=' + userId + '&token=' + token);
+            $('#gameMarket').html(data);
+        });
     }
 </script>
 
@@ -129,3 +165,22 @@
         </div>
     </div>
 </div>
+<!-- Modal -->
+<div class="modal fade" id="throwDiceModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">Бросок кубика</h4>
+            </div>
+            <div class="modal-body">
+                <h1 id="throwDiceResult"></h1>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" id="throwDiceCloseBtn">Закрыть</button>
+
+                <button type="button" class="btn btn-primary" id="throwDiceBtn">Бросить кубик</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->

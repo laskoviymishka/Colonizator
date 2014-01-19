@@ -23,6 +23,7 @@ namespace GameLogic.Game
         public event ResourceUpdate ResourceUpdate;
         public event OrderUpdate OrderUpdate;
         public event GameStateUpdate GameMoveUpdate;
+        public event DiceThrowen DiceThrowen;
 
         #endregion
 
@@ -33,11 +34,6 @@ namespace GameLogic.Game
             Id = id;
             MapController = controller;
             Players = players;
-            foreach (var player in players)
-            {
-                player.Resources.CollectionChanged += (sender, args) => ResourceUpdate(this, new ResourceUpdateArgs() { Player = player });
-                player.Orders.CollectionChanged += (sender, args) => OrderUpdate(this, new OrderUpdateArgs() { Player = player });
-            }
             CurrentPlayer = Players[_currentPlayerId];
             Market = new Market.Market();
             Market.PlaceOrder(new Order
@@ -147,7 +143,7 @@ namespace GameLogic.Game
             NextPlayer();
         }
 
-        public void ThrowDice()
+        public int ThrowDice()
         {
             Random random = new Random();
 
@@ -156,15 +152,23 @@ namespace GameLogic.Game
             {
                 foreach (var player in Players)
                 {
-                    if (player.Resources.Count > 7)
+                    int resCount = 0;
+                    foreach (var res in player.Resources)
                     {
-                        for (int i = player.Resources.Count; i > 6; i--)
+                        resCount += res.Qty;
+                    }
+                    while (resCount > 7)
+                    {
+                        var res = player.Resources[random.Next(0, 5)];
+                        if (res.Qty > 0)
                         {
-                            player.Resources.RemoveAt(i);
+                            res.Qty--;
+                            resCount--;
                         }
                     }
                 }
-                return;
+                DiceThrowen(this, new GameStateUpdateArgs { DiceNumber = cubeValue });
+                return 7;
             }
 
             foreach (Hexagon[] hexagons in MapController.GetMap())
@@ -177,17 +181,15 @@ namespace GameLogic.Game
                         {
                             if (edge.PlayerId > 0)
                             {
-                                Players[edge.PlayerId].Resources.Add(
-                                    new Resource
-                                    {
-                                        Qty = 1,
-                                        Type = (ResourceType)hexagon.ResourceType
-                                    });
+                                Players[edge.PlayerId].Resources.First(r => r.Type == (ResourceType)hexagon.ResourceType).Qty++;
                             }
                         }
                     }
                 }
             }
+
+            DiceThrowen(this, new GameStateUpdateArgs { DiceNumber = cubeValue });
+            return cubeValue;
         }
 
         public List<CityModel> GetCities()
@@ -249,4 +251,5 @@ namespace GameLogic.Game
     public delegate void OrderUpdate(Game sender, OrderUpdateArgs args);
     public delegate void ResourceUpdate(Game sender, ResourceUpdateArgs args);
     public delegate void GameStateUpdate(Game sender, GameStateUpdateArgs args);
+    public delegate void DiceThrowen(Game sender, GameStateUpdateArgs args);
 }

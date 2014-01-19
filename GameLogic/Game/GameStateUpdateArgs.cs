@@ -7,5 +7,6 @@ namespace GameLogic.Game
 {
     public class GameStateUpdateArgs
     {
+        public int DiceNumber { get; set; }
     }
 }

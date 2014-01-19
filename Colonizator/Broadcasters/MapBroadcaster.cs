@@ -81,8 +81,14 @@ namespace Colonizator.Broadcasters
             mapControll.Initialize();
             var game = new Game(mapId, Players, mapControll);
             game.GameMoveUpdate += game_GameStateUpdate;
+            game.DiceThrowen += game_DiceThrowen;
             _games.Add(game);
             return game;
+        }
+
+        void game_DiceThrowen(Game sender, GameStateUpdateArgs args)
+        {
+            _context.Clients.Group(sender.Id).throwenDice(args.DiceNumber);
         }
 
         private void game_GameStateUpdate(Game sender, GameStateUpdateArgs args)
