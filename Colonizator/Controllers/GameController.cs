@@ -27,6 +27,9 @@ namespace Colonizator.Controllers
         {
             return View(MapBroadcaster.Instance.Games);
         }
+
+        #region Partials
+
         public ActionResult GameStatePartial(string token, int playerId)
         {
             var model = new GameStateViewModel();
@@ -40,6 +43,54 @@ namespace Colonizator.Controllers
             var game = GetGame(token);
             ViewBag.IsAvaibleAction = game.CurrentPlayer == game.Players[playerId];
             return PartialView(game.Market.GetOrders());
+        }
+
+        #endregion
+
+        #region Map State
+        [HttpGet]
+        public ActionResult AvailableMap(string token, int playerId)
+        {
+            Game game = GetMap(token);
+
+            if (game.Players[playerId] != game.CurrentPlayer)
+            {
+                return Json(
+                    new MapStateModel()
+                    {
+                        Cities = new List<CityModel>(),
+                        Roads = new List<RoadModel>()
+                    },
+                    JsonRequestBehavior.AllowGet);
+            }
+
+            MapController map = game.MapController;
+
+            return Json(
+                new MapStateModel()
+                {
+                    Cities = map.GetAvailableNodes(playerId).Where(x => x.CitySize < 2).Select(x =>
+                        new CityModel()
+                        {
+                            HexagonIndex = x.HexagonA.Hexagon.Index,
+                            Position = x.HexagonA.Position,
+                            HexA = x.HexagonA.Position,
+                            HexB = x.HexagonB.Position,
+                            HexC = x.HexagonC.Position,
+                            CitySize = x.CitySize > 0 ? 't' : 'v',
+                            PlayerId = playerId
+                        }).ToList(),
+                    Roads = map.GetAvailableEdges(playerId).Select(x =>
+                        new RoadModel()
+                        {
+                            HexagonIndex = x.HexagonA.Hexagon.Index,
+                            Position = x.HexagonA.Position,
+                            PlayerId = playerId,
+                            HexA = x.HexagonA.Hexagon.Index,
+                            HexB = x.HexagonB.Hexagon.Index
+                        }).ToList(),
+                },
+                JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet]
@@ -101,55 +152,15 @@ namespace Colonizator.Controllers
             return Json(model, JsonRequestBehavior.AllowGet);
         }
 
+        #endregion
+
+        #region Map Actions
+
         [HttpGet]
         public ActionResult ThrowDice(string token, int playerId)
         {
             Game game = GetGame(token);
             return Json(game.ThrowDice(), JsonRequestBehavior.AllowGet);
-        }
-        [HttpGet]
-        public ActionResult AvailableMap(string token, int playerId)
-        {
-            Game game = GetMap(token);
-
-            if (game.Players[playerId] != game.CurrentPlayer)
-            {
-                return Json(
-                    new MapStateModel()
-                    {
-                        Cities = new List<CityModel>(),
-                        Roads = new List<RoadModel>()
-                    },
-                    JsonRequestBehavior.AllowGet);
-            }
-
-            MapController map = game.MapController;
-
-            return Json(
-                new MapStateModel()
-                {
-                    Cities = map.GetAvailableNodes(playerId).Where(x => x.CitySize < 2).Select(x =>
-                        new CityModel()
-                        {
-                            HexagonIndex = x.HexagonA.Hexagon.Index,
-                            Position = x.HexagonA.Position,
-                            HexA = x.HexagonA.Position,
-                            HexB = x.HexagonB.Position,
-                            HexC = x.HexagonC.Position,
-                            CitySize = x.CitySize > 0 ? 't' : 'v',
-                            PlayerId = playerId
-                        }).ToList(),
-                    Roads = map.GetAvailableEdges(playerId).Select(x =>
-                        new RoadModel()
-                        {
-                            HexagonIndex = x.HexagonA.Hexagon.Index,
-                            Position = x.HexagonA.Position,
-                            PlayerId = playerId,
-                            HexA = x.HexagonA.Hexagon.Index,
-                            HexB = x.HexagonB.Hexagon.Index
-                        }).ToList(),
-                },
-                JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]
@@ -166,6 +177,17 @@ namespace Colonizator.Controllers
             game.BuildRoad(token, playerId, haxagonIndex, hexA, hexB);
         }
 
+        [HttpPost]
+        public void PassMove(string token, int playerId)
+        {
+            Game game = GetMap(token);
+            game.PassMove(token, playerId);
+        }
+
+        #endregion
+
+        #region Private Heplers
+
         private Game GetMap(string token)
         {
             return _broadcaster.GameById(token);
@@ -175,5 +197,7 @@ namespace Colonizator.Controllers
         {
             return _broadcaster.GameById(token);
         }
+
+        #endregion
     }
 }

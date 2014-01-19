@@ -177,11 +177,11 @@ namespace GameLogic.Game
                 {
                     if (hexagon.FaceNumber == cubeValue)
                     {
-                        foreach (var edge in hexagon.Nodes)
+                        foreach (var node in hexagon.Nodes)
                         {
-                            if (edge.PlayerId > 0)
+                            if (node.PlayerId >= 0 && node.PlayerId <= 5)
                             {
-                                Players[edge.PlayerId].Resources.First(r => r.Type == (ResourceType)hexagon.ResourceType).Qty++;
+                                Players[node.PlayerId].Resources.First(r => r.Type == (ResourceType)hexagon.ResourceType).Qty += node.CitySize;
                             }
                         }
                     }
@@ -246,6 +246,11 @@ namespace GameLogic.Game
             GameMoveUpdate(this, new GameStateUpdateArgs());
         }
         #endregion
+
+        public void PassMove(string token, int playerId)
+        {
+            NextPlayer();
+        }
     }
 
     public delegate void OrderUpdate(Game sender, OrderUpdateArgs args);

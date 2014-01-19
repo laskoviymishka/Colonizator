@@ -26,8 +26,9 @@
             console.log("update state");
             userMove = data;
             GetCitiesAdnRoads();
-            GetPartials()
-            NeedThrowDice()
+            GetPartials();
+            NeedThrowDice();
+            PassMoveAvaible();
         };
 
         mapHub.client.throwenDice = throwenDice;
@@ -70,7 +71,7 @@
                     });
                 });
             });
-            GetPartials()
+            GetPartials();
         };
 
         $('#displayname').focus();
@@ -90,6 +91,8 @@
                 $('#throwDiceCloseBtn').show();
             });
         });
+        $('#passMove').hide()
+        $('#passMove').click(PassMove);
     });
     // This optional function html-encodes messages for display in the page.
     function htmlEncode(value) {
@@ -112,6 +115,28 @@
             $('#throwDiceModal').modal('show')
             $('#throwDiceCloseBtn').hide()
             $('#throwDiceBtn').hide()
+        }
+    }
+
+    function PassMoveAvaible() {
+        console.log('PassMoveAvaible');
+        if (currentUser.PlayerId == userMove.PlayerId) {
+            $('#passMove').show()
+        } else {
+            $('#passMove').hide()
+        }
+    }
+
+    function PassMove() {
+        console.log('PassMove');
+        if (currentUser.PlayerId == userMove.PlayerId) {
+            $('#passMove').show();
+            $.post(
+                    "/Game/BuildCity",
+                    {
+                        token: token,
+                        playerId: userId
+                    });
         }
     }
 
@@ -158,6 +183,9 @@
                     <tr id="UserColor"></tr>
                 </tbody>
             </table>
+        </div>
+        <div id="passMove" class="btn btn-danger">
+            Пропустить ход
         </div>
         <div id="gameState">
         </div>
