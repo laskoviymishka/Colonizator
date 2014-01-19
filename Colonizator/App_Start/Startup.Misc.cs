@@ -34,5 +34,10 @@ namespace Colonizator
 
             app.UseGoogleAuthentication();
         }
+
+        public void ConfigurationSignalr(IAppBuilder app)
+        {
+            app.MapSignalR();
+        }
     }
 }
