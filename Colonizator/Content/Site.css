@@ -40,3 +40,20 @@ input[type="checkbox"].input-validation-error {
 .validation-summary-valid {
     display: none;
 }
+
+
+.tile {
+    display: inline-block;
+    position: absolute;
+    background-size: 100% auto;
+}
+
+.tile_number {
+    width: 30px;
+    height: 30px;
+    border-radius: 15px;
+    background-color: white;
+    border: 2px black solid;
+    text-align: center;
+    font-size: 14pt;
+}
