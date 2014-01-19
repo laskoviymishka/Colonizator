@@ -5,6 +5,7 @@ using System.Web;
 using System.Web.Mvc;
 using Colonizator.Broadcasters;
 using Colonizator.Models;
+using GameLogic.Game;
 using GameLogic.Market;
 using Model;
 
@@ -132,5 +133,10 @@ namespace Colonizator.Controllers
 		{
             return _broadcaster.GameById(token).MapController;
 		}
+
+        private Map GetGame(string token)
+        {
+            return _broadcaster.GameById(token);
+        }
 	}
 }

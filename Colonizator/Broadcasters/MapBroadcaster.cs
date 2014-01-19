@@ -64,6 +64,10 @@ namespace Colonizator.Broadcasters
             var mapControll = new MapController();
             mapControll.Initialize();
             mapControll.Randomize();
+            mapControll.StateChanged += delegate(object sender, EventArgs eventArgs)
+            {
+                _context.Clients.Group(mapId).updateState();
+            };
             var map = new Map(mapId, Players, mapControll);
             _games.Add(map);
             return map;
@@ -118,6 +122,43 @@ namespace Colonizator.Broadcasters
                 }
                 _context.Clients.Group(InQueueUsers).updateQueue(args.Players.Count());
             }
+        }
+
+        public bool CanUpdradeCity(string mapId, int userId)
+        {
+            var game = GameById(mapId);
+            var player = game.Players[userId];
+            if (player.Resources.Any(r => r.Type == ResourceType.Soil)
+                && player.Resources.Any(r => r.Type == ResourceType.Wood))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public bool CanBuildRoad(string mapId, int userId)
+        {
+            var game = GameById(mapId);
+            var player = game.Players[userId];
+            if (player.Resources.Any(r => r.Type == ResourceType.Soil)
+                && player.Resources.Any(r => r.Type == ResourceType.Wood)
+                && player.Resources.Any(r => r.Type == ResourceType.Wool)
+                && player.Resources.Any(r => r.Type == ResourceType.Corn))
+            {
+                return true;
+            }
+            return false;
+        }
+        public bool CanBuildCity(string mapId, int userId)
+        {
+            var game = GameById(mapId);
+            var player = game.Players[userId];
+            if (player.Resources.Count(r => r.Type == ResourceType.Minerals) == 3
+                && player.Resources.Count(r => r.Type == ResourceType.Corn) == 2)
+            {
+                return true;
+            }
+            return false;
         }
     }
 }
