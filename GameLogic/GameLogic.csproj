@@ -39,6 +39,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Game\ResourceUpdateArgs.cs" />
     <Compile Include="Search\UpdateGameQueueArgs.cs" />
     <Compile Include="Search\SearchGameQueue.cs" />
     <Compile Include="Game\Color.cs" />
