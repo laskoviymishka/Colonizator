@@ -58,6 +58,8 @@ namespace Colonizator.Broadcasters
         public Map CreateGame(string mapId)
         {
             var map = new Map {Id = mapId, MapController = new MapController()};
+            map.MapController.Initialize();
+            map.MapController.Randomize();
             _games.Add(map);
             return map;
         }
