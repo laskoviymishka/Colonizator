@@ -1,4 +1,4 @@
-﻿namespace Colonizator.Models
+﻿namespace GameLogic.Models
 {
     public class CityModel
     {

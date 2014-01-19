@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Colonizator.Models
+namespace GameLogic.Models
 {
 	public class MapStateModel
 	{

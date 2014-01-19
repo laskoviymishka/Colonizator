@@ -56,8 +56,6 @@ function DrawField(field) {
 			hexMap[tileNum] = newTile;
 		}
 	}
-
-	
 }
 
 function GetTownRelativePosition(num) {
@@ -77,10 +75,26 @@ function GetRoadAngle(num) {
 }
 
 function ClearNodes(container) {
-	while (container.length > 0) {
-		container[container.length].parent.removeChild(container[container.length]);
-		container.pop();
-	}
+}
+
+var cityRoad;
+
+function GetCitiesAdnRoads() {
+	$('.town').remove()
+	$('.road').remove()
+	$('.possible-town').remove()
+	$.getJSON('/Game/CitiesAndRoads?token=' + token, function (data) {
+		cityRoad = data;
+		DrawTowns(data.Cities);
+		DrawRoads(data.Roads);
+		console.log('/Game/CitiesAndRoads?token=' + token);
+	});
+	$.getJSON('/Game/AvailableMap?playerId=' + userId + '&token=' + token, function (data2) {
+		global_data = data2;
+		console.log('/Game/AvailableMap?playerId=' + userId + '&token=' + token);
+		DrawTowns(data2.Cities, true);
+		DrawRoads(data2.Roads, true);
+	});
 }
 
 function DrawTowns(towns, isPossible) {
@@ -89,18 +103,22 @@ function DrawTowns(towns, isPossible) {
 	var townElement = document.createElement('div');
 	townElement.style.position = 'absolute';
 	townElement.style.zIndex = '3';
-	if (isPossible) townElement.setAttribute('class', 'possible-town');
+	if (isPossible) {
+		townElement.setAttribute('class', 'possible-town');
+	} else {
+		townElement.setAttribute('class', 'town');
+	}
 	townElement.innerHTML = '&nbsp;';
 	for (var i = 0; i < towns.length; i++) {
-		var t = towns[i];
-		var delta = GetTownRelativePosition(t.Position);
+		var town = towns[i];
+		var delta = GetTownRelativePosition(town.Position);
 		var newTown = townElement.cloneNode(true);
-		var size = t.CitySize == 'v' ? villageSize : townSize;
+		var size = town.CitySize == 'v' ? villageSize : townSize;
 		newTown.style.width = size.w + 'px';
 		newTown.style.height = size.h + 'px';
-		newTown.style.left = hexMap[t.HexagonIndex].offsetLeft + delta.dx - size.w / 2 + 'px';
-		newTown.style.top = hexMap[t.HexagonIndex].offsetTop + delta.dy - size.h * 2 / 3 + 'px';
-		newTown.style.background = 'url(/Sprites/' + t.CitySize + t.PlayerId + '.png)';
+		newTown.style.left = hexMap[town.HexagonIndex].offsetLeft + delta.dx - size.w / 2 + 'px';
+		newTown.style.top = hexMap[town.HexagonIndex].offsetTop + delta.dy - size.h * 2 / 3 + 'px';
+		newTown.style.background = 'url(/Sprites/' + town.CitySize + town.PlayerId + '.png)';
 		newTown.style.backgroundSize = '100% auto';
 		newTown.id = i;
 		if (isPossible) {
@@ -108,8 +126,8 @@ function DrawTowns(towns, isPossible) {
 				var t1 = towns[this.id];
 				$.post(
                     "/Game/BuildCity",
-                    { token: token, playerId: userId, hexA: t1.HexA, hexB: t1.HexB, hexC: t1.HexC });
-				console.log('clicked town', t1.HexA, t1.HexB, t1.HexC);
+                    { token: token, playerId: userId, hexA: t1.HexA, hexB: t1.HexB, hexC: t1.HexC , hexIndex : t1.HexagonIndex});
+				console.log('clicked town', t1.HexagonIndex, t1.Position, t1.HexA, t1.HexB, t1.HexC);
 			});
 		}
 
@@ -124,7 +142,11 @@ function DrawRoads(roads, isPossible) {
 	var townRoad = document.createElement('div');
 	townRoad.style.position = 'absolute';
 	townRoad.innerHTML = '&nbsp;';
-	if (isPossible) townRoad.setAttribute('class', 'possible-town');
+	if (isPossible) {
+		townRoad.setAttribute('class', 'possible-town');
+	} else {
+		townRoad.setAttribute('class', 'road');
+	}
 
 	for (var i = 0; i < roads.length; i++) {
 		var r = roads[i];

@@ -43,6 +43,10 @@
     <Compile Include="Game\OrderUpdateArgs.cs" />
     <Compile Include="Game\ResourceUpdateArgs.cs" />
     <Compile Include="Helpers\ExceptionHelper.cs" />
+    <Compile Include="Model\CityModel.cs" />
+    <Compile Include="Model\HexagonModel.cs" />
+    <Compile Include="Model\MapStateModel.cs" />
+    <Compile Include="Model\RoadModel.cs" />
     <Compile Include="Search\UpdateGameQueueArgs.cs" />
     <Compile Include="Search\SearchGameQueue.cs" />
     <Compile Include="Game\Color.cs" />

@@ -167,9 +167,9 @@ namespace Model
             OnStateChanged();
         }
 
-        public void BuildCity(int playerId,  int hexA, int hexB, int hexC)
+        public void BuildCity(int playerId, int hexA, int hexB, int hexC, int hexIndex)
         {
-            Node node = GetNode(hexA, hexB, hexC);
+            Node node = GetNode(hexA, hexB, hexC, hexIndex);
 
             node.PlayerId = playerId;
             node.CitySize++;
@@ -181,13 +181,13 @@ namespace Model
 
         #region Misc Methods
 
-        public Node GetNode(int hexA, int hexB, int hexC)
+        public Node GetNode(int hexA, int hexB, int hexC, int hexIndex)
         {
             return
                 Nodes.First(
                     n =>
                         n.HexagonA.Position == hexA && n.HexagonB.Position == hexB &&
-                        n.HexagonC.Position == hexC);
+                        n.HexagonC.Position == hexC && n.HexagonA.Hexagon.Index == hexIndex);
         }
 
         public IEnumerable<Node> GetAvailableNodes(int playerId)
@@ -357,5 +357,10 @@ namespace Model
         }
 
         #endregion
+
+        public bool IsNodeAvailable(int hexA, int hexB, int hexC, int playerId, int hexIndex)
+        {
+            return true;
+        }
     }
 }

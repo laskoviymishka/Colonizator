@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using GameLogic.Market;
 using Model;
 using Model.Elements;
+using GameLogic.Models;
 
 namespace GameLogic.Game
 {
@@ -56,8 +57,7 @@ namespace GameLogic.Game
         #endregion
 
         #region Game Methods
-
-        public void BuildCity(string token, int playerId, int hexA, int hexB, int hexC)
+        public void BuildCity(string token, int playerId, int hexA, int hexB, int hexC, int hexIndex)
         {
             if (Players[playerId] != CurrentPlayer)
             {
@@ -71,12 +71,12 @@ namespace GameLogic.Game
             {
                 throw new InvalidOperationException("not available resource");
             }
-            if (!MapController.IsNodeAvailable(hexA, hexB, hexC))
+            if (!MapController.IsNodeAvailable(hexA, hexB, hexC, playerId, hexIndex))
             {
                 throw new InvalidOperationException("Node is not available.");
             }
 
-            MapController.BuildCity(playerId, hexA, hexB, hexC);
+            MapController.BuildCity(playerId, hexA, hexB, hexC, hexIndex);
             NextPlayer();
         }
 
@@ -102,7 +102,7 @@ namespace GameLogic.Game
             NextPlayer();
         }
 
-        public void UpgradeCity(string token, int playerId, int haxagonIndex, int position)
+        public void UpgradeCity(string token, int playerId, int hexA, int hexB, int hexC, int hexIndex)
         {
             if (Players[playerId] != CurrentPlayer)
             {
@@ -114,16 +114,12 @@ namespace GameLogic.Game
             {
                 throw new InvalidOperationException("not available resource");
             }
-            if (!MapController.IsNodeAvailable(haxagonIndex, position, playerId))
+            if (!MapController.IsNodeAvailable(hexA, hexB, hexC, playerId, hexIndex))
             {
                 throw new InvalidOperationException("Node is not available.");
             }
 
-            MapController.BuildCity(
-                haxagonIndex,
-                position,
-                playerId,
-                MapController.GetCitySize(haxagonIndex, position) + 1);
+            MapController.BuildCity(playerId, hexA, hexB, hexC, hexIndex);
             NextPlayer();
         }
 
@@ -170,10 +166,50 @@ namespace GameLogic.Game
             }
         }
 
+        public List<CityModel> GetCities()
+        {
+            var result = new List<CityModel>();
+            foreach (var node in MapController.Nodes)
+            {
+                if (node.CitySize > 0)
+                {
+                    result.Add(new CityModel
+                    {
+                        HexagonIndex = node.HexagonA.Hexagon.Index,
+                        Position = node.HexagonA.Position,
+                        HexA = node.HexagonA.Position,
+                        HexB = node.HexagonB.Position,
+                        HexC = node.HexagonC.Position,
+                        CitySize = node.CitySize > 1 ? 't' : 'v',
+                        PlayerId = node.PlayerId
+                    });
+                }
+            }
+            return result;
+        }
+        public List<RoadModel> GetRoads()
+        {
+            var result = new List<RoadModel>();
+            foreach (var edge in MapController.Edges)
+            {
+                if (edge.PlayerId > 0)
+                {
+                    result.Add(new RoadModel
+                    {
+                        HexagonIndex = edge.HexagonA.Hexagon.Index,
+                        Position = edge.HexagonA.Position,
+                        PlayerId = edge.PlayerId,
+                        HexA = edge.HexagonA.Position,
+                        HexB = edge.HexagonB.Position
+                    });
+                }
+            }
+            return result;
+        }
+
         #endregion
 
         #region Private Helpers
-
         private void NextPlayer()
         {
             if (Players.Count > 0)
@@ -183,7 +219,6 @@ namespace GameLogic.Game
             CurrentPlayer = Players[_currentPlayerId];
             GameStateUpdate(this, new GameStateUpdateArgs());
         }
-
         #endregion
     }
 

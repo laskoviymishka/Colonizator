@@ -10,6 +10,7 @@ using GameLogic.Search;
 using Microsoft.AspNet.SignalR;
 using Model;
 using GameLogic.Market;
+using GameLogic.Models;
 
 namespace Colonizator.Broadcasters
 {
@@ -154,7 +155,7 @@ namespace Colonizator.Broadcasters
                     _context.Groups.Remove(arg.PlayerId, InQueueUsers);
                 }
 
-                _context.Clients.Group(args.Game.Id).gameStart(args.Game.Id);
+                _context.Clients.Group(args.Game.Id).gameStart(new { token = args.Game.Id, playerCount = args.Game.Players.Count });
             }
             else
             {
