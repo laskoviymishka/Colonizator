@@ -44,7 +44,7 @@ namespace Colonizator.Controllers
 							new HexagonModel() 
 							{ 
 								FaceNumber = y.Index > 0 ? y.FaceNumber : 0,
-								ResourceType = y.Index == 10 ? 8 : y.Index > 0 ? y.ResourceType + 2 : y.ResourceType % 2
+								ResourceType = y.ResourceType
 							}))).ToList(),
 				JsonRequestBehavior.AllowGet);
 		}
