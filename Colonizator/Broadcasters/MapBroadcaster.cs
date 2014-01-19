@@ -78,7 +78,6 @@ namespace Colonizator.Broadcasters
         {
             var mapControll = new MapController();
             mapControll.Initialize();
-            mapControll.Randomize();
             mapControll.StateChanged += delegate(object sender, EventArgs eventArgs)
             {
                 _context.Clients.Group(mapId).updateState(
@@ -114,6 +113,11 @@ namespace Colonizator.Broadcasters
             player.PlayerName = playerName;
             player.Color = (Color)Players.Count;
             player.Resources = new ObservableCollection<Resource>();
+            player.Resources.Add(new Resource() { Type = ResourceType.Corn, Qty = 1 });
+            player.Resources.Add(new Resource() { Type = ResourceType.Wool, Qty = 1 });
+            player.Resources.Add(new Resource() { Type = ResourceType.Wood, Qty = 1 });
+            player.Resources.Add(new Resource() { Type = ResourceType.Soil, Qty = 1 });
+
             player.Orders = new ObservableCollection<Order>();
 
             Players.Add(player);

@@ -64,8 +64,10 @@ namespace GameLogic.Game
                 throw new InvalidOperationException("Invalid player");
             }
 
-            if (CurrentPlayer.Resources.Count(r => r.Type == ResourceType.Minerals) <= 3
-                && CurrentPlayer.Resources.Count(r => r.Type == ResourceType.Corn) <= 2)
+            if (CurrentPlayer.Resources.All(r => r.Type != ResourceType.Soil)
+                || CurrentPlayer.Resources.All(r => r.Type != ResourceType.Wood)
+                || CurrentPlayer.Resources.All(r => r.Type != ResourceType.Wool)
+                || CurrentPlayer.Resources.All(r => r.Type != ResourceType.Corn))
             {
                 throw new InvalidOperationException("not available resource");
             }
@@ -79,6 +81,7 @@ namespace GameLogic.Game
                 position,
                 playerId,
                 MapController.GetCitySize(haxagonIndex, position) + 1);
+            NextPlayer();
         }
 
         public void BuildRoad(string token, int playerId, int haxagonIndex, int position)
@@ -100,6 +103,7 @@ namespace GameLogic.Game
             }
 
             MapController.BuildRoad(haxagonIndex, position, playerId);
+            NextPlayer();
         }
 
         public void UpgradeCity(string token, int playerId, int haxagonIndex, int position)
@@ -124,6 +128,8 @@ namespace GameLogic.Game
                 position,
                 playerId,
                 MapController.GetCitySize(haxagonIndex, position) + 1);
+
+            NextPlayer();
         }
 
         public void ThrowDice()
