@@ -5,7 +5,7 @@ namespace Model.Elements
 	[Serializable]
 	public sealed class Node
 	{
-		public Node(Hexagon hexagonA, Hexagon hexagonB, Hexagon hexagonC)
+		public Node(Hexagon hexagonA, Hexagon hexagonB, Hexagon hexagonC, int orderA)
 		{
 			if (hexagonA == null)
 			{
@@ -23,12 +23,19 @@ namespace Model.Elements
 			}
 
 			HexagonA = hexagonA;
+			OrderA = orderA;
 			HexagonB = hexagonB;
 			HexagonC = hexagonC;
 			PlayerId = -1;
 		}
 
 		public Hexagon HexagonA
+		{
+			get;
+			private set;
+		}
+
+		public int OrderA
 		{
 			get;
 			private set;

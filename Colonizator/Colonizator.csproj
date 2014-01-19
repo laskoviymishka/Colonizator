@@ -193,6 +193,9 @@
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\HexagonModel.cs" />
     <Compile Include="Models\IdentityModels.cs" />
+    <Compile Include="Models\CityModel.cs" />
+    <Compile Include="Models\MapStateModel.cs" />
+    <Compile Include="Models\RoadModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
   </ItemGroup>
