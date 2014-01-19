@@ -5,6 +5,8 @@ VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Colonizator", "Colonizator\Colonizator.csproj", "{D32A7F1A-6D7A-43A9-82C3-3661C4E7E33D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameLogic", "GameLogic\GameLogic.csproj", "{C4F9E837-5F3F-42C7-9666-926919BA286E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{D32A7F1A-6D7A-43A9-82C3-3661C4E7E33D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D32A7F1A-6D7A-43A9-82C3-3661C4E7E33D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D32A7F1A-6D7A-43A9-82C3-3661C4E7E33D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C4F9E837-5F3F-42C7-9666-926919BA286E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C4F9E837-5F3F-42C7-9666-926919BA286E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C4F9E837-5F3F-42C7-9666-926919BA286E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C4F9E837-5F3F-42C7-9666-926919BA286E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
