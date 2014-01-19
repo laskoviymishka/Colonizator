@@ -11,14 +11,14 @@ namespace Model
 
         private static readonly int[,] _hexagonIndices =
         {
-            {0, 0, -1, -2, -3, -4, 0, 0, 0},
-            {0, 0, -5, 1, 2, 3, -6, 0, 0},
-            {0, -7, 4, 5, 6, 7, -8, 0, 0},
-            {0, -9, 8, 9, 10, 11, 12, -10, 0},
-            {0, -11, 13, 14, 15, 16, -12, 0, 0},
-            {0, 0, -13, 17, 18, 19, -14, 0, 0},
-            {0, 0, -15, -16, -17, -18, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0}
+            {0,  0, -1, -2, -3,  -4,   0,  0,  0},
+            {0,  0, -5,  1,  2,   3,  -6,  0,  0},
+            {0, -7,  4,  5,  6,   7,  -8,  0,  0},
+            {0, -9,  8,  9, 10,  11,  12,-10,  0},
+            {0, -11, 13, 14, 15, 16, -12,  0,  0},
+            {0,   0,-13, 17, 18, 19, -14,  0,  0},
+            {0,   0,-15,-16,-17,-18,   0,  0,  0},
+            {0,   0,  0,  0,  0,  0,   0,  0,  0}
         };
 
         private static readonly int[,] _nodeMappings =
@@ -53,7 +53,6 @@ namespace Model
             int columnCount = _hexagonIndices.GetLength(1);
 
             List<Hexagon> row = null;
-
             for (int i = 0; i < rowCount; ++i)
             {
                 for (int j = 0; j < columnCount; ++j)
@@ -70,13 +69,33 @@ namespace Model
                         int rightIndex = _hexagonIndices[i, j + 1];
                         int bottomIndex = _hexagonIndices[i + 1, j - (i & 1)];
                         int rightBottomIndex = _hexagonIndices[i + 1, j + 1 - (i & 1)];
+                        int rightMidIndex = _hexagonIndices[i, j + 1];
+                        AddEdge(currentIndex, rightMidIndex, 0);
 
-                        AddEdge(currentIndex, rightIndex, 1);
-                        AddEdge(currentIndex, rightBottomIndex, 2);
-                        AddEdge(currentIndex, bottomIndex, 3);
+                        int rightBottomIndex1 = _hexagonIndices[i + 1, j + 1];
+                        AddEdge(currentIndex, rightBottomIndex1, 1);
 
-                        AddNode(currentIndex, rightIndex, rightBottomIndex, 0);
-                        AddNode(currentIndex, rightBottomIndex, bottomIndex, 1);
+                        int leftBottomIndex = _hexagonIndices[i + 1, j];
+                        AddEdge(currentIndex, leftBottomIndex, 2);
+
+                        if (i != 0)
+                        {
+                            int rightHeaderIndex = _hexagonIndices[i - 1, j + 1];
+                            AddEdge(currentIndex, rightHeaderIndex, 3);
+
+                            int leftHeaderIndex = _hexagonIndices[i - 1, j - 1];
+                            AddEdge(currentIndex, leftHeaderIndex, 5);
+                        }
+
+                        if (j != 0)
+                        {
+                            int leftMidIndex = _hexagonIndices[i, j - 1];
+                            AddEdge(currentIndex, leftMidIndex, 4);
+                        }
+
+                        AddNode(currentIndex, rightMidIndex, rightBottomIndex1, 0);
+                        AddNode(currentIndex, rightBottomIndex1, rightMidIndex, 1);
+
 
                         row.Add(GetOrCreateHexagon(currentIndex));
                     }
@@ -90,6 +109,7 @@ namespace Model
             }
 
             _map = map.ToArray();
+
         }
 
         #endregion
@@ -196,9 +216,9 @@ namespace Model
             OnStateChanged();
         }
 
-        public void BuildCity(int playerId, int hexA, int hexB, int hexC, int hexIndex)
+        public void BuildCity(int playerId, int hexA, int hexB, int hexC, int unUsed)
         {
-            Node node = GetNode(hexA, hexB, hexC, hexIndex);
+            Node node = GetNode(hexA, hexB, hexC);
 
             node.PlayerId = playerId;
             node.CitySize++;
@@ -210,19 +230,19 @@ namespace Model
 
         #region Misc Methods
 
-        public Node GetNode(int hexA, int hexB, int hexC, int hexIndex)
+        public Node GetNode(int hexA, int hexB, int hexC)
         {
             return
-                Nodes.First(
+                Nodes.FirstOrDefault(
                     n =>
-                        n.HexagonA.Position == hexA && n.HexagonB.Position == hexB &&
-                        n.HexagonC.Position == hexC && n.HexagonA.Hexagon.Index == hexIndex);
+                        n.HexagonA.Hexagon.Index == hexA && n.HexagonB.Hexagon.Index == hexB &&
+                        n.HexagonC.Hexagon.Index == hexC);
         }
 
         public Edge GetEdge(int hexA, int hexB, int hexIndex)
         {
             return
-                Edges.First(
+                Edges.FirstOrDefault(
                     n =>
                         n.HexagonA.Hexagon.Index == hexA
                         && n.HexagonB.Hexagon.Index == hexB);
@@ -317,15 +337,19 @@ namespace Model
                     Hexagon next = GetOrCreateHexagon(nextIndex);
 
                     int positionNext = ReverseOrder(positionCurrent);
+                    try
+                    {
+                        var edge = new Edge(
+                            new HexagonPosition(current, positionCurrent),
+                            new HexagonPosition(next, positionNext),
+                            this);
 
-                    var edge = new Edge(
-                        new HexagonPosition(current, positionCurrent),
-                        new HexagonPosition(next, positionNext));
+                        _edges.Add(new EdgeKey(currentIndex, nextIndex), edge);
 
-                    _edges.Add(new EdgeKey(currentIndex, nextIndex), edge);
-
-                    current.Edges[positionCurrent] = edge;
-                    next.Edges[positionNext] = edge;
+                        current.Edges[positionCurrent] = edge;
+                        next.Edges[positionNext] = edge;
+                    }
+                    catch (Exception e) { }
                 }
             }
         }
@@ -398,7 +422,7 @@ namespace Model
 
         public bool IsNodeAvailable(int hexA, int hexB, int hexC, int playerId, int hexIndex)
         {
-            var node = GetNode(hexA, hexB, hexC, hexIndex);
+            var node = GetNode(hexA, hexB, hexC);
             if (node.PlayerId != playerId && node.PlayerId >= 0) { return false; }
             if (node.CitySize != 0) { return false; }
             return true;
@@ -406,7 +430,7 @@ namespace Model
 
         public bool IsUpgradeTown(int hexA, int hexB, int hexC, int playerId, int hexIndex)
         {
-            var node = GetNode(hexA, hexB, hexC, hexIndex);
+            var node = GetNode(hexA, hexB, hexC);
             if (node.PlayerId != playerId) { return false; }
             if (node.CitySize != 1) { return false; }
             return true;

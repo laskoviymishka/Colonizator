@@ -30,12 +30,12 @@ namespace Colonizator.Broadcasters
 
         private void GameOnResourceUpdate(Game sender, ResourceUpdateArgs args)
         {
-            _context.Clients.Client(args.Player.PlayerId).updateResource(args.Player.Resources);
+            _context.Clients.Clients(args.Player.ConnectionIds.ToList()).updateResource(args.Player.Resources);
         }
 
         private void GameOnOrderUpdate(Game sender, OrderUpdateArgs args)
         {
-            _context.Clients.Client(args.Player.PlayerId).updateOrder(args.Player.Orders);
+            _context.Clients.Clients(args.Player.ConnectionIds.ToList()).updateOrder(args.Player.Orders);
         }
 
         public static MarketBroadcaster Instance

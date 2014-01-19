@@ -70,26 +70,8 @@ namespace Colonizator.Controllers
             return Json(
                 new MapStateModel()
                 {
-                    Cities = map.GetAvailableNodes(playerId).Where(x => x.CitySize < 2).Select(x =>
-                        new CityModel()
-                        {
-                            HexagonIndex = x.HexagonA.Hexagon.Index,
-                            Position = x.HexagonA.Position,
-                            HexA = x.HexagonA.Position,
-                            HexB = x.HexagonB.Position,
-                            HexC = x.HexagonC.Position,
-                            CitySize = x.CitySize > 0 ? 't' : 'v',
-                            PlayerId = playerId
-                        }).ToList(),
-                    Roads = map.GetAvailableEdges(playerId).Select(x =>
-                        new RoadModel()
-                        {
-                            HexagonIndex = x.HexagonA.Hexagon.Index,
-                            Position = x.HexagonA.Position,
-                            PlayerId = playerId,
-                            HexA = x.HexagonA.Hexagon.Index,
-                            HexB = x.HexagonB.Hexagon.Index
-                        }).ToList(),
+                    Cities = game.AvaibleCityBuild,
+                    Roads = game.AvaibleRoadBuild,
                 },
                 JsonRequestBehavior.AllowGet);
         }
@@ -122,9 +104,9 @@ namespace Colonizator.Controllers
                         {
                             HexagonIndex = x.HexagonA.Hexagon.Index,
                             Position = x.HexagonA.Position,
-                            HexA = x.HexagonA.Position,
-                            HexB = x.HexagonB.Position,
-                            HexC = x.HexagonC.Position,
+                            HexA = x.HexagonA.Hexagon.Index,
+                            HexB = x.HexagonB.Hexagon.Index,
+                            HexC = x.HexagonC.Hexagon.Index,
                             CitySize = x.CitySize > 1 ? 't' : 'v',
                             PlayerId = x.PlayerId
                         }).ToList(),
@@ -162,7 +144,7 @@ namespace Colonizator.Controllers
         {
             Game game = GetGame(token);
             var model = game.ThrowDice();
-            return Json(new DiceViewModel { First = model[0], Second = model[1]}, JsonRequestBehavior.AllowGet);
+            return Json(new DiceViewModel { First = model[0], Second = model[1] }, JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]

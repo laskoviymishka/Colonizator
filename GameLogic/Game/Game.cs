@@ -89,13 +89,103 @@ namespace GameLogic.Game
             get;
             private set;
         }
-
         public string Id { get; set; }
         public List<Player> Players { get; set; }
         public MapController MapController { get; set; }
         public IMarket Market { get; set; }
-
         public bool IsStartUp { get { return _isStartUp; } }
+
+        public List<CityModel> AvaibleCityBuild
+        {
+            get
+            {
+                var result = new List<CityModel>();
+
+                if (_isStartUp)
+                {
+                    foreach (var node in MapController.Nodes)
+                    {
+                        if (node.CitySize == 0)
+                        {
+                            result.Add(new CityModel()
+                            {
+                                HexagonIndex = node.HexagonA.Hexagon.Index,
+                                Position = node.HexagonA.Position,
+                                HexA = node.HexagonA.Hexagon.Index,
+                                HexB = node.HexagonB.Hexagon.Index,
+                                HexC = node.HexagonC.Hexagon.Index,
+                                CitySize = 'v',
+                                PlayerId = _currentPlayerId
+                            });
+                        }
+                    }
+                }
+                else
+                {
+                    result = MapController.GetAvailableNodes(_currentPlayerId).Where(x => x.CitySize < 2).Select(x =>
+                      new CityModel()
+                      {
+                          HexagonIndex = x.HexagonA.Hexagon.Index,
+                          Position = x.HexagonA.Position,
+                          HexA = x.HexagonA.Hexagon.Index,
+                          HexB = x.HexagonB.Hexagon.Index,
+                          HexC = x.HexagonC.Hexagon.Index,
+                          CitySize = x.CitySize > 0 ? 't' : 'v',
+                          PlayerId = _currentPlayerId
+                      }).ToList();
+                }
+                return result;
+            }
+        }
+        private Edge GetCommonEdge(Hexagon hexA, Hexagon hexB)
+        {
+            foreach (var edgeA in hexA.Edges)
+            {
+                if (edgeA != null)
+                {
+                    foreach (var edgeT in hexB.Edges)
+                    {
+                        if (edgeA == edgeT)
+                        {
+                            return edgeA;
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+        public List<RoadModel> AvaibleRoadBuild
+        {
+            get
+            {
+                var result = new HashSet<Edge>();
+
+                foreach (var edge in MapController.Edges)
+                {
+                    if (edge.PlayerId == _currentPlayerId)
+                    {
+                        result.Add(GetCommonEdge(edge.HexagonA.Hexagon, edge.HexagonBot.Hexagon));
+                        result.Add(GetCommonEdge(edge.HexagonA.Hexagon, edge.HexagonB.Hexagon));
+                        result.Add(GetCommonEdge(edge.HexagonA.Hexagon, edge.HexagonTop.Hexagon));
+                        result.Add(GetCommonEdge(edge.HexagonB.Hexagon, edge.HexagonBot.Hexagon));
+                        result.Add(GetCommonEdge(edge.HexagonB.Hexagon, edge.HexagonTop.Hexagon));
+                    }
+                }
+
+                foreach (var edge in MapController.GetAvailableEdges(_currentPlayerId)) { result.Add(edge); }
+                result.RemoveWhere(x => x == null);
+                return MapController.Edges.Select(x =>
+                        new RoadModel()
+                        {
+                            HexagonIndex = x.HexagonA.Hexagon.Index,
+                            Position = x.HexagonA.Position,
+                            PlayerId = _currentPlayerId,
+                            HexA = x.HexagonA.Hexagon.Index,
+                            HexB = x.HexagonB.Hexagon.Index
+                        }).ToList();
+            }
+        }
+
 
         #endregion
 
@@ -260,9 +350,9 @@ namespace GameLogic.Game
                     {
                         HexagonIndex = node.HexagonA.Hexagon.Index,
                         Position = node.HexagonA.Position,
-                        HexA = node.HexagonA.Position,
-                        HexB = node.HexagonB.Position,
-                        HexC = node.HexagonC.Position,
+                        HexA = node.HexagonA.Hexagon.Index,
+                        HexB = node.HexagonB.Hexagon.Index,
+                        HexC = node.HexagonC.Hexagon.Index,
                         CitySize = node.CitySize > 1 ? 't' : 'v',
                         PlayerId = node.PlayerId
                     });
@@ -282,8 +372,8 @@ namespace GameLogic.Game
                         HexagonIndex = edge.HexagonA.Hexagon.Index,
                         Position = edge.HexagonA.Position,
                         PlayerId = edge.PlayerId,
-                        HexA = edge.HexagonA.Position,
-                        HexB = edge.HexagonB.Position
+                        HexA = edge.HexagonA.Hexagon.Index,
+                        HexB = edge.HexagonB.Hexagon.Index
                     });
                 }
             }

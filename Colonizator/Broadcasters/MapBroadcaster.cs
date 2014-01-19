@@ -102,11 +102,10 @@ namespace Colonizator.Broadcasters
             );
         }
 
-        public void SearchGame(string playerId, string playerName)
+        public void SearchGame(Player player1)
         {
-            Player player = new Player();
-            player.PlayerId = playerId;
-            player.PlayerName = playerName;
+            Player player = player1;
+            player.PlayerId = player1.ConnectionIds.Last();
             player.Color = (Color)Players.Count;
             player.Resources = new ObservableCollection<Resource>();
             player.Resources.Add(new Resource() { Type = ResourceType.Corn, Qty = 10 });
@@ -131,7 +130,7 @@ namespace Colonizator.Broadcasters
             }
             UpdateGameQueue(this, eventArgs);
 
-            if (_queue.Players.Any(p => p.PlayerId == playerId))
+            if (_queue.Players.Any(p => p.PlayerId == player.PlayerId))
             {
                 throw new InvalidOperationException("Cannot added user in game twice");
             }
@@ -143,8 +142,11 @@ namespace Colonizator.Broadcasters
             {
                 foreach (var arg in args.Game.Players)
                 {
-                    _context.Groups.Add(arg.PlayerId, args.Game.Id);
-                    _context.Groups.Remove(arg.PlayerId, InQueueUsers);
+                    foreach (var id in arg.ConnectionIds)
+                    {
+                        _context.Groups.Add(id, args.Game.Id);
+                        _context.Groups.Remove(id, InQueueUsers);
+                    }
                 }
 
                 _context.Clients.Group(args.Game.Id).gameStart(new { token = args.Game.Id, playerCount = args.Game.Players.Count, player = args.Game.Players.Last() });
@@ -153,7 +155,7 @@ namespace Colonizator.Broadcasters
             {
                 foreach (var arg in args.Players)
                 {
-                    _context.Clients.Client(arg.PlayerId).updateQueue(new { playerCount = args.Players.Count(), player = args.Players.Last() });
+                    _context.Clients.Clients(arg.ConnectionIds.ToList()).updateQueue(new { playerCount = args.Players.Count(), player = args.Players.Last() });
                 }
             }
         }

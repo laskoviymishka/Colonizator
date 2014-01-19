@@ -1,4 +1,5 @@
-﻿@{
+﻿@model List<GameLogic.Game.Game>
+@{
     ViewBag.Title = "Игра";
 }
 
@@ -27,8 +28,7 @@
             userMove = data.movePlayer;
             GetCitiesAdnRoads();
             GetPartials();
-            if (!data.isStartUp)
-            {
+            if (!data.isStartUp) {
                 NeedThrowDice();
             }
             PassMoveAvaible();
@@ -165,6 +165,10 @@
             $('#gameMarket').html(data);
         });
     }
+
+    function resumeGame(token) {
+        mapHub.server.resumeGame(token)
+    }
 </script>
 
 <div style="width: 100%">
@@ -174,6 +178,12 @@
     </div>
     <div style="position: relative; width: 29%; float: right">
         <div id="preGameState">
+            @foreach (var game in Model)
+            {
+                <div class="btn btn-success" onclick="resumeGame('@game.Id')">
+                    Возобновить игру @game.Id
+                </div>
+            }
             <h1 id="userQueue">Начать искать игру</h1>
             <div id="creatingGame">
                 <input type="text" id="displayname" value="введите имя..." />

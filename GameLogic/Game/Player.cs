@@ -12,5 +12,6 @@ namespace GameLogic.Game
         public Color Color { get; set; }
         public ObservableCollection<Resource> Resources { get; set; }
         public ObservableCollection<Order> Orders { get; set; }
+        public HashSet<string> ConnectionIds { get; set; }
     }
 }
