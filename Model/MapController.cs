@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Model.Elements;
 
 namespace Model
@@ -10,37 +9,34 @@ namespace Model
     {
         #region private fields
 
-        private static int[,] _hexagonIndices =
-            new int[,] 
-			{
-				{       0,    0,   -1,   -2,   -3,   -4,    0,    0,    0},
-				{    0,    0,   -5,    1,    2,    3,   -6,    0,    0},
-				{       0,   -7,    4,    5,    6,    7,   -8,    0,    0},
-				{    0,   -9,    8,    9,   10,   11,   12,  -10,    0},
-				{       0,  -11,   13,   14,   15,   16,  -12,    0,    0},
-				{    0,    0,  -13,   17,   18,   19,  -14,    0,    0},
-				{       0,    0,  -15,  -16,  -17,  -18,    0,    0,    0},
-				{    0,    0,    0,    0,    0,    0,    0,    0,    0},
-			};
+        private static readonly int[,] _hexagonIndices =
+        {
+            {0, 0, -1, -2, -3, -4, 0, 0, 0},
+            {0, 0, -5, 1, 2, 3, -6, 0, 0},
+            {0, -7, 4, 5, 6, 7, -8, 0, 0},
+            {0, -9, 8, 9, 10, 11, 12, -10, 0},
+            {0, -11, 13, 14, 15, 16, -12, 0, 0},
+            {0, 0, -13, 17, 18, 19, -14, 0, 0},
+            {0, 0, -15, -16, -17, -18, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0}
+        };
 
-        private static int[,] _nodeMappings =
-            new int[,]
-			{
-				{ 2, 4, 0},
-				{ 3, 5, 1}
-			};
+        private static readonly int[,] _nodeMappings =
+        {
+            {2, 4, 0},
+            {3, 5, 1}
+        };
 
         private static int _minIndex = -19;
         private static int _maxIndex = 19;
+        private readonly Dictionary<EdgeKey, Edge> _edges = new Dictionary<EdgeKey, Edge>();
 
-        private readonly int _zeroPosition;
         private readonly Hexagon[] _hexagones;
 
         private readonly Hexagon[][] _map;
 
         private readonly Dictionary<NodeKey, Node> _nodes = new Dictionary<NodeKey, Node>();
-
-        private readonly Dictionary<EdgeKey, Edge> _edges = new Dictionary<EdgeKey, Edge>();
+        private readonly int _zeroPosition;
 
         #endregion
 
@@ -51,7 +47,7 @@ namespace Model
             _hexagones = new Hexagon[_maxIndex - _minIndex + 1];
             _zeroPosition = -_minIndex;
 
-            List<Hexagon[]> map = new List<Hexagon[]>();
+            var map = new List<Hexagon[]>();
 
             int rowCount = _hexagonIndices.GetLength(0);
             int columnCount = _hexagonIndices.GetLength(1);
@@ -100,12 +96,7 @@ namespace Model
 
         #region Events
 
-
-        public EventHandler StateChanged
-        {
-            get;
-            set;
-        }
+        public EventHandler StateChanged { get; set; }
 
         #endregion
 
@@ -113,7 +104,7 @@ namespace Model
 
         public void Initialize()
         {
-            Random random = new Random();
+            var random = new Random();
 
             foreach (Hexagon hexagon in _hexagones)
             {
@@ -142,7 +133,7 @@ namespace Model
 
         public void Randomize()
         {
-            Random random = new Random();
+            var random = new Random();
 
             foreach (Node node in _nodes.Values)
             {
@@ -187,9 +178,22 @@ namespace Model
             OnStateChanged();
         }
 
+        #endregion
+
+        #region Misc Methods
+
+        public Node GetNode(int hexA, int hexB, int hexC)
+        {
+            return
+                Nodes.First(
+                    n =>
+                        n.HexagonA.Hexagon.Index == hexA && n.HexagonB.Hexagon.Index == hexB &&
+                        n.HexagonC.Hexagon.Index == hexC);
+        }
+
         public IEnumerable<Node> GetAvailableNodes(int playerId)
         {
-            HashSet<Node> potentialNodes = new HashSet<Node>();
+            var potentialNodes = new HashSet<Node>();
 
             foreach (Edge edge in _edges.Values)
             {
@@ -202,14 +206,14 @@ namespace Model
                 }
             }
 
-            IEnumerable<Node> result = potentialNodes.Count > 0 ? (IEnumerable<Node>)potentialNodes : (IEnumerable<Node>)_nodes.Values;
+            IEnumerable<Node> result = potentialNodes.Count > 0 ? potentialNodes : (IEnumerable<Node>) _nodes.Values;
 
             return result.Where(x => x != null && ((x.PlayerId == playerId) || (x.PlayerId < 0)));
         }
 
         public IEnumerable<Edge> GetAvailableEdges(int playerId)
         {
-            HashSet<Edge> result = new HashSet<Edge>();
+            var result = new HashSet<Edge>();
 
             foreach (Node node in _nodes.Values)
             {
@@ -247,20 +251,18 @@ namespace Model
             return _map;
         }
 
+        #endregion
+
+        #region Properties
+
         public IEnumerable<Node> Nodes
         {
-            get
-            {
-                return _nodes.Values;
-            }
+            get { return _nodes.Values; }
         }
 
         public IEnumerable<Edge> Edges
         {
-            get
-            {
-                return _edges.Values;
-            }
+            get { return _edges.Values; }
         }
 
         #endregion
@@ -279,7 +281,7 @@ namespace Model
 
                     int positionNext = ReverseOrder(positionCurrent);
 
-                    Edge edge = new Edge(
+                    var edge = new Edge(
                         new HexagonPosition(current, positionCurrent),
                         new HexagonPosition(next, positionNext));
 
@@ -309,7 +311,7 @@ namespace Model
                         int positionRight = _nodeMappings[mappingIndex, 1];
                         int positionBottom = _nodeMappings[mappingIndex, 2];
 
-                        Node node = new Node(
+                        var node = new Node(
                             new HexagonPosition(current, positionCurrent),
                             new HexagonPosition(right, positionRight),
                             new HexagonPosition(bottom, positionBottom));
@@ -342,7 +344,7 @@ namespace Model
 
         private static int ReverseOrder(int order)
         {
-            return (order + 3) % 6;
+            return (order + 3)%6;
         }
 
         private void OnStateChanged()

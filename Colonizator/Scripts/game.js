@@ -119,9 +119,9 @@ function DrawTowns(towns, isPossible) {
                 var t1 = towns[this.id];
                 $.post(
                     "/Game/BuildCity",
-                    { token: token, playerId: userId, haxagonIndex: t1.HexagonIndex, position: t1.Position },
+                    { token: token, playerId: userId, hexA: t1.HexA, hexB: t1.HexB, hexC: t1.HexC },
                     function (e) { alert(e.message); });
-                console.log('clicked town', t1.HexagonIndex, t1.CitySize, t1.Position);
+                console.log('clicked town', t1.HexA, t1.HexB, t1.HexC);
             });
         }
 
