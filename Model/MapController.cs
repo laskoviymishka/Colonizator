@@ -111,7 +111,7 @@ namespace Model
 					}
 					if (hexagon.Index > 0)
 					{
-						hexagon.ResourceType = random.Next(6) + 1;
+						hexagon.ResourceType = random.Next(6) + 2;
 
 						int faceNumber = 1 + random.Next(12);
 
