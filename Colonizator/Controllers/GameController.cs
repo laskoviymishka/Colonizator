@@ -107,7 +107,10 @@ namespace Colonizator.Controllers
 		public void BuildCity(string token, int playerId, int haxagonIndex, int position)
 		{
 			MapController map = GetMap(token);
-
+            if (!_broadcaster.CanBuildCity(token, playerId))
+            {
+                throw new InvalidOperationException("not available resource");
+            }
 			if (!map.IsNodeAvailable(haxagonIndex, position, playerId))
 			{
 				throw new InvalidOperationException("Node is not available.");
@@ -120,8 +123,11 @@ namespace Colonizator.Controllers
 		public void BuildRoad(string token, int playerId, int haxagonIndex, int position)
 		{
 			MapController map = GetMap(token);
-
-			if (!map.IsEdgeAvailable(haxagonIndex, position, playerId))
+		    if (!_broadcaster.CanBuildRoad(token, playerId))
+		    {
+                throw new InvalidOperationException("not available resource");
+		    }
+		    if (!map.IsEdgeAvailable(haxagonIndex, position, playerId))
 			{
 				throw new InvalidOperationException("Edge is not available.");
 			}
