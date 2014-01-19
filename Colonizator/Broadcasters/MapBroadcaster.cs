@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Web.Mvc;
 using Colonizator.Hubs;
+using Colonizator.Models;
 using GameLogic.Game;
 using GameLogic.Search;
 using Microsoft.AspNet.SignalR;
@@ -66,7 +68,26 @@ namespace Colonizator.Broadcasters
             mapControll.Randomize();
             mapControll.StateChanged += delegate(object sender, EventArgs eventArgs)
             {
-                _context.Clients.Group(mapId).updateState();
+                _context.Clients.Group(mapId).updateState(
+                new MapStateModel()
+                {
+                    Cities = mapControll.Nodes.Where(x => x.PlayerId >= 0).Select(x =>
+                        new CityModel()
+                        {
+                            HexagonIndex = x.HexagonA.Hexagon.Index,
+                            Position = x.HexagonA.Position,
+                            CitySize = x.CitySize > 1 ? 't' : 'v',
+                            PlayerId = x.PlayerId
+                        }).ToList(),
+                    Roads = mapControll.Edges.Where(x => x.PlayerId >= 0).Select(x =>
+                        new RoadModel()
+                        {
+                            HexagonIndex = x.HexagonA.Hexagon.Index,
+                            Position = x.HexagonA.Position,
+                            PlayerId = x.PlayerId
+                        }).ToList(),
+                },
+                JsonRequestBehavior.AllowGet);
             };
             var map = new Map(mapId, Players, mapControll);
             _games.Add(map);
