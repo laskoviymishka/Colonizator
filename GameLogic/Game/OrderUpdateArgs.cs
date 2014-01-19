@@ -5,7 +5,7 @@ using System.Text;
 
 namespace GameLogic.Game
 {
-    public class ResourceUpdateArgs
+    public class OrderUpdateArgs
     {
         public Player Player { get; set; }
     }

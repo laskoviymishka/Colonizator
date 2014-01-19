@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using Colonizator.Hubs;
 using GameLogic.Game;
 using GameLogic.Search;
 using Microsoft.AspNet.SignalR;
 using Model;
+using GameLogic.Market;
 
 namespace Colonizator.Broadcasters
 {
@@ -16,12 +18,14 @@ namespace Colonizator.Broadcasters
         private SearchGameQueue _queue;
         private const string InQueueUsers = "in_queue_users";
         private IHubContext _context;
-
+        private List<Player> Players;
         private MapBroadcaster()
         {
             _queue = new SearchGameQueue();
             _queue.UpdateGameQueue += UpdateGameQueue;
+            _games = new List<Map>();
             _context = GlobalHost.ConnectionManager.GetHubContext<MapHub>();
+            Players = new List<Player>();
         }
 
         public static MapBroadcaster Instance
@@ -57,15 +61,37 @@ namespace Colonizator.Broadcasters
 
         public Map CreateGame(string mapId)
         {
-            var map = new Map {Id = mapId, MapController = new MapController()};
-            map.MapController.Initialize();
-            map.MapController.Randomize();
+            var mapControll = new MapController();
+            mapControll.Initialize();
+            mapControll.Randomize();
+            var map = new Map(mapId, Players, mapControll);
             _games.Add(map);
             return map;
         }
 
         public void SearchGame(string playerId, string playerName)
         {
+            Player player = new Player();
+            player.PlayerId = playerId;
+            player.PlayerName = playerName;
+            player.Color = (Color)Players.Count;
+            player.Resources = new ObservableCollection<Resource>();
+            player.Orders = new ObservableCollection<Order>();
+
+            Players.Add(player);
+            var eventArgs = new UpdateGameQueueArgs();
+            if (Players.Count == 3)
+            {
+                eventArgs.Map = CreateGame(Guid.NewGuid().ToString().Substring(0, 6));
+                eventArgs.Players = Players;
+                Players = new List<Player>();
+            }
+            else
+            {
+                eventArgs.Players = Players;
+            }
+            UpdateGameQueue(this, eventArgs);
+
             if (_queue.Players.Any(p => p.PlayerId == playerId))
             {
                 throw new InvalidOperationException("Cannot added user in game twice");

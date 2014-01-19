@@ -19,7 +19,6 @@ namespace GameLogic.Search
             var eventArgs = new UpdateGameQueueArgs();
             if (Players.Count == 3)
             {
-                eventArgs.Map = new Map {Id = "test", Players = Players};
                 eventArgs.Players = new List<Player>();
                 Players = new List<Player>();
             }
