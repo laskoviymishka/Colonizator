@@ -8,7 +8,7 @@
 <script src="~/signalr/hubs"></script>
 <script src="~/Scripts/game.js"></script>
 <script src="~/Scripts/bootstrap.min.js"></script>
-
+<script src="~/Scripts/Dice.js"></script>
 <script>
     var gameHub;
     var mapHub;
@@ -119,6 +119,8 @@
             $('#throwDiceCloseBtn').hide()
             $('#throwDiceBtn').hide()
         }
+        togleCube(0, 1);
+        togleCube(1, 1);
     }
 
     function PassMoveAvaible() {
@@ -146,13 +148,15 @@
     function throwenDice(data) {
         console.log('throwenDice', data);
         if (currentUser.PlayerId == userMove.PlayerId) {
-            $('#throwDiceResult').html('Вам выпало ' + data.First + ' и ' + data.Second)
+            $('#throwDiceResult').html('Вам выпало ' + data.First + ' и ' + data.Second);
         } else {
-            $('#throwDiceResult').html(userMove.PlayerName + ' выпало ' + data.First + ' и ' + data.Second)
+            $('#throwDiceResult').html(userMove.PlayerName + ' выпало ' + data.First + ' и ' + data.Second);
         }
-        $('#throwDiceCloseBtn').show()
-        $('#throwDiceBtn').hide()
-        GetPartials()
+        $('#throwDiceCloseBtn').show();
+        $('#throwDiceBtn').hide();
+        togleCube(0, data.First);
+        togleCube(1, data.Second);
+        GetPartials();
     }
 
     function GetPartials() {
@@ -214,8 +218,34 @@
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                 <h4 class="modal-title" id="myModalLabel">Бросок кубика</h4>
             </div>
-            <div class="modal-body">
+            <div class="modal-body" style="height:400px">
                 <h1 id="throwDiceResult"></h1>
+                <div id="coubes">
+                    <div style="width:50%;float:left">
+                        <section id="cubecontainer0" class="cubecontainer">
+                            <div id="cube" class="show-front panels-backface-invisible">
+                                <figure class="front">1</figure>
+                                <figure class="back">2</figure>
+                                <figure class="right">3</figure>
+                                <figure class="left">4</figure>
+                                <figure class="top">5</figure>
+                                <figure class="bottom">6</figure>
+                            </div>
+                        </section>
+                    </div>
+                    <div style="width:50%;float:right">
+                        <section id="cubecontainer1" class="cubecontainer">
+                            <div id="cube" class="show-front panels-backface-invisible">
+                                <figure class="front">1</figure>
+                                <figure class="back">2</figure>
+                                <figure class="right">3</figure>
+                                <figure class="left">4</figure>
+                                <figure class="top">5</figure>
+                                <figure class="bottom">6</figure>
+                            </div>
+                        </section>
+                    </div>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" id="throwDiceCloseBtn">Закрыть</button>

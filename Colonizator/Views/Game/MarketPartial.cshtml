@@ -52,4 +52,84 @@
             </td>
         </tr>
     }
+    <tr id="request">
+        <td>
+            <ul>
+                <li><p>Corn</p><input id="sellCorn" type="number" value="0" /></li>
+                <li><p>Minerals</p><input id="sellMinerals" type="number" value="0" /></li>
+                <li><p>Soil</p><input id="sellSoil" type="number" value="0" /></li>
+                <li><p>Wood</p><input id="sellWood" type="number" value="0" /></li>
+                <li><p>Wool</p><input id="sellWool" type="number" value="0" /></li>
+
+            </ul>
+        </td>
+        <td>
+            <ul>
+                <li><p>Corn</p><input id="buyCorn" type="number" value="0" /></li>
+                <li><p>Minerals</p><input id="buyMinerals" type="number" value="0" /></li>
+                <li><p>Soil</p><input id="buySoil" type="number" value="0" /></li>
+                <li><p>Wood</p><input id="buyWood" type="number" value="0" /></li>
+                <li><p>Wool</p><input id="buyWool" type="number" value="0" /></li>
+            </ul>
+        </td>
+    </tr>
 </table>
+<div class="btn btn-success" id="requestOrder">Отправить запрос</div>
+<script>
+    $(function () {
+        $('#requestOrder').click(function () {
+            var order =
+                {
+                    Token: token,
+                    PlayerId: userId,
+                    Sell:
+                        [
+                            { 'Corn': $('#sellCorn').val() },
+                            { 'Minerals': $('#sellMinerals').val() },
+                            { 'Soil': $('#sellSoil').val() },
+                            { 'Wood': $('#sellWood').val() },
+                            { 'Wool': $('#sellWool').val() },
+                        ],
+                    Buy:
+                       [
+                           { 'Corn': $('#buyCorn').val() },
+                           { 'Minerals': $('#buyMinerals').val() },
+                           { 'Soil': $('#buyWood').val() },
+                           { 'Wood': $('#buyWood').val() },
+                           { 'Wool': $('#buyWool').val() },
+                       ]
+                };
+
+            $.post(
+                    "/Game/RequestOrder",
+                    {
+                        Token: token,
+                        PlayerId: userId,
+                        Sell: JSON.stringify(order.Sell),
+                        Buy: JSON.stringify(order.Buy)
+                    });
+            console.log("/Game/RequestOrder", {
+                Token: token,
+                PlayerId: userId,
+                Sell:
+                    [
+                        { Corn: $('#sellCorn').val() },
+                        { Minerals: $('#sellMinerals').val() },
+                        { Soil: $('#sellSoil').val() },
+                        { Wood: $('#sellWood').val() },
+                        { Wool: $('#sellWool').val() },
+                    ],
+                Buy:
+                   [
+                       { Corn: $('#buyCorn').val() },
+                       { Minerals: $('#buyMinerals').val() },
+                       { Soil: $('#buyWood').val() },
+                       { Wood: $('#buyWood').val() },
+                       { Wool: $('#buyWool').val() },
+                   ]
+            });
+            $('#requestOrder').hide();
+        });
+        $('#requestOrder').show();
+    });
+</script>

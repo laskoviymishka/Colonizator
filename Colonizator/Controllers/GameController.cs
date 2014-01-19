@@ -10,6 +10,7 @@ using GameLogic.Market;
 using Model;
 using GameLogic.Models;
 using GameLogic.Model;
+using Newtonsoft.Json;
 
 namespace Colonizator.Controllers
 {
@@ -166,6 +167,13 @@ namespace Colonizator.Controllers
         {
             Game game = GetMap(token);
             game.PassMove(token, playerId);
+        }
+
+        [HttpPost]
+        public void RequestOrder(OrderViewModel order)
+        {
+            var t = JsonConvert.DeserializeObject<IEnumerable<KeyValuePair<string, int>>>(order.Buy);
+            Game game = GetMap(order.Token);
         }
 
         #endregion
