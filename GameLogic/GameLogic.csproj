@@ -39,9 +39,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Broadcaster\UpdateGameQueueArgs.cs" />
-    <Compile Include="Broadcaster\MapBroadcaster.cs" />
-    <Compile Include="Broadcaster\SearchGameQueue.cs" />
+    <Compile Include="Search\UpdateGameQueueArgs.cs" />
+    <Compile Include="Search\SearchGameQueue.cs" />
     <Compile Include="Game\Color.cs" />
     <Compile Include="Game\Map.cs" />
     <Compile Include="Market\Market.cs" />
@@ -53,9 +52,7 @@
     <Compile Include="Market\OrderType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="UserColobration\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -2,24 +2,24 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using GameLogic.Broadcaster;
+using Colonizator.Broadcasters;
 using GameLogic.Game;
+using GameLogic.Search;
 using Microsoft.AspNet.SignalR;
 
 namespace Colonizator.Hubs
 {
     public class MapHub : Hub
     {
-        private static SearchGameQueue _queue = new SearchGameQueue();
-
+        private MapBroadcaster _broadcaster;
         public MapHub()
         {
-            _queue.UpdateGameQueue += UpdateGameQueue;
+            _broadcaster = MapBroadcaster.Instance;
         }
 
         public Task JoinGame(string mapId)
         {
-            var map = MapBroadcaster.Maps.Find(m => m.Id == mapId) ?? MapBroadcaster.CreateGame(mapId);
+            var map = _broadcaster.Maps.Find(m => m.Id == mapId) ?? _broadcaster.CreateGame(mapId);
 
             if (!map.Players.Any(p => p.PlayerId == Context.ConnectionId) && map.Players.Count < 5)
             {
@@ -40,41 +40,20 @@ namespace Colonizator.Hubs
 
         public void SearchGame(string playerName)
         {
-            _queue.SearchGame(new Player() { PlayerId = Context.ConnectionId, PlayerName = playerName });
+            _broadcaster.SearchGame(Context.ConnectionId, playerName);
         }
 
-        public void NotificateRoadBuild()
+        public void NotificateRoadBuild(string mapId, string coord)
         {
-
+            
         }
-        public void NotificateCityBuild()
-        {
-
-        }
-
-        public void NotificateREsourceAdded()
+        public void NotificateCityBuild(string mapId, string coord)
         {
 
         }
 
-        public void UpdateGameQueue(object sender, UpdateGameQueueArgs args)
+        public void NotificateResourceAdded()
         {
-            if (args.Map != null && args.Players.Count() > 5)
-            {
-                foreach (var arg in args.Map.Players)
-                {
-                    Groups.Add(arg.PlayerId, args.Map.Id);
-                }
-
-                Clients.Group(args.Map.Id).gameStart(args.Map);
-            }
-            else
-            {
-                foreach (var arg in args.Players)
-                {
-                    Clients.Client(arg.PlayerId).updateQueue(args.Map);
-                }
-            }
 
         }
     }

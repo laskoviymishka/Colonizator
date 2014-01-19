@@ -2,14 +2,43 @@
 @{
     ViewBag.Title = "All";
 }
+
 <script src="~/Scripts/jquery-1.10.2.min.js"></script>
 <script src="~/Scripts/jquery.signalR-2.0.1.min.js"></script>
 <script src="~/signalr/hubs"></script>
 <ul>
-    @foreach (var map in Model)
-    {
-        <li>@map.Id</li>
-    }
 </ul>
+<script>
+    var gameHub;
+    var mapHub;
+    var markethub;
+    $(function () {
+        mapHub = $.connection.mapHub;
+        mapHub.client.updateQueue = function (eventArgs) {
+            alert(eventArgs.toString());
+        };
 
+        mapHub.client.gameStart = function (eventArgs) {
+            alert(eventArgs.toString());
+        };
+
+        $('#displayname').focus();
+        // Start the connection.
+        $.connection.hub.start().done(function () {
+            $('#search').click(function () {
+                mapHub.server.searchGame($('#displayname').val());
+            });
+        });
+    });
+    // This optional function html-encodes messages for display in the page.
+    function htmlEncode(value) {
+        var encodedValue = $('<div />').text(value).html();
+        return encodedValue;
+    }
+
+    function toQueue() {
+    }
+</script>
+<input type="text" id="displayname" />
+<button id="search">search</button>
 
