@@ -59,20 +59,73 @@ namespace Colonizator.Controllers
 					Cities = map.Nodes.Where(x => x.PlayerId >=0).Select(x => 
 						new CityModel()
 						{
-							HexagonIndex = x.HexagonA.Index,
-							Position = x.OrderA,
+							HexagonIndex = x.HexagonA.Hexagon.Index,
+							Position = x.HexagonA.Position,
 							CitySize = x.CitySize > 1 ? 't' : 'v',
 							PlayerId = x.PlayerId
 						}).ToList(),
 					Roads = map.Edges.Where(x => x.PlayerId >= 0).Select(x =>
 						new RoadModel()
 						{
-							HexagonIndex = x.HexagonA.Index,
-							Position = x.OrderA,
+							HexagonIndex = x.HexagonA.Hexagon.Index,
+							Position = x.HexagonA.Position,
 							PlayerId = x.PlayerId
 						}).ToList(),
 				},
 				JsonRequestBehavior.AllowGet);
+		}
+
+		[HttpGet]
+		public ActionResult AvailableMap(string token, int playerId)
+		{
+			MapController map = GetMap(token);
+
+			return Json(
+				new MapStateModel()
+				{
+					Cities = map.GetAvailableNodes(playerId).Where(x => x.CitySize < 2).Select(x =>
+						new CityModel()
+						{
+							HexagonIndex = x.HexagonA.Hexagon.Index,
+							Position = x.HexagonA.Position,
+							CitySize = x.CitySize > 0 ? 't' : 'v',
+							PlayerId = playerId
+						}).ToList(),
+					Roads = map.GetAvailableEdges(playerId).Select(x =>
+						new RoadModel()
+						{
+							HexagonIndex = x.HexagonA.Hexagon.Index,
+							Position = x.HexagonA.Position,
+							PlayerId = playerId
+						}).ToList(),
+				},
+				JsonRequestBehavior.AllowGet);
+		}
+
+		[HttpPost]
+		public void BuildCity(string token, int playerId, int haxagonIndex, int position)
+		{
+			MapController map = GetMap(token);
+
+			if (!map.IsNodeAvailable(haxagonIndex, position, playerId))
+			{
+				throw new InvalidOperationException("Node is not available.");
+			}
+
+			map.BuildCity(haxagonIndex, position, playerId, map.GetCitySize(haxagonIndex, position) + 1);
+		}
+
+		[HttpPost]
+		public void BuildRoad(string token, int playerId, int haxagonIndex, int position)
+		{
+			MapController map = GetMap(token);
+
+			if (!map.IsEdgeAvailable(haxagonIndex, position, playerId))
+			{
+				throw new InvalidOperationException("Edge is not available.");
+			}
+
+			map.BuildRoad(haxagonIndex, position, playerId);
 		}
 
 		private MapController GetMap(string token)
