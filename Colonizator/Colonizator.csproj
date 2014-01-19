@@ -206,6 +206,8 @@
     <Content Include="Content\Site.css" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
+    <None Include="Properties\PublishProfiles\colonizatory - FTP.pubxml" />
+    <None Include="Properties\PublishProfiles\colonizatory - Web Deploy.pubxml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\Dice.js" />
     <Content Include="Scripts\game.js" />
