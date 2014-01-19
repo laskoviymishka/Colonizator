@@ -46,13 +46,13 @@
     function toQueue() {
     }
 
-    $.getJSON('/Game/Map', function(data) {
+    $.getJSON('/Game/Game', function(data) {
         DrawField(data);
 
-        $.getJSON('/Game/MapState', function(data1) {
+        $.getJSON('/Game/GameState', function(data1) {
             DrawTowns(data1.Cities);
             DrawRoads(data1.Roads);
-            $.getJSON('/Game/AvailableMap?playerId=1', function (data2) {
+            $.getJSON('/Game/AvailableGame?playerId=1', function (data2) {
                 DrawTowns(data2.Cities, true);
                 DrawRoads(data2.Roads, true);
             });

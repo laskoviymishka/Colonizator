@@ -28,12 +28,12 @@ namespace Colonizator.Broadcasters
             }
         }
 
-        private void GameOnResourceUpdate(Map sender, ResourceUpdateArgs args)
+        private void GameOnResourceUpdate(Game sender, ResourceUpdateArgs args)
         {
             _context.Clients.Client(args.Player.PlayerId).updateResource(args.Player.Resources);
         }
 
-        private void GameOnOrderUpdate(Map sender, OrderUpdateArgs args)
+        private void GameOnOrderUpdate(Game sender, OrderUpdateArgs args)
         {
             _context.Clients.Client(args.Player.PlayerId).updateOrder(args.Player.Orders);
         }
@@ -70,7 +70,10 @@ namespace Colonizator.Broadcasters
 
         private void ResourcesOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs notifyCollectionChangedEventArgs)
         {
+            if (sender is Resource)
+            {
 
+            }
         }
     }
 }

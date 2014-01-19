@@ -15,20 +15,32 @@ namespace Colonizator.Broadcasters
 {
     public class MapBroadcaster
     {
+        #region Private fields
+
+
         private static MapBroadcaster _instance;
-        private List<Map> _games;
+        private List<Game> _games;
         private SearchGameQueue _queue;
         private const string InQueueUsers = "in_queue_users";
         private IHubContext _context;
         private List<Player> Players;
+
+        #endregion
+
+        #region Constructor
+
         private MapBroadcaster()
         {
             _queue = new SearchGameQueue();
             _queue.UpdateGameQueue += UpdateGameQueue;
-            _games = new List<Map>();
+            _games = new List<Game>();
             _context = GlobalHost.ConnectionManager.GetHubContext<MapHub>();
             Players = new List<Player>();
         }
+
+        #endregion
+
+        #region Instantiated
 
         public static MapBroadcaster Instance
         {
@@ -42,14 +54,15 @@ namespace Colonizator.Broadcasters
             }
         }
 
+        #endregion
 
-        public List<Map> Games { get { return _games; } }
+        public List<Game> Games { get { return _games; } }
 
-        public Map GameById(string mapId)
+        public Game GameById(string mapId)
         {
             if (_games == null)
             {
-                _games = new List<Map>();
+                _games = new List<Game>();
             }
             if (Games.Any(g => g.Id == mapId))
             {
@@ -61,7 +74,7 @@ namespace Colonizator.Broadcasters
             }
         }
 
-        public Map CreateGame(string mapId)
+        public Game CreateGame(string mapId)
         {
             var mapControll = new MapController();
             mapControll.Initialize();
@@ -89,7 +102,7 @@ namespace Colonizator.Broadcasters
                 },
                 JsonRequestBehavior.AllowGet);
             };
-            var map = new Map(mapId, Players, mapControll);
+            var map = new Game(mapId, Players, mapControll);
             _games.Add(map);
             return map;
         }
@@ -107,7 +120,7 @@ namespace Colonizator.Broadcasters
             var eventArgs = new UpdateGameQueueArgs();
             if (Players.Count == 3)
             {
-                eventArgs.Map = CreateGame(Guid.NewGuid().ToString().Substring(0, 6));
+                eventArgs.Game = CreateGame(Guid.NewGuid().ToString().Substring(0, 6));
                 eventArgs.Players = Players;
                 Players = new List<Player>();
             }
@@ -121,19 +134,18 @@ namespace Colonizator.Broadcasters
             {
                 throw new InvalidOperationException("Cannot added user in game twice");
             }
-            _queue.SearchGame(new Player { PlayerId = playerId, PlayerName = playerName });
         }
 
         public void UpdateGameQueue(object sender, UpdateGameQueueArgs args)
         {
-            if (args.Map != null)
+            if (args.Game != null)
             {
-                foreach (var arg in args.Map.Players)
+                foreach (var arg in args.Game.Players)
                 {
-                    _context.Groups.Add(arg.PlayerId, args.Map.Id);
+                    _context.Groups.Add(arg.PlayerId, args.Game.Id);
                 }
 
-                _context.Clients.Group(args.Map.Id).gameStart(args.Map.Id);
+                _context.Clients.Group(args.Game.Id).gameStart(args.Game.Id);
             }
             else
             {
@@ -165,17 +177,6 @@ namespace Colonizator.Broadcasters
                 && player.Resources.Any(r => r.Type == ResourceType.Wood)
                 && player.Resources.Any(r => r.Type == ResourceType.Wool)
                 && player.Resources.Any(r => r.Type == ResourceType.Corn))
-            {
-                return true;
-            }
-            return false;
-        }
-        public bool CanBuildCity(string mapId, int userId)
-        {
-            var game = GameById(mapId);
-            var player = game.Players[userId];
-            if (player.Resources.Count(r => r.Type == ResourceType.Minerals) == 3
-                && player.Resources.Count(r => r.Type == ResourceType.Corn) == 2)
             {
                 return true;
             }
