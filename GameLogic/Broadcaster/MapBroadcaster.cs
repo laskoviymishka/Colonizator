@@ -12,6 +12,14 @@ namespace GameLogic.Broadcaster
             _maps = new List<Map>();
         }
 
+        public static List<Map> Maps
+        {
+            get { return _maps; }
+        }
 
+        public static void CreateGame(string gameName)
+        {
+            _maps.Add(new Map() { Id = gameName });
+        }
     }
 }

@@ -1,0 +1,12 @@
+﻿@model List<GameLogic.Game.Map>
+@{
+    ViewBag.Title = "All";
+}
+<ul>
+    @foreach (var map in Model)
+    {
+        <li>@map.Id</li>
+    }
+</ul>
+
+
