@@ -152,6 +152,8 @@ namespace Model
 			Edge edge = hexagon.Edges[position];
 
 			edge.PlayerId = playerId;
+
+			OnStateChanged();
 		}
 
 		public void BuildCity(int hexagonIndex, int position, int playerId, int citySize)
@@ -161,6 +163,8 @@ namespace Model
 
 			node.PlayerId = playerId;
 			node.CitySize = citySize;
+
+			OnStateChanged();
 		}
 
 		public IEnumerable<Node> GetAvailableNodes(int playerId)
