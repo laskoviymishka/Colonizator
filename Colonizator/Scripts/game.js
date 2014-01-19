@@ -119,7 +119,7 @@ function DrawTowns(towns, isPossible) {
                 var t1 = towns[this.id];
                 $.post(
                     "/Game/BuildCity",
-                    { token: '', playerId: 12, haxagonIndex: t1.HexagonIndex, position: t1.Position },
+                    { token: token, playerId: userId, haxagonIndex: t1.HexagonIndex, position: t1.Position },
                     function (e) { alert(e.message); });
                 console.log('clicked town', t1.HexagonIndex, t1.CitySize, t1.Position);
             });
@@ -158,7 +158,7 @@ function DrawRoads(roads, isPossible) {
             $(newRoad).on('click', function () {
                 var r1 = roads[this.id];
                 $.post("/Game/BuildRoad",
-                    { token: '', playerId: 12, haxagonIndex: r1.HexagonIndex, position: r1.Position },
+                    { token: token, playerId: userId, haxagonIndex: r1.HexagonIndex, position: r1.Position },
                     function (e) { alert(e.message); });
                 console.log('clicked road', r1.HexagonIndex);
             });
