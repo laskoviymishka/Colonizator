@@ -9,6 +9,7 @@ using GameLogic.Game;
 using GameLogic.Market;
 using Model;
 using GameLogic.Models;
+using GameLogic.Model;
 
 namespace Colonizator.Controllers
 {
@@ -160,7 +161,8 @@ namespace Colonizator.Controllers
         public ActionResult ThrowDice(string token, int playerId)
         {
             Game game = GetGame(token);
-            return Json(game.ThrowDice(), JsonRequestBehavior.AllowGet);
+            var model = game.ThrowDice();
+            return Json(new DiceViewModel { First = model[0], Second = model[1]}, JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]

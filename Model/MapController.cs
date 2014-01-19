@@ -106,6 +106,27 @@ namespace Model
         {
             var random = new Random();
 
+            var tiles = new List<int>();
+            tiles.Add(2); //пустыня
+            tiles.Add(3);//дерево
+            tiles.Add(3);//дерево
+            tiles.Add(3);//дерево
+            tiles.Add(3);//дерево
+            tiles.Add(4);//шерсть
+            tiles.Add(4);//шерсть
+            tiles.Add(4);//шерсть
+            tiles.Add(4);//шерсть
+            tiles.Add(5);//зерно
+            tiles.Add(5);//зерно
+            tiles.Add(5);//зерно
+            tiles.Add(5);//зерно
+            tiles.Add(6);//глина
+            tiles.Add(6);//глина
+            tiles.Add(6);//глина
+            tiles.Add(7);//руда
+            tiles.Add(7);//руда
+            tiles.Add(7);//руда
+
             foreach (Hexagon hexagon in _hexagones)
             {
                 if (hexagon != null)
@@ -117,7 +138,9 @@ namespace Model
                     }
                     if (hexagon.Index > 0)
                     {
-                        hexagon.ResourceType = random.Next(6) + 2;
+                        var randomPossibleTile = tiles[random.Next(tiles.Count)];
+                        hexagon.ResourceType = randomPossibleTile;
+                        tiles.Remove(randomPossibleTile);
 
                         int faceNumber = 1 + random.Next(12);
 

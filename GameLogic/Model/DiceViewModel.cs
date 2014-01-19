@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
-namespace GameLogic.Game
+namespace GameLogic.Model
 {
-    public class GameStateUpdateArgs
+    public class DiceViewModel
     {
         public int First { get; set; }
         public int Second { get; set; }
-
     }
 }

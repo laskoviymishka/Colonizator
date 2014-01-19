@@ -143,11 +143,15 @@ namespace GameLogic.Game
             NextPlayer();
         }
 
-        public int ThrowDice()
+        public List<int> ThrowDice()
         {
-            Random random = new Random();
-
-            int cubeValue = random.Next(2, 12);
+            var random = new Random();
+            int cubeValue1 = random.Next(1, 7);
+            int cubeValue2 = random.Next(1, 7);
+            var result = new List<int>();
+            result.Add(cubeValue1);
+            result.Add(cubeValue2);
+            int cubeValue = cubeValue1 + cubeValue2;
             if (cubeValue == 7)
             {
                 foreach (var player in Players)
@@ -167,13 +171,13 @@ namespace GameLogic.Game
                         }
                     }
                 }
-                DiceThrowen(this, new GameStateUpdateArgs { DiceNumber = cubeValue });
-                return 7;
+                DiceThrowen(this, new GameStateUpdateArgs { First = cubeValue1, Second = cubeValue2 });
+                return result;
             }
 
             foreach (Hexagon[] hexagons in MapController.GetMap())
             {
-                foreach (var hexagon in hexagons)
+                foreach (var hexagon in hexagons.Where(h => h.ResourceType > 2))
                 {
                     if (hexagon.FaceNumber == cubeValue)
                     {
@@ -181,15 +185,15 @@ namespace GameLogic.Game
                         {
                             if (node.PlayerId >= 0 && node.PlayerId <= 5)
                             {
-                                Players[node.PlayerId].Resources.First(r => r.Type == (ResourceType)hexagon.ResourceType).Qty += node.CitySize;
+                                Players[node.PlayerId].Resources.First(r => r.Type == (ResourceType)(hexagon.ResourceType-3)).Qty += node.CitySize;
                             }
                         }
                     }
                 }
             }
 
-            DiceThrowen(this, new GameStateUpdateArgs { DiceNumber = cubeValue });
-            return cubeValue;
+            DiceThrowen(this, new GameStateUpdateArgs { First = cubeValue1, Second = cubeValue2 });
+            return result;
         }
 
         public List<CityModel> GetCities()

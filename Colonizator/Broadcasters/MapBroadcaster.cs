@@ -88,7 +88,7 @@ namespace Colonizator.Broadcasters
 
         void game_DiceThrowen(Game sender, GameStateUpdateArgs args)
         {
-            _context.Clients.Group(sender.Id).throwenDice(args.DiceNumber);
+            _context.Clients.Group(sender.Id).throwenDice(args);
         }
 
         private void game_GameStateUpdate(Game sender, GameStateUpdateArgs args)

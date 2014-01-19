@@ -132,7 +132,7 @@
         if (currentUser.PlayerId == userMove.PlayerId) {
             $('#passMove').show();
             $.post(
-                    "/Game/BuildCity",
+                    "/Game/PassMove",
                     {
                         token: token,
                         playerId: userId
@@ -143,9 +143,9 @@
     function throwenDice(data) {
         console.log('throwenDice', data);
         if (currentUser.PlayerId == userMove.PlayerId) {
-            $('#throwDiceResult').html('Вам выпало ' + data)
+            $('#throwDiceResult').html('Вам выпало ' + data.First + ' и ' + data.Second)
         } else {
-            $('#throwDiceResult').html(userMove.PlayerName + ' выпало ' + data)
+            $('#throwDiceResult').html(userMove.PlayerName + ' выпало ' + data.First + ' и ' + data.Second)
         }
         $('#throwDiceCloseBtn').show()
         $('#throwDiceBtn').hide()

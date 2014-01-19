@@ -222,13 +222,13 @@
     <Content Include="Scripts\_references.js" />
     <Content Include="Sprites\f0.png" />
     <Content Include="Sprites\f1.png" />
+    <Content Include="Sprites\f8.png" />
     <Content Include="Sprites\f2.png" />
-    <Content Include="Sprites\f3.png" />
+    <Content Include="Sprites\f7.png" />
     <Content Include="Sprites\f4.png" />
     <Content Include="Sprites\f5.png" />
+    <Content Include="Sprites\f3.png" />
     <Content Include="Sprites\f6.png" />
-    <Content Include="Sprites\f7.png" />
-    <Content Include="Sprites\f8.png" />
     <Content Include="Sprites\r0.png" />
     <Content Include="Sprites\r1.png" />
     <Content Include="Sprites\r2.png" />
