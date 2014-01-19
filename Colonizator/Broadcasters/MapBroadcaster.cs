@@ -41,6 +41,10 @@ namespace Colonizator.Broadcasters
 
         public Map GameById(string mapId)
         {
+            if (_games == null)
+            {
+                _games = new List<Map>();
+            }
             if (Games.Any(g => g.Id == mapId))
             {
                 return Games.First(g => g.Id == mapId);
