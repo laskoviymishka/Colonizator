@@ -25,6 +25,17 @@
             $('#userQueue').html(userId.toString());
         };
 
+        mapHub.client.updateState = function (data) {
+            console.log("update state");
+
+            $.getJSON('/Game/AvailableMap?playerId=' + userId + '&token=' + token, function (data2) {
+                global_data = data2;
+                console.log('/Game/AvailableMap?playerId=' + userId + '&token=' + token);
+                DrawTowns(data2.Cities, true);
+                DrawRoads(data2.Roads, true);
+            });
+        };
+
         mapHub.client.gameStart = function (eventArgs) {
             console.log("start");
             $('#displayGame').html(eventArgs.toString());

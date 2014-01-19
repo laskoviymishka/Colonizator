@@ -167,13 +167,12 @@ namespace Model
             OnStateChanged();
         }
 
-        public void BuildCity(int hexagonIndex, int position, int playerId, int citySize)
+        public void BuildCity(int playerId,  int hexA, int hexB, int hexC)
         {
-            Hexagon hexagon = _hexagones[hexagonIndex];
-            Node node = hexagon.Nodes[position];
+            Node node = GetNode(hexA, hexB, hexC);
 
             node.PlayerId = playerId;
-            node.CitySize = citySize;
+            node.CitySize++;
 
             OnStateChanged();
         }
@@ -187,8 +186,8 @@ namespace Model
             return
                 Nodes.First(
                     n =>
-                        n.HexagonA.Hexagon.Index == hexA && n.HexagonB.Hexagon.Index == hexB &&
-                        n.HexagonC.Hexagon.Index == hexC);
+                        n.HexagonA.Position == hexA && n.HexagonB.Position == hexB &&
+                        n.HexagonC.Position == hexC);
         }
 
         public IEnumerable<Node> GetAvailableNodes(int playerId)
@@ -206,7 +205,7 @@ namespace Model
                 }
             }
 
-            IEnumerable<Node> result = potentialNodes.Count > 0 ? potentialNodes : (IEnumerable<Node>) _nodes.Values;
+            IEnumerable<Node> result = potentialNodes.Count > 0 ? potentialNodes : (IEnumerable<Node>)_nodes.Values;
 
             return result.Where(x => x != null && ((x.PlayerId == playerId) || (x.PlayerId < 0)));
         }
@@ -236,7 +235,7 @@ namespace Model
             return true;
         }
 
-        public bool IsNodeAvailable(int hexagonIndex, int position, int playerId)
+        public bool IsNodeAvailable(int hexA, int hexB, int hexC)
         {
             return true;
         }
@@ -344,7 +343,7 @@ namespace Model
 
         private static int ReverseOrder(int order)
         {
-            return (order + 3)%6;
+            return (order + 3) % 6;
         }
 
         private void OnStateChanged()

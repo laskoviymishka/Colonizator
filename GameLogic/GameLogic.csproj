@@ -39,6 +39,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Game\GameStateUpdateArgs.cs" />
     <Compile Include="Game\OrderUpdateArgs.cs" />
     <Compile Include="Game\ResourceUpdateArgs.cs" />
     <Compile Include="Helpers\ExceptionHelper.cs" />

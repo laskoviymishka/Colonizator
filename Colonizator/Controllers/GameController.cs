@@ -53,9 +53,7 @@ namespace Colonizator.Controllers
         public ActionResult MapState(string token)
         {
             MapController map = GetMap(token).MapController;
-
-            return Json(
-                new MapStateModel()
+            var model = new MapStateModel()
                 {
                     Cities = map.Nodes.Select(x =>
                         new CityModel()
@@ -75,8 +73,8 @@ namespace Colonizator.Controllers
                             Position = x.HexagonA.Position,
                             PlayerId = x.PlayerId
                         }).ToList(),
-                },
-                JsonRequestBehavior.AllowGet);
+                };
+            return Json(model, JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet]
@@ -105,6 +103,9 @@ namespace Colonizator.Controllers
                         {
                             HexagonIndex = x.HexagonA.Hexagon.Index,
                             Position = x.HexagonA.Position,
+                            HexA = x.HexagonA.Position,
+                            HexB = x.HexagonB.Position,
+                            HexC = x.HexagonC.Position,
                             CitySize = x.CitySize > 0 ? 't' : 'v',
                             PlayerId = playerId
                         }).ToList(),
@@ -120,10 +121,10 @@ namespace Colonizator.Controllers
         }
 
         [HttpPost]
-        public void BuildCity(string token, int playerId, int haxagonIndex, int position)
+        public void BuildCity(string token, int playerId, int hexA, int hexB, int hexC)
         {
             Game game = GetMap(token);
-            game.BuildCity(token, playerId, haxagonIndex, position);
+            game.BuildCity(token, playerId, hexA, hexB, hexC);
         }
 
         [HttpPost]

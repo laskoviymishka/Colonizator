@@ -21,7 +21,7 @@ namespace GameLogic.Game
 
         public event ResourceUpdate ResourceUpdate;
         public event OrderUpdate OrderUpdate;
-
+        public event GameStateUpdate GameStateUpdate;
         #endregion
 
         #region Constructor
@@ -57,7 +57,7 @@ namespace GameLogic.Game
 
         #region Game Methods
 
-        public void BuildCity(string token, int playerId, int haxagonIndex, int position)
+        public void BuildCity(string token, int playerId, int hexA, int hexB, int hexC)
         {
             if (Players[playerId] != CurrentPlayer)
             {
@@ -71,16 +71,12 @@ namespace GameLogic.Game
             {
                 throw new InvalidOperationException("not available resource");
             }
-            if (!MapController.IsNodeAvailable(haxagonIndex, position, playerId))
+            if (!MapController.IsNodeAvailable(hexA, hexB, hexC))
             {
                 throw new InvalidOperationException("Node is not available.");
             }
 
-            MapController.BuildCity(
-                haxagonIndex,
-                position,
-                playerId,
-                MapController.GetCitySize(haxagonIndex, position) + 1);
+            MapController.BuildCity(playerId, hexA, hexB, hexC);
             NextPlayer();
         }
 
@@ -128,7 +124,6 @@ namespace GameLogic.Game
                 position,
                 playerId,
                 MapController.GetCitySize(haxagonIndex, position) + 1);
-
             NextPlayer();
         }
 
@@ -186,6 +181,7 @@ namespace GameLogic.Game
                 _currentPlayerId = (_currentPlayerId + 1) % Players.Count;
             }
             CurrentPlayer = Players[_currentPlayerId];
+            GameStateUpdate(this, new GameStateUpdateArgs());
         }
 
         #endregion
@@ -194,4 +190,6 @@ namespace GameLogic.Game
     public delegate void OrderUpdate(Game sender, OrderUpdateArgs args);
 
     public delegate void ResourceUpdate(Game sender, ResourceUpdateArgs args);
+    public delegate void GameStateUpdate(Game sender, GameStateUpdateArgs args);
+
 }

@@ -78,32 +78,36 @@ namespace Colonizator.Broadcasters
         {
             var mapControll = new MapController();
             mapControll.Initialize();
-            mapControll.StateChanged += delegate(object sender, EventArgs eventArgs)
+            var game = new Game(mapId, Players, mapControll);
+            game.GameStateUpdate += game_GameStateUpdate;
+            _games.Add(game);
+            return game;
+        }
+
+        private void game_GameStateUpdate(Game sender, GameStateUpdateArgs args)
+        {
+            var model = new MapStateModel()
             {
-                _context.Clients.Group(mapId).updateState(
-                new MapStateModel()
-                {
-                    Cities = mapControll.Nodes.Where(x => x.PlayerId >= 0).Select(x =>
-                        new CityModel()
-                        {
-                            HexagonIndex = x.HexagonA.Hexagon.Index,
-                            Position = x.HexagonA.Position,
-                            CitySize = x.CitySize > 1 ? 't' : 'v',
-                            PlayerId = x.PlayerId
-                        }).ToList(),
-                    Roads = mapControll.Edges.Where(x => x.PlayerId >= 0).Select(x =>
-                        new RoadModel()
-                        {
-                            HexagonIndex = x.HexagonA.Hexagon.Index,
-                            Position = x.HexagonA.Position,
-                            PlayerId = x.PlayerId
-                        }).ToList(),
-                },
-                JsonRequestBehavior.AllowGet);
+                Cities = sender.MapController.Nodes.Select(x =>
+                    new CityModel()
+                    {
+                        HexagonIndex = x.HexagonA.Hexagon.Index,
+                        Position = x.HexagonA.Position,
+                        HexA = x.HexagonA.Position,
+                        HexB = x.HexagonB.Position,
+                        HexC = x.HexagonC.Position,
+                        CitySize = x.CitySize > 1 ? 't' : 'v',
+                        PlayerId = x.PlayerId
+                    }).ToList(),
+                Roads = sender.MapController.Edges.Where(x => x.PlayerId >= 0).Select(x =>
+                    new RoadModel()
+                    {
+                        HexagonIndex = x.HexagonA.Hexagon.Index,
+                        Position = x.HexagonA.Position,
+                        PlayerId = x.PlayerId
+                    }).ToList(),
             };
-            var map = new Game(mapId, Players, mapControll);
-            _games.Add(map);
-            return map;
+            _context.Clients.Group(sender.Id).updateState(model);
         }
 
         public void SearchGame(string playerId, string playerName)
@@ -147,6 +151,7 @@ namespace Colonizator.Broadcasters
                 foreach (var arg in args.Game.Players)
                 {
                     _context.Groups.Add(arg.PlayerId, args.Game.Id);
+                    _context.Groups.Remove(arg.PlayerId, InQueueUsers);
                 }
 
                 _context.Clients.Group(args.Game.Id).gameStart(args.Game.Id);
