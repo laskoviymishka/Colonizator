@@ -5,7 +5,6 @@
 </script>
 <table class="table">
     <tr>
-        <th>ID</th>
         <th>Name</th>
         <th>Score</th>
         <th>Color</th>
@@ -14,7 +13,6 @@
     @foreach (var player in Model.Game.Players)
     {
         <tr>
-            <td>@player.PlayerId</td>
             <td>@player.PlayerName</td>
             <td>@player.PlayerScore</td>
             <td>@player.Color</td>
@@ -23,49 +21,60 @@
 </table>
 
 <table class="table">
-    <tr>
-        <th>Player</th>
-        <th>@GameLogic.Game.ResourceType.Corn</th>
-        <th>@GameLogic.Game.ResourceType.Minerals</th>
-        <th>@GameLogic.Game.ResourceType.Soil</th>
-        <th>@GameLogic.Game.ResourceType.Wood</th>
-        <th>@GameLogic.Game.ResourceType.Wool</th>
-    </tr>
-
     @foreach (var player in Model.Game.Players)
     {
         <tr>
             <td>@player.PlayerName</td>
             <td>
+                @if (player.Resources.Any(r => r.Type == GameLogic.Game.ResourceType.Wood))
+                {
+                    string src = string.Format("/Sprites/rs{0}.png", (int)GameLogic.Game.ResourceType.Wood);
+                    <div style="width:40px;height:60px;">
+                        <img src="@src" alt="..." class="img-thumbnail" style="width:40px;height:60px;">
+                        <div class="resourceCount">@player.Resources.First(r => r.Type == GameLogic.Game.ResourceType.Wood).Qty</div>
+                    </div>
+                }
+            </td>
+            <td>
+                @if (player.Resources.Any(r => r.Type == GameLogic.Game.ResourceType.Wool))
+                {
+                    string src = string.Format("/Sprites/rs{0}.png", (int)GameLogic.Game.ResourceType.Wool);
+                    <div style="width:40px;height:60px;">
+                        <img src="@src" alt="..." class="img-thumbnail" style="width:40px;height:60px;">
+                        <div class="resourceCount">@player.Resources.First(r => r.Type == GameLogic.Game.ResourceType.Wool).Qty</div>
+                    </div>
+                }
+            </td>
+            <td>
                 @if (player.Resources.Any(r => r.Type == GameLogic.Game.ResourceType.Corn))
                 {
-                    @player.Resources.First(r => r.Type == GameLogic.Game.ResourceType.Corn).Qty
+                    string src = string.Format("/Sprites/rs{0}.png", (int)GameLogic.Game.ResourceType.Corn);
+                    <div style="width:40px;height:60px;">
+                        <img src="@src" alt="..." class="img-thumbnail" style="width:40px;height:60px;">
+                        <div class="resourceCount">@player.Resources.First(r => r.Type == GameLogic.Game.ResourceType.Corn).Qty</div>
+                    </div>
+                }
+            </td>
+            <td>
+                @if (player.Resources.Any(r => r.Type == GameLogic.Game.ResourceType.Soil))
+                {
+                    string src = string.Format("/Sprites/rs{0}.png", (int)GameLogic.Game.ResourceType.Soil);
+                    <div style="width:40px;height:60px;">
+                        <img src="@src" alt="..." class="img-thumbnail" style="width:40px;height:60px;">
+                        <div class="resourceCount">@player.Resources.First(r => r.Type == GameLogic.Game.ResourceType.Soil).Qty</div>
+                    </div>
                 }
             </td>
             <td>
                 @if (player.Resources.Any(r => r.Type == GameLogic.Game.ResourceType.Minerals))
                 {
-                    @player.Resources.First(r => r.Type == GameLogic.Game.ResourceType.Minerals).Qty
+                    string src = string.Format("/Sprites/rs{0}.png", (int)GameLogic.Game.ResourceType.Minerals);
+                    <div style="width:40px;height:60px;">
+                        <img src="@src" alt="..." class="img-thumbnail" style="width:40px;height:60px;">
+                        <div class="resourceCount">@player.Resources.First(r => r.Type == GameLogic.Game.ResourceType.Minerals).Qty</div>
+                    </div>
                 }
-        </td>
-        <td>
-            @if (player.Resources.Any(r => r.Type == GameLogic.Game.ResourceType.Soil))
-            {
-                @player.Resources.First(r => r.Type == GameLogic.Game.ResourceType.Soil).Qty
-            }
-        </td>
-        <td>
-            @if (player.Resources.Any(r => r.Type == GameLogic.Game.ResourceType.Wood))
-            {
-                @player.Resources.First(r => r.Type == GameLogic.Game.ResourceType.Wood).Qty
-            }
-        </td>
-        <td>
-            @if (player.Resources.Any(r => r.Type == GameLogic.Game.ResourceType.Wool))
-            {
-                @player.Resources.First(r => r.Type == GameLogic.Game.ResourceType.Wool).Qty
-            }
-        </td>
-    </tr>
+            </td>
+        </tr>
     }
 </table>
