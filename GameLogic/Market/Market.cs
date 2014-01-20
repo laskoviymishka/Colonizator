@@ -53,9 +53,39 @@ namespace GameLogic.Market
             return true;
         }
 
-        public bool AcceptOder(Player acceptedBy, Guid orderId, Player orderOwner)
+        public Order GetOrder(Guid orderId)
         {
-            throw new NotImplementedException();
+            lock (_syncObject)
+            {
+                return _orders.FirstOrDefault(o => o.Id == orderId);
+            }
+        }
+
+        public bool AcceptOder(Guid orderId)
+        {
+            lock (_syncObject)
+            {
+                var order = _orders.FirstOrDefault(o => o.Id == orderId);
+                if (order == null) return false;
+                if (!order.HasBuyerAcceptance || !order.HasSellerAcceptance) return false;
+                foreach (var resourceToBuy in order.BuyResources)
+                {
+                    order.Buyer.Resources.First(r => r.Type == resourceToBuy.Type).Qty += resourceToBuy.Qty;
+                    order.Seller.Resources.First(r => r.Type == resourceToBuy.Type).Qty -= resourceToBuy.Qty;
+                }
+                foreach (var resourceToSell in order.SellResources)
+                {
+                    order.Buyer.Resources.First(r => r.Type == resourceToSell.Type).Qty -= resourceToSell.Qty;
+                    order.Seller.Resources.First(r => r.Type == resourceToSell.Type).Qty += resourceToSell.Qty;
+                }
+
+                _orders.Remove(order);
+                if (OrderPlaced != null)
+                {
+                    OrderPlaced(_game, new EventArgs());
+                }
+                return true;
+            }
         }
 
         public IEnumerable<Order> GetOrders()

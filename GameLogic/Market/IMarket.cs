@@ -12,6 +12,7 @@ namespace GameLogic.Market
     {
         IEnumerable<Order> GetOrders();
         IEnumerable<Order> GetOrders(string playerId);
+        Order GetOrder(Guid orderId);
 
         event OrderPlaced OrderPlaced;
 
@@ -24,7 +25,8 @@ namespace GameLogic.Market
         void RobberTime(IEnumerable<Player> players);
 
         bool PlaceOrder(Order order);
-        bool AcceptOder(Player acceptedBy, Guid orderId, Player orderOwner);
+
+        bool AcceptOder(Guid orderId);
 
         void SyncOrders(IEnumerable<Order> orders);
         void ScavengeOrders(IEnumerable<Player> players);

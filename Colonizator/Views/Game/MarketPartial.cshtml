@@ -20,16 +20,14 @@
     .order {
         width: 100%;
         margin: 3px;
-        border: thistle;
         background: bisque;
-        height: 50px;
+        display: inline-block;
     }
 
     .orders {
         width: 100%;
         margin: 5px;
-        border: thistle;
-        background: bisque;
+        background: white;
     }
 
     .resource {
@@ -67,27 +65,56 @@
         background-size: 100%;
     }
 </style>
+
+<div id="request" style="border: thick;">
+    <div style="width: 50%; float: right; background: green; display: inline-block">
+        <div style="width: 100%"><p class="resource resource2"></p><input id="sellCorn" type="range" min="0" max=5 value="0" /></div>
+        <div style="width: 100%"><p class="resource resource4"></p><input id="sellMinerals" type="range" min="0" max=5 value="0" /></div>
+        <div style="width: 100%"><p class="resource resource3"></p><input id="sellSoil" type="range" min="0" max=5 value="0" /></div>
+        <div style="width: 100%"><p class="resource resource0"></p><input id="sellWood" type="range" min="0" max=5 value="0" /></div>
+        <div style="width: 100%"><p class="resource resource1"></p><input id="sellWool" type="range" min="0" max=5 value="0" /></div>
+    </div>
+    <div style="width: 50%; float: left; background: orange; display: inline-block">
+        <div style="width: 100%"><p class="resource resource2"></p><input id="buyCorn" type="range" min="0" max=5 value="0" /></div>
+        <div style="width: 100%"><p class="resource resource4"></p><input id="buyMinerals" type="range" min="0" max=5 value="0" /></div>
+        <div style="width: 100%"><p class="resource resource3"></p><input id="buySoil" type="range" min="0" max=5 value="0" /></div>
+        <div style="width: 100%"><p class="resource resource0"></p><input id="buyWood" type="range" min="0" max=5 value="0" /></div>
+        <div style="width: 100%"><p class="resource resource1"></p><input id="buyWool" type="range" min="0" max=5 value="0" /></div>
+    </div>
+</div>
+@if (ViewBag.CurrentUser == ViewBag.MoveUser)
+{
+    <div class="btn btn-success" id="requestBuyOrder">Отправить запрос на покупку</div>
+    <div id="requestSellOrder"></div>
+}
+else
+{
+    <div class="btn btn-success" id="requestSellOrder">Отправить запрос на продажу</div>
+    <div id="requestBuyOrder"></div>
+}
+
 <div class="orders">
     @foreach (var item in Model)
     {
         <div class="order">
             <div class="buyBatch">
-                <ul>
+                <div>
                     @foreach (var res in item.SellResources.Where(r => r.Qty > 0))
                     {
                         string classs = "resource resource" + (int)res.Type;
-                        <li><div class="@classs"></div>@res.Type  @res.Qty</li>
+                        <div style="width: 100%"><div class="@classs" style="float: left"></div><p>@res.Qty</p></div>
                     }
-                </ul>
+                </div>
             </div>
             <div class="sellBatch">
-                <ul>
+                <div>
                     @foreach (var res in item.BuyResources.Where(r => r.Qty > 0))
                     {
                         string classs = "resource resource" + (int)res.Type;
-                        <li><div class="@classs"></div>@res.Type  @res.Qty</li>
+                        <div style="width: 100%"><div class="@classs" style="float: left"></div><p>@res.Qty</p></div>
+
                     }
-                </ul>
+                </div>
             </div>
             <div class="orderAction">
                 @if (item.Seller == null)
@@ -96,6 +123,10 @@
                         item.Buyer.PlayerName != ViewBag.CurrentUser.PlayerName && item.Buyer.PlayerName == ViewBag.MoveUser.PlayerName)
                     {
                         <div class="btn btn-success" onclick="processSell('@item.Id')">продать @item.Buyer.PlayerName -у</div>
+                    }
+                    else
+                    {
+                        <div class="label label-danger">недоступна</div>
                     }
                 }
                 else
@@ -116,64 +147,7 @@
         </div>
     }
 </div>
-@if (ViewBag.CurrentUser == ViewBag.MoveUser)
-{
-    <div id="buyRequest">
-        <div>
-            <ul>
-                <li><p class="resource resource2"></p><input id="sellCornB" type="number" value="0" /></li>
-                <li><p class="resource resource4"></p><input id="sellMineralsB" type="number" value="0" /></li>
-                <li><p class="resource resource3"></p><input id="sellSoilB" type="number" value="0" /></li>
-                <li><p class="resource resource0"></p><input id="sellWoodB" type="number" value="0" /></li>
-                <li><p class="resource resource1"></p><input id="sellWoolB" type="number" value="0" /></li>
 
-            </ul>
-        </div>
-        <div>
-            <ul>
-                <li><p class="resource resource2"></p><input id="buyCornB" type="number" value="0" /></li>
-                <li><p class="resource resource4"></p><input id="buyMineralsB" type="number" value="0" /></li>
-                <li><p class="resource resource3"></p><input id="buySoilB" type="number" value="0" /></li>
-                <li><p class="resource resource0"></p><input id="buyWoodB" type="number" value="0" /></li>
-                <li><p class="resource resource1"></p><input id="buyWoolB" type="number" value="0" /></li>
-            </ul>
-        </div>
-    </div>
-}
-else
-{
-    <div id="request">
-        <div>
-            <ul>
-                <li><p class="resource resource2"></p><input id="sellCorn" type="number" value="0" /></li>
-                <li><p class="resource resource4"></p><input id="sellMinerals" type="number" value="0" /></li>
-                <li><p class="resource resource3"></p><input id="sellSoil" type="number" value="0" /></li>
-                <li><p class="resource resource0"></p><input id="sellWood" type="number" value="0" /></li>
-                <li><p class="resource resource1"></p><input id="sellWool" type="number" value="0" /></li>
-
-            </ul>
-        </div>
-        <td>
-            <ul>
-                <li><p class="resource resource2"></p><input id="buyCorn" type="number" value="0" /></li>
-                <li><p class="resource resource4"></p><input id="buyMinerals" type="number" value="0" /></li>
-                <li><p class="resource resource3"></p><input id="buySoil" type="number" value="0" /></li>
-                <li><p class="resource resource0"></p><input id="buyWood" type="number" value="0" /></li>
-                <li><p class="resource resource1"></p><input id="buyWool" type="number" value="0" /></li>
-            </ul>
-        </td>
-    </div>
-}
-@if (ViewBag.CurrentUser == ViewBag.MoveUser)
-{
-    <div class="btn btn-success" id="requestBuyOrder">Отправить запрос на покупку</div>
-    <div id="requestSellOrder"></div>
-}
-else
-{
-    <div class="btn btn-success" id="requestSellOrder">Отправить запрос на продажу</div>
-    <div id="requestBuyOrder"></div>
-}
 <script>
     $(function () {
         $('#requestSellOrder').click(function () {
@@ -211,19 +185,19 @@ else
                     PlayerId: userId,
                     Sell:
                        {
-                           Corn: $('#sellCornB').val(),
-                           Minerals: $('#sellMineralsB').val(),
-                           Soil: $('#sellSoilB').val(),
-                           Wood: $('#sellWoodB').val(),
-                           Wool: $('#sellWoolB').val(),
+                           Corn: $('#sellCorn').val(),
+                           Minerals: $('#sellMinerals').val(),
+                           Soil: $('#sellSoil').val(),
+                           Wood: $('#sellWood').val(),
+                           Wool: $('#sellWool').val(),
                        },
                     Buy:
                        {
-                           Corn: $('#buyCornB').val(),
-                           Minerals: $('#buyMineralsB').val(),
-                           Soil: $('#buyWoodB').val(),
-                           Wood: $('#buyWoodB').val(),
-                           Wool: $('#buyWoolB').val(),
+                           Corn: $('#buyCorn').val(),
+                           Minerals: $('#buyMinerals').val(),
+                           Soil: $('#buyWood').val(),
+                           Wood: $('#buyWood').val(),
+                           Wool: $('#buyWool').val(),
                        }
                 };
 
@@ -233,17 +207,21 @@ else
         $('#requestSellOrder').show();
     });
 
-    var processBuy = function (orderID) {
+    var processBuy = function(orderID) {
+        var contract = { token: token, userId: userId, orderId: orderID };
+        $.post("/Game/ProcessBuy", $.toDictionary(contract));
+        console.log("/Game/ProcessBuy", contract);
+    };
 
-    }
-
-    var processSell = function (orderID) {
-
-    }
-    var testOrder = function () {
-        $.getJSON('/Game/GetTestOrder', function (data) {
+    var processSell = function(orderID) {
+        var contract = { token: token, userId: userId, orderId: orderID };
+        $.post("/Game/ProcessSell", $.toDictionary(contract));
+        console.log("/Game/ProcessSell", contract);
+    };
+    var testOrder = function() {
+        $.getJSON('/Game/GetTestOrder', function(data) {
             console.log("'/Game/GetTestOrder'", data);
             $.post("/Game/RequestOrder", $.toDictionary(data));
         });
-    }
+    };
 </script>

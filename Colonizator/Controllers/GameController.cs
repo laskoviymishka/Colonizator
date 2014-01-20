@@ -239,6 +239,28 @@ namespace Colonizator.Controllers
             game.Market.PlaceOrder(Order.CreatePropose(sellerList, buyerList, null, game.Players[order.PlayerId]));
         }
 
+        [HttpPost]
+        public void ProcessBuy(string token, int userId, string orderId)
+        {
+            var id = Guid.Parse(orderId);
+            var game = GetGame(token);
+            var order = game.Market.GetOrder(id);
+            order.Buyer = game.Players[userId];
+            order.HasBuyerAcceptance = true;
+            game.Market.AcceptOder(id);
+        }
+
+        [HttpPost]
+        public void ProcessSell(string token, int userId, string orderId)
+        {
+            var id = Guid.Parse(orderId);
+            var game = GetGame(token);
+            var order = game.Market.GetOrder(id);
+            order.Seller = game.Players[userId];
+            order.HasSellerAcceptance = true;
+            game.Market.AcceptOder(id);
+        }
+
         #endregion
 
         #region Private Heplers
