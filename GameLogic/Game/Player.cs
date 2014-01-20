@@ -10,6 +10,7 @@ namespace GameLogic.Game
         public string PlayerName { get; set; }
         public int PlayerScore { get; set; }
         public Color Color { get; set; }
+        public List<ICard> Cards { get; set; }
         public ObservableCollection<Resource> Resources { get; set; }
         public ObservableCollection<Order> Orders { get; set; }
         public HashSet<string> ConnectionIds { get; set; }

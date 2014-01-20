@@ -25,6 +25,7 @@ namespace GameLogic.Game
         public event OrderUpdate OrderUpdate;
         public event GameStateUpdate GameMoveUpdate;
         public event DiceThrowen DiceThrowen;
+        public event CardPlayed CardPlayed;
 
         #endregion
 
@@ -49,7 +50,8 @@ namespace GameLogic.Game
         #endregion
 
         #region Properties
-
+        public Achive Achive { get; set; }
+        public Deck Deck { get; set; }
         public Player CurrentPlayer { get; private set; }
         public string Id { get; set; }
         public List<Player> Players { get; set; }
@@ -59,6 +61,12 @@ namespace GameLogic.Game
         public bool IsStartUp
         {
             get { return _isStartUp; }
+        }
+
+        public void PlayCard(int cardId)
+        {
+            var card = CurrentPlayer.Cards.First(c => c.Id == cardId);
+            card.PlayCard(this);
         }
 
         public List<CityModel> AvaibleCityBuild
@@ -160,7 +168,10 @@ namespace GameLogic.Game
         #endregion
 
         #region Game Methods
-
+        public void PassMove(string token, int playerId)
+        {
+            NextPlayer();
+        }
         public void BuildCity(string token, int playerId, int hexA, int hexB, int hexC, int hexIndex)
         {
             if (_isStartUp)
@@ -276,7 +287,7 @@ namespace GameLogic.Game
                         }
                     }
                 }
-                DiceThrowen(this, new GameStateUpdateArgs {First = cubeValue1, Second = cubeValue2});
+                DiceThrowen(this, new GameStateUpdateArgs { First = cubeValue1, Second = cubeValue2 });
                 return result;
             }
 
@@ -286,19 +297,19 @@ namespace GameLogic.Game
                 {
                     if (hexagon.FaceNumber == cubeValue)
                     {
-                        foreach (Node node in hexagon.Nodes)
+                        foreach (Node node in hexagon.Nodes.Where(n => n != null))
                         {
                             if (node.PlayerId >= 0 && node.PlayerId <= 5)
                             {
                                 Players[node.PlayerId].Resources.First(
-                                    r => r.Type == (ResourceType) (hexagon.ResourceType - 3)).Qty += node.CitySize;
+                                    r => r.Type == (ResourceType)(hexagon.ResourceType - 3)).Qty += node.CitySize;
                             }
                         }
                     }
                 }
             }
 
-            DiceThrowen(this, new GameStateUpdateArgs {First = cubeValue1, Second = cubeValue2});
+            DiceThrowen(this, new GameStateUpdateArgs { First = cubeValue1, Second = cubeValue2 });
             return result;
         }
 
@@ -352,18 +363,23 @@ namespace GameLogic.Game
         {
             if (Players.Count > 0)
             {
-                _currentPlayerId = (_currentPlayerId + 1)%Players.Count;
+                _currentPlayerId = (_currentPlayerId + 1) % Players.Count;
             }
             CurrentPlayer = Players[_currentPlayerId];
+            foreach (var player in Players)
+            {
+                player.PlayerScore = 0;
+                int score = 0;
+                foreach (var node in MapController.Nodes.Where(n => n.PlayerId == (int)player.Color))
+                {
+                    score += node.CitySize;
+                }
+                player.PlayerScore += score;
+            }
             GameMoveUpdate(this, new GameStateUpdateArgs());
         }
 
         #endregion
-
-        public void PassMove(string token, int playerId)
-        {
-            NextPlayer();
-        }
     }
 
     public delegate void OrderUpdate(Game sender, OrderUpdateArgs args);
@@ -373,4 +389,5 @@ namespace GameLogic.Game
     public delegate void GameStateUpdate(Game sender, GameStateUpdateArgs args);
 
     public delegate void DiceThrowen(Game sender, GameStateUpdateArgs args);
+    public delegate void CardPlayed(Game sender, GameStateUpdateArgs args);
 }
