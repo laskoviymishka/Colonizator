@@ -11,7 +11,7 @@ namespace GameLogic.Market
     public interface IMarket
     {
         IEnumerable<Order> GetOrders();
-        IEnumerable<Order> GetOrders(string playerId);
+        IEnumerable<Order> GetOrders(Player player);
         Order GetOrder(Guid orderId);
 
         event OrderPlaced OrderPlaced;
