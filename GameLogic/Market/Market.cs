@@ -14,7 +14,23 @@ namespace GameLogic.Market
         #region Private Fields
 
         private readonly object _syncObject = new object();
+        private readonly Game.Game _game;
         private readonly List<Order> _orders = new List<Order>();
+
+        #endregion
+
+        #region Events
+
+        public event OrderPlaced OrderPlaced;
+
+        #endregion
+
+        #region Constructor
+
+        public Market(Game.Game game)
+        {
+            _game = game;
+        }
 
         #endregion
 
@@ -28,6 +44,10 @@ namespace GameLogic.Market
                 if (!_orders.Contains(order))
                 {
                     _orders.Add(order);
+                    if (OrderPlaced != null)
+                    {
+                        OrderPlaced(_game, new EventArgs());
+                    }
                 }
             }
             return true;
@@ -58,7 +78,7 @@ namespace GameLogic.Market
 
             lock (_syncObject)
             {
-                    playerOrders = _orders.Where(p => p.OrderConsumerId.PlayerId == playerId || p.OrderOwnerId.PlayerId == playerId);
+                playerOrders = _orders.Where(p => p.Buyer.PlayerId == playerId || p.Seller.PlayerId == playerId);
             }
 
             return playerOrders;
@@ -87,8 +107,8 @@ namespace GameLogic.Market
                     //    ResourceType rsType;
                     //    for (int i = 0; i < ordersList.Count; i++)
                     //    {
-                    //        //if (p.PlayerId != ordersList[i].OrderOwnerId)
-                    //        //    throw new InvalidOperationException("Order owner (OrderOwnerId) is invalid");
+                    //        //if (p.PlayerId != ordersList[i].Seller)
+                    //        //    throw new InvalidOperationException("Order owner (Seller) is invalid");
 
                     //        if (ordersList[i].OrderType == OrderType.Sell)
                     //        {
@@ -171,4 +191,6 @@ namespace GameLogic.Market
 
         #endregion
     }
+
+    public delegate void OrderPlaced(Game.Game sender, EventArgs args);
 }

@@ -46,38 +46,7 @@ namespace GameLogic.Game
                 _startUpTowns.Add(player, 2);
             }
 
-            Market = new Market.Market();
-            Market.PlaceOrder(new Order
-            {
-                OrderConsumerId = players[0],
-                HasConsumerAcceptance = true,
-                AcceptedResources = new List<Resource>
-                {
-                    new Resource { Type = ResourceType.Minerals, Qty = 1 },
-                    new Resource { Type = ResourceType.Wool, Qty = 1 },
-                },
-                ProposedResources = new List<Resource>
-                {
-                    new Resource { Type = ResourceType.Corn, Qty = 1 },
-                    new Resource { Type = ResourceType.Wood, Qty = 1 },
-                }
-            });
-
-            Market.PlaceOrder(new Order
-            {
-                OrderOwnerId = players[1],
-                HasOwnerAcceptance = true,
-                AcceptedResources = new List<Resource>
-                {
-                    new Resource { Type = ResourceType.Minerals, Qty = 1 },
-                    new Resource { Type = ResourceType.Wool, Qty = 1 },
-                },
-                ProposedResources = new List<Resource>
-                {
-                    new Resource { Type = ResourceType.Soil, Qty = 1 },
-                    new Resource { Type = ResourceType.Wood, Qty = 1 },
-                }
-            });
+            Market = new Market.Market(this);
         }
 
         #endregion

@@ -12,33 +12,34 @@ namespace GameLogic.Market
     {
         public Order()
         {
-            AcceptedResources = new List<Resource>();
-            ProposedResources = new List<Resource>();
+            BuyResources = new List<Resource>();
+            SellResources = new List<Resource>();
             Id = Guid.NewGuid();
         }
 
         public Guid Id { get; private set; }
 
-        public OrderType OrderType { get; set; }
-        public ResourceType ResourceType { get; set; }
-        public int Qty { get; set; }
+        public List<Resource> SellResources { get; set; }
 
-        public List<Resource> ProposedResources { get; set; }
+        public Player Seller { get; set; }
+        public Player Buyer { get; set; }
 
-        public Player OrderOwnerId { get; set; }
-        public Player OrderConsumerId { get; set; }
+        public bool HasSellerAcceptance { get; set; }
+        public bool HasBuyerAcceptance { get; set; }
 
-        public bool HasOwnerAcceptance { get; set; }
-        public bool HasConsumerAcceptance { get; set; }
+        public List<Resource> BuyResources { get; set; }
 
-        public List<Resource> AcceptedResources { get; set; }
-
-        public static Order CreateNew(OrderType orderType)
+        public static Order CreatePropose(List<Resource> sellResources, List<Resource> buyResources, Player seller, Player buyer)
         {
             return new Order
             {
                 Id = Guid.NewGuid(),
-                OrderType = orderType
+                SellResources = sellResources,
+                BuyResources =  buyResources,
+                Seller =  seller,
+                Buyer =  buyer,
+                HasSellerAcceptance = seller != null,
+                HasBuyerAcceptance = buyer != null
             };
         }
     }

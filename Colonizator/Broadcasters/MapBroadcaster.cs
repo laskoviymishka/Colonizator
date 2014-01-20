@@ -82,8 +82,20 @@ namespace Colonizator.Broadcasters
             var game = new Game(mapId, Players, mapControll);
             game.GameMoveUpdate += game_GameStateUpdate;
             game.DiceThrowen += game_DiceThrowen;
+            game.Market.OrderPlaced += Market_OrderPlaced;
             _games.Add(game);
             return game;
+        }
+
+        void Market_OrderPlaced(Game sender, EventArgs args)
+        {
+            _context.Clients.Group(sender.Id).updateState(
+                new
+                {
+                    movePlayer = sender.CurrentPlayer,
+                    isStartUp = sender.IsStartUp
+                }
+            );
         }
 
         void game_DiceThrowen(Game sender, GameStateUpdateArgs args)

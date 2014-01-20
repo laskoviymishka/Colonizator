@@ -223,6 +223,7 @@
     <Content Include="Scripts\modernizr-2.6.2.js" />
     <Content Include="Scripts\respond.js" />
     <Content Include="Scripts\respond.min.js" />
+    <Content Include="Scripts\Serializer.js" />
     <Content Include="Scripts\_references.js" />
     <Content Include="Sprites\f0.png" />
     <Content Include="Sprites\f1.png" />
@@ -238,6 +239,12 @@
     <Content Include="Sprites\r2.png" />
     <Content Include="Sprites\r3.png" />
     <Content Include="Sprites\r4.png" />
+    <Content Include="Sprites\rs0.png" />
+    <Content Include="Sprites\rs1.png" />
+    <Content Include="Sprites\rs2.png" />
+    <Content Include="Sprites\rs3.png" />
+    <Content Include="Sprites\rs4.png" />
+    <Content Include="Sprites\rs5.png" />
     <Content Include="Sprites\t0.png" />
     <Content Include="Sprites\t1.png" />
     <Content Include="Sprites\t2.png" />

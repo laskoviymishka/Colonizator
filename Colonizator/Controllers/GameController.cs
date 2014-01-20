@@ -16,10 +16,16 @@ namespace Colonizator.Controllers
 {
     public class GameController : Controller
     {
+        #region Private Fields
+
+
         private static readonly Dictionary<string, MapController> _maps = new Dictionary<string, MapController>();
         private readonly MapBroadcaster _broadcaster = MapBroadcaster.Instance;
-        //
-        // GET: /Game/
+
+        #endregion
+
+        #region Main Actions
+
         public ActionResult Index(string id)
         {
             return View();
@@ -29,6 +35,8 @@ namespace Colonizator.Controllers
         {
             return View(MapBroadcaster.Instance.Games);
         }
+
+        #endregion
 
         #region Partials
 
@@ -43,7 +51,8 @@ namespace Colonizator.Controllers
         public ActionResult MarketPartial(string token, int playerId)
         {
             var game = GetGame(token);
-            ViewBag.IsAvaibleAction = game.CurrentPlayer == game.Players[playerId];
+            ViewBag.CurrentUser = game.Players[playerId];
+            ViewBag.MoveUser = game.CurrentPlayer;
             return PartialView(game.Market.GetOrders());
         }
 
@@ -169,11 +178,65 @@ namespace Colonizator.Controllers
             game.PassMove(token, playerId);
         }
 
-        [HttpPost]
-        public void RequestOrder(OrderViewModel order)
+        [HttpGet]
+        public ActionResult GetTestOrder()
         {
-            var t = JsonConvert.DeserializeObject<IEnumerable<KeyValuePair<string, int>>>(order.Buy);
-            Game game = GetMap(order.Token);
+            var order = new OrderViewModel
+            {
+                Buy = new OrderBatch { Corn = 1, Soil = 2, Wood = 3, Minerals = 0, Wool = 0 },
+                PlayerId = 0,
+                Token = "asd",
+                Sell = new OrderBatch { Minerals = 4, Soil = 0, Wood = 0, Corn = 0, Wool = 1 }
+            };
+            return Json(order, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public void SellOrder(OrderViewModel order)
+        {
+            var game = GetGame(order.Token);
+            var sellerList = new List<Resource>
+            {
+                new Resource() {Type = ResourceType.Corn, Qty = order.Sell.Corn},
+                new Resource() {Type = ResourceType.Minerals, Qty = order.Sell.Minerals},
+                new Resource() {Type = ResourceType.Soil, Qty = order.Sell.Soil},
+                new Resource() {Type = ResourceType.Wood, Qty = order.Sell.Wood},
+                new Resource() {Type = ResourceType.Wool, Qty = order.Sell.Wool}
+            };
+
+            var buyerList = new List<Resource>
+            {
+                new Resource() {Type = ResourceType.Corn, Qty = order.Buy.Corn},
+                new Resource() {Type = ResourceType.Minerals, Qty = order.Buy.Minerals},
+                new Resource() {Type = ResourceType.Soil, Qty = order.Buy.Soil},
+                new Resource() {Type = ResourceType.Wood, Qty = order.Buy.Wood},
+                new Resource() {Type = ResourceType.Wool, Qty = order.Buy.Wool}
+            };
+            game.Market.PlaceOrder(Order.CreatePropose(sellerList, buyerList, game.Players[order.PlayerId], null));
+        }
+
+        [HttpPost]
+        public void BuyOrder(OrderViewModel order)
+        {
+            var game = GetGame(order.Token);
+            var sellerList = new List<Resource>
+            {
+                new Resource() {Type = ResourceType.Corn, Qty = order.Sell.Corn},
+                new Resource() {Type = ResourceType.Minerals, Qty = order.Sell.Minerals},
+                new Resource() {Type = ResourceType.Soil, Qty = order.Sell.Soil},
+                new Resource() {Type = ResourceType.Wood, Qty = order.Sell.Wood},
+                new Resource() {Type = ResourceType.Wool, Qty = order.Sell.Wool}
+            };
+
+            var buyerList = new List<Resource>
+            {
+                new Resource() {Type = ResourceType.Corn, Qty = order.Buy.Corn},
+                new Resource() {Type = ResourceType.Minerals, Qty = order.Buy.Minerals},
+                new Resource() {Type = ResourceType.Soil, Qty = order.Buy.Soil},
+                new Resource() {Type = ResourceType.Wood, Qty = order.Buy.Wood},
+                new Resource() {Type = ResourceType.Wool, Qty = order.Buy.Wool}
+            };
+            game.Market.PlaceOrder(Order.CreatePropose(sellerList, buyerList, null, game.Players[order.PlayerId]));
         }
 
         #endregion

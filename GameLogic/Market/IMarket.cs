@@ -13,6 +13,8 @@ namespace GameLogic.Market
         IEnumerable<Order> GetOrders();
         IEnumerable<Order> GetOrders(string playerId);
 
+        event OrderPlaced OrderPlaced;
+
         void BuildCity(Player player);
 
         void UpgardeCity(Player player);
