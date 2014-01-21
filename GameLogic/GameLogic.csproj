@@ -40,8 +40,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Game\Achive.cs" />
-    <Compile Include="Game\Card.cs" />
-    <Compile Include="Game\Deck.cs" />
+    <Compile Include="Game\Cards\Card.cs" />
+    <Compile Include="Game\Cards\Deck.cs" />
     <Compile Include="Game\GameStateUpdateArgs.cs" />
     <Compile Include="Game\OrderUpdateArgs.cs" />
     <Compile Include="Game\ResourceUpdateArgs.cs" />

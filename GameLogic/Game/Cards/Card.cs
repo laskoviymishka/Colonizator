@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace GameLogic.Game
+namespace GameLogic.Game.Cards
 {
     public interface ICard
     {
@@ -11,7 +11,7 @@ namespace GameLogic.Game
         int CardIndex { get; set; }
         bool IsPlayed { get; set; }
         string CardDescription { get; set; }
-        void PlayCard(Game game);
+        void PlayCard();
         Player Owner { get; set; }
     }
 }

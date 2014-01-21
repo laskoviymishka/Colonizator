@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace GameLogic.Game
+namespace GameLogic.Game.Cards
 {
     public class Deck
     {

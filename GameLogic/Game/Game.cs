@@ -5,6 +5,7 @@ using GameLogic.Market;
 using GameLogic.Models;
 using Model;
 using Model.Elements;
+using GameLogic.Game.Cards;
 
 namespace GameLogic.Game
 {
@@ -61,12 +62,6 @@ namespace GameLogic.Game
         public bool IsStartUp
         {
             get { return _isStartUp; }
-        }
-
-        public void PlayCard(int cardId)
-        {
-            var card = CurrentPlayer.Cards.First(c => c.Id == cardId);
-            card.PlayCard(this);
         }
 
         public List<CityModel> AvaibleCityBuild
@@ -172,6 +167,27 @@ namespace GameLogic.Game
         {
             NextPlayer();
         }
+
+        public void PlayCard(int cardId)
+        {
+            var card = CurrentPlayer.Cards.First(c => c.Id == cardId);
+            card.PlayCard();
+        }
+        public void BuyCard()
+        {
+            if (CurrentPlayer.Resources.First(r => r.Type == ResourceType.Minerals).Qty <= 0 &&
+                CurrentPlayer.Resources.First(r => r.Type == ResourceType.Wool).Qty <= 0 &&
+                CurrentPlayer.Resources.First(r => r.Type == ResourceType.Corn).Qty <= 0)
+            {
+                throw new InvalidOperationException("Cannot draw card not enough resources.");
+            }
+
+            Deck.DrawCard(CurrentPlayer);
+            CurrentPlayer.Resources.First(r => r.Type == ResourceType.Minerals).Qty--;
+            CurrentPlayer.Resources.First(r => r.Type == ResourceType.Wool).Qty--;
+            CurrentPlayer.Resources.First(r => r.Type == ResourceType.Corn).Qty--;
+        }
+
         public void BuildCity(string token, int playerId, int hexA, int hexB, int hexC, int hexIndex)
         {
             if (_isStartUp)
@@ -270,23 +286,7 @@ namespace GameLogic.Game
             int cubeValue = cubeValue1 + cubeValue2;
             if (cubeValue == 7)
             {
-                foreach (Player player in Players)
-                {
-                    int resCount = 0;
-                    foreach (Resource res in player.Resources)
-                    {
-                        resCount += res.Qty;
-                    }
-                    while (resCount > 7)
-                    {
-                        Resource res = player.Resources[random.Next(0, 5)];
-                        if (res.Qty > 0)
-                        {
-                            res.Qty--;
-                            resCount--;
-                        }
-                    }
-                }
+                RobberTime();
                 DiceThrowen(this, new GameStateUpdateArgs { First = cubeValue1, Second = cubeValue2 });
                 return result;
             }
@@ -311,6 +311,28 @@ namespace GameLogic.Game
 
             DiceThrowen(this, new GameStateUpdateArgs { First = cubeValue1, Second = cubeValue2 });
             return result;
+        }
+
+        private void RobberTime()
+        {
+            var random = new Random();
+            foreach (Player player in Players)
+            {
+                int resCount = 0;
+                foreach (Resource res in player.Resources)
+                {
+                    resCount += res.Qty;
+                }
+                while (resCount > 7)
+                {
+                    Resource res = player.Resources[random.Next(0, 5)];
+                    if (res.Qty > 0)
+                    {
+                        res.Qty--;
+                        resCount--;
+                    }
+                }
+            }
         }
 
         public List<CityModel> GetCities()
@@ -383,11 +405,8 @@ namespace GameLogic.Game
     }
 
     public delegate void OrderUpdate(Game sender, OrderUpdateArgs args);
-
     public delegate void ResourceUpdate(Game sender, ResourceUpdateArgs args);
-
     public delegate void GameStateUpdate(Game sender, GameStateUpdateArgs args);
-
     public delegate void DiceThrowen(Game sender, GameStateUpdateArgs args);
     public delegate void CardPlayed(Game sender, GameStateUpdateArgs args);
 }

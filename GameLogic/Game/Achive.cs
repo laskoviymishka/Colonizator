@@ -7,5 +7,8 @@ namespace GameLogic.Game
 {
     public class Achive
     {
+        public void ReAchiveLargestArmy() { }
+        public void ReAchiveLargestRoad() { }
+
     }
 }

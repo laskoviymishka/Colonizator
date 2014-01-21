@@ -9,6 +9,6 @@ namespace GameLogic.Game
     {
         public int First { get; set; }
         public int Second { get; set; }
-
+        public bool IsNeedToMoveRobber { get; set; }
     }
 }

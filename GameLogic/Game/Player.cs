@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using GameLogic.Market;
+using GameLogic.Game.Cards;
 
 namespace GameLogic.Game
 {
