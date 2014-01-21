@@ -81,9 +81,9 @@ namespace GameLogic.Market
 
                 _orders.Remove(order);
                 if (OrderPlaced != null)
-                {
-                    OrderPlaced(_game, new EventArgs());
-                }
+                    {
+                        OrderPlaced(_game, new EventArgs());
+                    }
                 return true;
             }
         }

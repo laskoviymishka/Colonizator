@@ -288,7 +288,7 @@ namespace GameLogic.Game
                     {
                         foreach (Node node in hexagon.Nodes)
                         {
-                            if (node.PlayerId >= 0 && node.PlayerId <= 5)
+                            if (node != null && node.PlayerId >= 0 && node.PlayerId <= 5)
                             {
                                 Players[node.PlayerId].Resources.First(
                                     r => r.Type == (ResourceType) (hexagon.ResourceType - 3)).Qty += node.CitySize;
