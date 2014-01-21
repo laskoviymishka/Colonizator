@@ -8,7 +8,16 @@
     padding-left: 15px;
     padding-right: 15px;
 }
+.center-block {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
 
+// Usage as mixins
+.element {
+  .center-block();
+}
 /* Set width on the form input elements since they're 100% wide by default */
 input,
 select,

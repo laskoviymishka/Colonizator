@@ -9,7 +9,7 @@
 <script src="~/Scripts/bootstrap.min.js"></script>
 <script src="~/Scripts/Dice.js"></script>
 <script src="~/Scripts/Serializer.js"></script>
-
+<link href="~/Content/Market.css" rel="stylesheet" />
 <script>
     var gameHub;
     var mapHub;
@@ -177,11 +177,11 @@
 </script>
 
 <div style="width: 100%">
-    <div style="position:relative;width:70%;height:700px; float: left">
+    <div style="position:relative;width:65%;height:700px; float: left">
         <div id="canvas" style="position:relative;width:100%;height:700px;">
         </div>
     </div>
-    <div style="position: relative; width: 29%; float: right">
+    <div style="position: relative; width: 35%; float: right">
         <div id="preGameState">
             @foreach (var game in Model)
             {
@@ -191,7 +191,7 @@
             }
             <h1 id="userQueue">Начать искать игру</h1>
             <div id="creatingGame">
-                <input type="text" id="displayname" value="введите имя..." />
+                <input type="text" id="displayname" value="@User.Identity.Name" />
                 <button id="search">Найти игру</button>
             </div>
             <p id="tokenGame"></p>

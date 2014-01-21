@@ -100,15 +100,21 @@ namespace GameLogic.Market
             return allOrders;
         }
 
-        public IEnumerable<Order> GetOrders(string playerId)
+        public IEnumerable<Order> GetOrders(Player player)
         {
-            ExceptionHelper.ThrowIfNull(playerId, "playerId");
-
             IEnumerable<Order> playerOrders;
 
             lock (_syncObject)
             {
-                playerOrders = _orders.Where(p => p.Buyer.PlayerId == playerId || p.Seller.PlayerId == playerId);
+                if (player.PlayerName == _game.CurrentPlayer.PlayerName)
+                {
+                    playerOrders = _orders.Where(p => p.Buyer == null);
+                }
+                else
+                {
+                    playerOrders = _orders.Where(p => p.Seller == null && p.Buyer.PlayerName == _game.CurrentPlayer.PlayerName);
+                }
+
             }
 
             return playerOrders;

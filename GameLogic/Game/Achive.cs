@@ -5,12 +5,7 @@ using System.Text;
 
 namespace GameLogic.Game
 {
-    public enum Color
+    public class Achive
     {
-        White,
-        Red,
-        Brown,
-        Blue,
-        Yellow
     }
 }

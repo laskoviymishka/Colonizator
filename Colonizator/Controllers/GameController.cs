@@ -53,7 +53,7 @@ namespace Colonizator.Controllers
             var game = GetGame(token);
             ViewBag.CurrentUser = game.Players[playerId];
             ViewBag.MoveUser = game.CurrentPlayer;
-            return PartialView(game.Market.GetOrders());
+            return PartialView(game.Market.GetOrders(game.Players[playerId]));
         }
 
         #endregion
