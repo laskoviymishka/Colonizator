@@ -25,14 +25,51 @@
         mapHub = $.connection.mapHub;
 
         mapHub.client.updateState = function (data) {
-            console.log("update state");
+            console.log("update state", data);
             userMove = data.movePlayer;
-            GetCitiesAdnRoads();
-            GetPartials();
-            if (!data.isStartUp) {
-                NeedThrowDice();
+            switch (data.Args.Action) {
+                case 0://"NextMove":
+                    console.log("updateState switch (data.Args.Action) NextMove", data);
+                    GetCitiesAdnRoads();
+                    GetPartials();
+                    if (!data.isStartUp) {
+                        NeedThrowDice();
+                    }
+                    PassMoveAvaible();
+                    break;
+                case 1:// "DiceThrowen":
+                    console.log("updateState switch (data.Args.Action) DiceThrowen", data);
+
+                    throwenDice(data);
+                    break;
+                case 2://"MoveRobber":
+                    console.log("updateState switch (data.Args.Action) MoveRobber", data);
+                    break;
+                case 3://"Monopoly":
+                    console.log("updateState switch (data.Args.Action) Monopoly", data);
+
+                    break;
+                case 4://"FreeResource":
+                    console.log("updateState switch (data.Args.Action) FreeResource", data);
+
+                    break;
+                case 5:// "CardUpdate":
+                    console.log("updateState switch (data.Args.Action) CardUpdate", data);
+                    break;
+                case 6://"RegularUpdate":
+                    console.log("updateState switch (data.Args.Action) RegularUpdate", data);
+
+                    GetCitiesAdnRoads();
+                    GetPartials();
+                    if (!data.isStartUp) {
+                        NeedThrowDice();
+                    }
+                    PassMoveAvaible();
+                    break;
+                default:
+                    console.log("updateState switch (data.Args.Action) default", data);
+                    break;
             }
-            PassMoveAvaible();
         };
 
         mapHub.client.throwenDice = throwenDice;
@@ -110,15 +147,15 @@
     function NeedThrowDice() {
         console.log('NeedThrowDice');
         if (currentUser.PlayerId == userMove.PlayerId) {
-            $('#throwDiceResult').html('Ваш ход, бросьте кубики')
-            $('#throwDiceModal').modal('show')
-            $('#throwDiceCloseBtn').hide()
-            $('#throwDiceBtn').show()
+            $('#throwDiceResult').html('Ваш ход, бросьте кубики');
+            $('#throwDiceModal').modal('show');
+            $('#throwDiceCloseBtn').hide();
+            $('#throwDiceBtn').show();
         } else {
             $('#throwDiceResult').html('Ход ' + userMove.PlayerName + ' , ждите пока он бросит кубики')
-            $('#throwDiceModal').modal('show')
-            $('#throwDiceCloseBtn').hide()
-            $('#throwDiceBtn').hide()
+            $('#throwDiceModal').modal('show');
+            $('#throwDiceCloseBtn').hide();
+            $('#throwDiceBtn').hide();
         }
         togleCube(0, 1);
         togleCube(1, 1);
@@ -127,9 +164,9 @@
     function PassMoveAvaible() {
         console.log('PassMoveAvaible');
         if (currentUser.PlayerId == userMove.PlayerId) {
-            $('#passMove').show()
+            $('#passMove').show();
         } else {
-            $('#passMove').hide()
+            $('#passMove').hide();
         }
     }
 
@@ -172,7 +209,7 @@
     }
 
     function resumeGame(token) {
-        mapHub.server.resumeGame(token)
+        mapHub.server.resumeGame(token);
     }
 </script>
 
@@ -211,6 +248,7 @@
         </div>
     </div>
 </div>
+
 <!-- Modal -->
 <div class="modal fade" id="throwDiceModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
