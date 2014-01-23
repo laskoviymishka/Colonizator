@@ -128,7 +128,7 @@
                 $('#throwDiceCloseBtn').show();
             });
         });
-        $('#passMove').hide()
+        $('#passMove').hide();
         $('#passMove').click(PassMove);
     });
     // This optional function html-encodes messages for display in the page.
@@ -182,9 +182,9 @@
     function throwenDice(data) {
         console.log('throwenDice', data);
         if (currentUser.PlayerName == userMove) {
-            $('#throwDiceResult').html('Вам выпало ' + data.First + ' и ' + data.Second);
+            $('#throwDiceResult').html('Вам выпало ' + data.Args.First + ' и ' + data.Args.Second);
         } else {
-            $('#throwDiceResult').html(userMove + ' выпало ' + data.First + ' и ' + data.Second);
+            $('#throwDiceResult').html(userMove + ' выпало ' + data.Args.First + ' и ' + data.Args.Second);
         }
         $('#throwDiceCloseBtn').show();
         $('#throwDiceBtn').hide();

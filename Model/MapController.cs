@@ -209,7 +209,6 @@ namespace Model
 
         #region Building
 
-
         public void BuildRoad(int hexIndex, int hexA, int hexB, int playerId)
         {
             Edge edge = GetEdge(hexA, hexB, hexIndex);
@@ -247,7 +246,21 @@ namespace Model
 
         public IEnumerable<Node> GetAvailableNodes(int playerId)
         {
-            return _nodes.Values.Where(n => n.PlayerId < 0 && n.Edges.Any(e => e.PlayerId == playerId));
+            var result = new HashSet<Node>();
+            foreach (var node in _nodes.Values)
+            {
+                if (node.PlayerId < 0 && node.Edges != null && node.Edges.All(e => e.NodeA != null && e.NodeB != null))
+                {
+                    if (node.Edges.Any(e => e.PlayerId == playerId))
+                    {
+                        if(node.Edges.All(e => e.NodeA.PlayerId < 0 && e.NodeB.PlayerId < 0))
+                        {
+                            result.Add(node);
+                        }
+                    }
+                }
+            }
+            return result;
         }
 
         public IEnumerable<Edge> GetAvailableEdges(int playerId)
