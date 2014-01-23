@@ -42,6 +42,12 @@
     <Compile Include="Game\Achive.cs" />
     <Compile Include="Game\Cards\Card.cs" />
     <Compile Include="Game\Cards\Deck.cs" />
+    <Compile Include="Game\Cards\FreeResource.cs" />
+    <Compile Include="Game\Cards\Knight.cs" />
+    <Compile Include="Game\Cards\Monopoly.cs" />
+    <Compile Include="Game\Cards\Road.cs" />
+    <Compile Include="Game\Cards\WinPoint.cs" />
+    <Compile Include="Game\GameAction.cs" />
     <Compile Include="Game\GameStateUpdateArgs.cs" />
     <Compile Include="Game\OrderUpdateArgs.cs" />
     <Compile Include="Game\ResourceUpdateArgs.cs" />

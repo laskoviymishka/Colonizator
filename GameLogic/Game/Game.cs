@@ -17,6 +17,7 @@ namespace GameLogic.Game
         private readonly Dictionary<Player, int> _startUpTowns = new Dictionary<Player, int>();
         private int _currentPlayerId;
         private bool _isStartUp = true;
+        private int _robberHex;
 
         #endregion
 
@@ -46,11 +47,13 @@ namespace GameLogic.Game
             }
 
             Market = new Market.Market(this);
+            Deck = new Deck(this);
         }
 
         #endregion
 
         #region Properties
+
         public Achive Achive { get; set; }
         public Deck Deck { get; set; }
         public Player CurrentPlayer { get; private set; }
@@ -111,26 +114,7 @@ namespace GameLogic.Game
         {
             get
             {
-                var result = new HashSet<Edge>();
-
-                foreach (Edge edge in MapController.Edges)
-                {
-                    if (edge.PlayerId == _currentPlayerId)
-                    {
-                        result.Add(GetCommonEdge(edge.HexagonA.Hexagon, edge.HexagonBot.Hexagon));
-                        result.Add(GetCommonEdge(edge.HexagonA.Hexagon, edge.HexagonB.Hexagon));
-                        result.Add(GetCommonEdge(edge.HexagonA.Hexagon, edge.HexagonTop.Hexagon));
-                        result.Add(GetCommonEdge(edge.HexagonB.Hexagon, edge.HexagonBot.Hexagon));
-                        result.Add(GetCommonEdge(edge.HexagonB.Hexagon, edge.HexagonTop.Hexagon));
-                    }
-                }
-
-                foreach (Edge edge in MapController.GetAvailableEdges(_currentPlayerId))
-                {
-                    result.Add(edge);
-                }
-                result.RemoveWhere(x => x == null);
-                return MapController.Edges.Select(x =>
+                return MapController.GetAvailableEdges(_currentPlayerId).Select(x =>
                     new RoadModel
                     {
                         HexagonIndex = x.HexagonA.Hexagon.Index,
@@ -142,30 +126,69 @@ namespace GameLogic.Game
             }
         }
 
-        private Edge GetCommonEdge(Hexagon hexA, Hexagon hexB)
-        {
-            foreach (Edge edgeA in hexA.Edges)
-            {
-                if (edgeA != null)
-                {
-                    foreach (Edge edgeT in hexB.Edges)
-                    {
-                        if (edgeA == edgeT)
-                        {
-                            return edgeA;
-                        }
-                    }
-                }
-            }
-            return null;
-        }
 
         #endregion
 
         #region Game Methods
-        public void PassMove(string token, int playerId)
+
+        #region Card Actions
+
+        public void ChooseFreeResource(int playerId, ResourceType first, ResourceType second)
         {
-            NextPlayer();
+            if (CurrentPlayer != Players[playerId])
+            {
+                throw new InvalidOperationException("Cannot draw card not your move.");
+            }
+            CurrentPlayer.Resources.First(r => r.Type == first).Qty += 2;
+            CurrentPlayer.Resources.First(r => r.Type == second).Qty += 2;
+            RiseUpdate(new GameStateUpdateArgs { Action = GameAction.RegularUpdate });
+        }
+
+        public void MoveRobber(int playerId, int robberNewPosition)
+        {
+            if (CurrentPlayer != Players[playerId])
+            {
+                throw new InvalidOperationException("Cannot draw card not your move.");
+            }
+            var random = new Random();
+            _robberHex = robberNewPosition;
+            //foreach (var node in MapController.Nodes)
+            //{
+            //    if ((node.PlayerId >= 0 && node.PlayerId <= 5) &&
+            //        node.HexagonA.Hexagon.Index == _robberHex ||
+            //        node.HexagonB.Hexagon.Index == _robberHex ||
+            //        node.HexagonB.Hexagon.Index == _robberHex)
+            //    {
+            //        int resourceType = random.Next(0, 5);
+            //        if (node.PlayerId >= 0 && Players[node.PlayerId] != CurrentPlayer)
+            //        {
+            //            Players[node.PlayerId].Resources.First(
+            //                r => r.Type == (ResourceType)(resourceType)).Qty--;
+            //            CurrentPlayer.Resources.First(
+            //                r => r.Type == (ResourceType)(resourceType)).Qty++;
+            //        }
+            //    }
+            //}
+            foreach (var hexagons in MapController.GetMap())
+            {
+                Hexagon hexagon = hexagons.FirstOrDefault(h => h.Index == _robberHex);
+                if (hexagon != null)
+                {
+                    foreach (Node node in hexagon.Nodes.Where(n => n != null && n.PlayerId >= 0 && n.PlayerId <= 5))
+                    {
+                        int resourceType = random.Next(0, 5);
+                        if (Players[node.PlayerId] != CurrentPlayer)
+                        {
+                            Players[node.PlayerId].Resources.First(
+                                r => r.Type == (ResourceType)(resourceType)).Qty--;
+                            CurrentPlayer.Resources.First(
+                                r => r.Type == (ResourceType)(resourceType)).Qty++;
+                        }
+                    }
+                }
+            }
+
+            RiseUpdate(new GameStateUpdateArgs() { Action = GameAction.RegularUpdate });
         }
 
         public void PlayCard(int cardId)
@@ -173,8 +196,13 @@ namespace GameLogic.Game
             var card = CurrentPlayer.Cards.First(c => c.Id == cardId);
             card.PlayCard();
         }
-        public void BuyCard()
+
+        public void BuyCard(int playerId)
         {
+            if (CurrentPlayer != Players[playerId])
+            {
+                throw new InvalidOperationException("Cannot draw card not your move.");
+            }
             if (CurrentPlayer.Resources.First(r => r.Type == ResourceType.Minerals).Qty <= 0 &&
                 CurrentPlayer.Resources.First(r => r.Type == ResourceType.Wool).Qty <= 0 &&
                 CurrentPlayer.Resources.First(r => r.Type == ResourceType.Corn).Qty <= 0)
@@ -186,7 +214,102 @@ namespace GameLogic.Game
             CurrentPlayer.Resources.First(r => r.Type == ResourceType.Minerals).Qty--;
             CurrentPlayer.Resources.First(r => r.Type == ResourceType.Wool).Qty--;
             CurrentPlayer.Resources.First(r => r.Type == ResourceType.Corn).Qty--;
+            GameMoveUpdate(this, new GameStateUpdateArgs() { Action = GameAction.CardUpdate });
         }
+
+        #endregion
+
+        #region Common Actions
+
+        public void PassMove(string token, int playerId)
+        {
+            NextPlayer();
+        }
+
+        public List<int> ThrowDice()
+        {
+            var random = new Random();
+            int cubeValue1 = random.Next(1, 7);
+            int cubeValue2 = random.Next(1, 7);
+            var result = new List<int>();
+            result.Add(cubeValue1);
+            result.Add(cubeValue2);
+            int cubeValue = cubeValue1 + cubeValue2;
+            if (cubeValue == 7)
+            {
+                RobberTime();
+                DiceThrowen(this, new GameStateUpdateArgs { First = cubeValue1, Second = cubeValue2, Action = GameAction.DiceThrowen });
+                GameMoveUpdate(this, new GameStateUpdateArgs { Action = GameAction.MoveRobber });
+                return result;
+            }
+
+            foreach (var hexagons in MapController.GetMap())
+            {
+                foreach (Hexagon hexagon in hexagons.Where(h => h.ResourceType > 2 && h.Index != _robberHex))
+                {
+                    if (hexagon.FaceNumber == cubeValue)
+                    {
+                        foreach (Node node in hexagon.Nodes.Where(n => n != null))
+                        {
+                            if (node != null && node.PlayerId >= 0 && node.PlayerId <= 5)
+                            {
+                                Players[node.PlayerId].Resources.First(
+                                    r => r.Type == (ResourceType)(hexagon.ResourceType - 3)).Qty += node.CitySize;
+                            }
+                        }
+                    }
+                }
+            }
+
+            DiceThrowen(this, new GameStateUpdateArgs { First = cubeValue1, Second = cubeValue2, Action = GameAction.DiceThrowen });
+            return result;
+        }
+
+        public List<CityModel> GetCities()
+        {
+            var result = new List<CityModel>();
+            foreach (Node node in MapController.Nodes)
+            {
+                if (node.CitySize > 0)
+                {
+                    result.Add(new CityModel
+                    {
+                        HexagonIndex = node.HexagonA.Hexagon.Index,
+                        Position = node.HexagonA.Position,
+                        HexA = node.HexagonA.Hexagon.Index,
+                        HexB = node.HexagonB.Hexagon.Index,
+                        HexC = node.HexagonC.Hexagon.Index,
+                        CitySize = node.CitySize > 1 ? 't' : 'v',
+                        PlayerId = node.PlayerId
+                    });
+                }
+            }
+            return result;
+        }
+
+        public List<RoadModel> GetRoads()
+        {
+            var result = new List<RoadModel>();
+            foreach (Edge edge in MapController.Edges)
+            {
+                if (edge.PlayerId >= 0 && edge.PlayerId < 5)
+                {
+                    result.Add(new RoadModel
+                    {
+                        HexagonIndex = edge.HexagonA.Hexagon.Index,
+                        Position = edge.HexagonA.Position,
+                        PlayerId = edge.PlayerId,
+                        HexA = edge.HexagonA.Hexagon.Index,
+                        HexB = edge.HexagonB.Hexagon.Index
+                    });
+                }
+            }
+            return result;
+        }
+
+        #endregion
+
+        #region Build Actions
 
         public void BuildCity(string token, int playerId, int hexA, int hexB, int hexC, int hexIndex)
         {
@@ -275,42 +398,33 @@ namespace GameLogic.Game
             NextPlayer();
         }
 
-        public List<int> ThrowDice()
-        {
-            var random = new Random();
-            int cubeValue1 = random.Next(1, 7);
-            int cubeValue2 = random.Next(1, 7);
-            var result = new List<int>();
-            result.Add(cubeValue1);
-            result.Add(cubeValue2);
-            int cubeValue = cubeValue1 + cubeValue2;
-            if (cubeValue == 7)
-            {
-                RobberTime();
-                DiceThrowen(this, new GameStateUpdateArgs { First = cubeValue1, Second = cubeValue2 });
-                return result;
-            }
+        #endregion
 
-            foreach (var hexagons in MapController.GetMap())
+        #endregion
+
+        #region Helpers
+
+        internal void RiseUpdate(GameStateUpdateArgs args)
+        {
+            GameMoveUpdate(this, args);
+        }
+
+        private Edge GetCommonEdge(Hexagon hexA, Hexagon hexB)
+        {
+            foreach (Edge edgeA in hexA.Edges)
             {
-                foreach (Hexagon hexagon in hexagons.Where(h => h.ResourceType > 2))
+                if (edgeA != null)
                 {
-                    if (hexagon.FaceNumber == cubeValue)
+                    foreach (Edge edgeT in hexB.Edges)
                     {
-                        foreach (Node node in hexagon.Nodes.Where(n => n != null))
+                        if (edgeA == edgeT)
                         {
-                            if (node != null && node.PlayerId >= 0 && node.PlayerId <= 5)
-                            {
-                                Players[node.PlayerId].Resources.First(
-                                    r => r.Type == (ResourceType)(hexagon.ResourceType - 3)).Qty += node.CitySize;
-                            }
+                            return edgeA;
                         }
                     }
                 }
             }
-
-            DiceThrowen(this, new GameStateUpdateArgs { First = cubeValue1, Second = cubeValue2 });
-            return result;
+            return null;
         }
 
         private void RobberTime()
@@ -335,52 +449,6 @@ namespace GameLogic.Game
             }
         }
 
-        public List<CityModel> GetCities()
-        {
-            var result = new List<CityModel>();
-            foreach (Node node in MapController.Nodes)
-            {
-                if (node.CitySize > 0)
-                {
-                    result.Add(new CityModel
-                    {
-                        HexagonIndex = node.HexagonA.Hexagon.Index,
-                        Position = node.HexagonA.Position,
-                        HexA = node.HexagonA.Hexagon.Index,
-                        HexB = node.HexagonB.Hexagon.Index,
-                        HexC = node.HexagonC.Hexagon.Index,
-                        CitySize = node.CitySize > 1 ? 't' : 'v',
-                        PlayerId = node.PlayerId
-                    });
-                }
-            }
-            return result;
-        }
-
-        public List<RoadModel> GetRoads()
-        {
-            var result = new List<RoadModel>();
-            foreach (Edge edge in MapController.Edges)
-            {
-                if (edge.PlayerId >= 0 && edge.PlayerId < 5)
-                {
-                    result.Add(new RoadModel
-                    {
-                        HexagonIndex = edge.HexagonA.Hexagon.Index,
-                        Position = edge.HexagonA.Position,
-                        PlayerId = edge.PlayerId,
-                        HexA = edge.HexagonA.Hexagon.Index,
-                        HexB = edge.HexagonB.Hexagon.Index
-                    });
-                }
-            }
-            return result;
-        }
-
-        #endregion
-
-        #region Private Helpers
-
         private void NextPlayer()
         {
             if (Players.Count > 0)
@@ -398,10 +466,15 @@ namespace GameLogic.Game
                 }
                 player.PlayerScore += score;
             }
-            GameMoveUpdate(this, new GameStateUpdateArgs());
+            GameMoveUpdate(this, new GameStateUpdateArgs() { Action = GameAction.NextMove });
         }
 
         #endregion
+
+        public void ChooseMonopolyResource(int playerId, ResourceType resourceType)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public delegate void OrderUpdate(Game sender, OrderUpdateArgs args);

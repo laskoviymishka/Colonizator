@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace GameLogic.Game.Cards
 {
@@ -9,15 +7,21 @@ namespace GameLogic.Game.Cards
     {
         private readonly List<ICard> _deck;
         private readonly Random r = new Random();
+        private readonly Game _game;
         private int _currentIndex;
 
-        public Deck()
+        public Deck(Game game)
         {
+            _game = game;
             _deck = new List<ICard>();
             Initialize();
-            _currentIndex = _deck.Count;
+            _currentIndex = _deck.Count - 1;
         }
 
+        public IEnumerable<ICard> Cards
+        {
+            get { return _deck; }
+        }
 
         public ICard DrawCard(Player player)
         {
@@ -46,7 +50,32 @@ namespace GameLogic.Game.Cards
 
         private void Initialize()
         {
-
+            _deck.Add(new Monopoly(_game, 1));
+            _deck.Add(new Monopoly(_game, 2));
+            _deck.Add(new FreeResource(_game, 3));
+            _deck.Add(new FreeResource(_game, 4));
+            _deck.Add(new Road(_game, 5));
+            _deck.Add(new Road(_game, 6));
+            _deck.Add(new WinPoint(_game, 7, 1, "Костел"));
+            _deck.Add(new WinPoint(_game, 8, 2, "Университет"));
+            _deck.Add(new WinPoint(_game, 9, 3, "рынок"));
+            _deck.Add(new WinPoint(_game, 10, 4, "Библиотека"));
+            _deck.Add(new WinPoint(_game, 11, 5, "Мэрия"));
+            _deck.Add(new Knight(_game, 12));
+            _deck.Add(new Knight(_game, 13));
+            _deck.Add(new Knight(_game, 14));
+            _deck.Add(new Knight(_game, 15));
+            _deck.Add(new Knight(_game, 16));
+            _deck.Add(new Knight(_game, 17));
+            _deck.Add(new Knight(_game, 18));
+            _deck.Add(new Knight(_game, 19));
+            _deck.Add(new Knight(_game, 20));
+            _deck.Add(new Knight(_game, 21));
+            _deck.Add(new Knight(_game, 22));
+            _deck.Add(new Knight(_game, 23));
+            _deck.Add(new Knight(_game, 24));
+            _deck.Add(new Knight(_game, 25));
+            Shuffle();
         }
     }
 }

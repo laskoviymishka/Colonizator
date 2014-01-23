@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Model.Elements
 {
@@ -11,16 +12,12 @@ namespace Model.Elements
 
         public NodeKey(int hexagonA, int hexagonB, int hexagonC)
         {
-            Helper.Minimize(ref hexagonA, ref hexagonB);
+            var hexes = new List<int>() { hexagonA, hexagonB, hexagonC };
+            hexes.Sort();
 
-            if (Helper.Minimize(ref hexagonB, ref hexagonC))
-            {
-                Helper.Minimize(ref hexagonA, ref hexagonB);
-            }
-
-            _hexagonA = hexagonA;
-            _hexagonB = hexagonB;
-            _hexagonC = hexagonC;
+            _hexagonA = hexes[0];
+            _hexagonB = hexes[1];
+            _hexagonC = hexes[2];
         }
 
         public override bool Equals(object obj)

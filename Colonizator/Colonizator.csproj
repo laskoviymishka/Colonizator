@@ -228,6 +228,17 @@
     <Content Include="Scripts\Serializer.js" />
     <Content Include="Scripts\SlideControl.js" />
     <Content Include="Scripts\_references.js" />
+    <Content Include="Sprites\a0.png" />
+    <Content Include="Sprites\a1.png" />
+    <Content Include="Sprites\c0.png" />
+    <Content Include="Sprites\c1.png" />
+    <Content Include="Sprites\c2.png" />
+    <Content Include="Sprites\c3.png" />
+    <Content Include="Sprites\c4.png" />
+    <Content Include="Sprites\c5.png" />
+    <Content Include="Sprites\c6.png" />
+    <Content Include="Sprites\c7.png" />
+    <Content Include="Sprites\c8.png" />
     <Content Include="Sprites\f0.png" />
     <Content Include="Sprites\f1.png" />
     <Content Include="Sprites\f8.png" />
@@ -285,6 +296,7 @@
     <Content Include="Views\Game\All.cshtml" />
     <Content Include="Views\Game\MarketPartial.cshtml" />
     <Content Include="Views\Game\GameStatePartial.cshtml" />
+    <Content Include="Views\Game\DeckPartial.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -39,31 +39,27 @@
                     break;
                 case 1:// "DiceThrowen":
                     console.log("updateState switch (data.Args.Action) DiceThrowen", data);
-
                     throwenDice(data);
                     break;
                 case 2://"MoveRobber":
+                    moveRobber(data);
                     console.log("updateState switch (data.Args.Action) MoveRobber", data);
                     break;
                 case 3://"Monopoly":
                     console.log("updateState switch (data.Args.Action) Monopoly", data);
-
                     break;
                 case 4://"FreeResource":
+                    chooseFreeResouce(data);
                     console.log("updateState switch (data.Args.Action) FreeResource", data);
-
                     break;
                 case 5:// "CardUpdate":
                     console.log("updateState switch (data.Args.Action) CardUpdate", data);
+                    GetPartials();
                     break;
                 case 6://"RegularUpdate":
                     console.log("updateState switch (data.Args.Action) RegularUpdate", data);
-
                     GetCitiesAdnRoads();
                     GetPartials();
-                    if (!data.isStartUp) {
-                        NeedThrowDice();
-                    }
                     PassMoveAvaible();
                     break;
                 default:
@@ -146,13 +142,13 @@
 
     function NeedThrowDice() {
         console.log('NeedThrowDice');
-        if (currentUser.PlayerId == userMove.PlayerId) {
+        if (currentUser.PlayerName == userMove) {
             $('#throwDiceResult').html('Ваш ход, бросьте кубики');
             $('#throwDiceModal').modal('show');
             $('#throwDiceCloseBtn').hide();
             $('#throwDiceBtn').show();
         } else {
-            $('#throwDiceResult').html('Ход ' + userMove.PlayerName + ' , ждите пока он бросит кубики')
+            $('#throwDiceResult').html('Ход ' + userMove + ' , ждите пока он бросит кубики')
             $('#throwDiceModal').modal('show');
             $('#throwDiceCloseBtn').hide();
             $('#throwDiceBtn').hide();
@@ -163,7 +159,7 @@
 
     function PassMoveAvaible() {
         console.log('PassMoveAvaible');
-        if (currentUser.PlayerId == userMove.PlayerId) {
+        if (currentUser.PlayerName == userMove) {
             $('#passMove').show();
         } else {
             $('#passMove').hide();
@@ -172,7 +168,7 @@
 
     function PassMove() {
         console.log('PassMove');
-        if (currentUser.PlayerId == userMove.PlayerId) {
+        if (currentUser.PlayerName == userMove) {
             $('#passMove').show();
             $.post(
                     "/Game/PassMove",
@@ -185,10 +181,10 @@
 
     function throwenDice(data) {
         console.log('throwenDice', data);
-        if (currentUser.PlayerId == userMove.PlayerId) {
+        if (currentUser.PlayerName == userMove) {
             $('#throwDiceResult').html('Вам выпало ' + data.First + ' и ' + data.Second);
         } else {
-            $('#throwDiceResult').html(userMove.PlayerName + ' выпало ' + data.First + ' и ' + data.Second);
+            $('#throwDiceResult').html(userMove + ' выпало ' + data.First + ' и ' + data.Second);
         }
         $('#throwDiceCloseBtn').show();
         $('#throwDiceBtn').hide();
@@ -206,11 +202,113 @@
             console.log('/Game/MarketPartial?playerId=' + userId + '&token=' + token);
             $('#gameMarket').html(data);
         });
+        $.get('/Game/DeckPartial?playerId=' + userId + '&token=' + token, function (data) {
+            console.log('/Game/DeckPartial?playerId=' + userId + '&token=' + token);
+            $('#deckPartial').html(data);
+        });
     }
+
+    var moveRobber = function (args) {
+        if (currentUser.PlayerName == userMove) {
+            tileClick = function (parameters) {
+                console.log("MoveRobber", parameters, args);
+                var contract = { token: token, playerId: userId, hexagonIngex: parameters.HexagonIndex };
+                $.post("/Game/MoveRobber", $.toDictionary(contract));
+                console.log("/Game/MoveRobber", contract);
+            };
+        }
+    };
 
     function resumeGame(token) {
         mapHub.server.resumeGame(token);
-    }
+    };
+
+    var chosenResourcs;
+    var neededResourceCount = 7;
+    var neededResourceQty = -1;
+    var chooseMonopolyResource = function(args) {
+        chosenResourcs = [
+            { Type: 0, Qty: 0 },
+            { Type: 1, Qty: 0 },
+            { Type: 2, Qty: 0 },
+            { Type: 3, Qty: 0 },
+            { Type: 4, Qty: 0 }
+        ];
+        neededResourceCount = 1;
+        neededResourceQty = 1;
+        if (currentUser.PlayerName == userMove) {
+            $('#freeResourceChoose').modal('show');
+            $('#resourceCheckLabe').html('Играя эту карточку, игрок выбирает один тип ресурса. Остальные игроки должны отдать ему все карточки ресурсов этого типа');
+            $('#freeResourceChooseSendBtn').hide();
+            $('#freeResourceChooseSendBtn').on('click', function(parameters) {
+                console.log('chooseMonopolyResource', parameters);
+                var contract = {
+                    Token: token,
+                    PlayerId: userId,
+                    resource: 1,
+                };
+                $.post("/Game/ChooseMonopolyResource", contract);
+                console.log("/Game/ChooseMonopolyResource", contract);
+            });
+        }
+    };
+
+    var chooseFreeResouce = function(args) {
+        chosenResourcs = [
+            { Type: 0, Qty: 0 },
+            { Type: 1, Qty: 0 },
+            { Type: 2, Qty: 0 },
+            { Type: 3, Qty: 0 },
+            { Type: 4, Qty: 0 }
+        ];
+        neededResourceCount = 2;
+        neededResourceQty = 1;
+        if (currentUser.PlayerName == userMove) {
+            $('#freeResourceChoose').modal('show');
+            $('#resourceCheckLabe').html('Выберете 2 ресурса, которые получите бесплатно в результате розыгрыша карты "изобилие"');
+            $('#freeResourceChooseSendBtn').hide();
+            $('#freeResourceChooseSendBtn').on('click', function (parameters) {
+                console.log('chooseFreeResouce', parameters);
+                var contract = {
+                    Token: token,
+                    playerId: userId,
+                    first: 1,
+                    second: 2
+                };
+                $.post("/Game/ChooseFreeResource", contract);
+                console.log("/Game/ChooseFreeResource", contract);
+            });
+        }
+    };
+
+    var updateChosenResource = function (resource) {
+        console.log('updateChosenResource', chosenResourcs);
+        var selector = '#chooseResource' + resource;
+        var card = $(selector);
+        var selectedValueCount = 0;
+        if (card.hasClass('unchooseResourceTemplate')) {
+            card.addClass('chooseResourceTemplate');
+            card.removeClass('unchooseResourceTemplate');
+            chosenResourcs[resource].Qty = 1;
+        } else {
+            card.addClass('unchooseResourceTemplate');
+            card.removeClass('chooseResourceTemplate');
+            chosenResourcs[resource].Qty = 0;
+        }
+
+        for (var i = 0; i < chosenResourcs.length; i++) {
+            if (chosenResourcs[i].Qty == neededResourceQty) {
+                selectedValueCount++;
+            }
+        }
+
+        if (selectedValueCount == neededResourceCount) {
+            $('#freeResourceChooseSendBtn').show();
+        } else {
+            $('#freeResourceChooseSendBtn').hide();
+        }
+        console.log('updateChosenResource', chosenResourcs);
+    };
 </script>
 
 <div style="width: 100%">
@@ -222,9 +320,9 @@
         <div id="preGameState">
             @foreach (var game in Model)
             {
-                <div class="btn btn-success" onclick="resumeGame('@game.Id')">
-                    Возобновить игру @game.Id
-                </div>
+            <div class="btn btn-success" onclick="resumeGame('@game.Id')">
+                Возобновить игру @game.Id
+            </div>
             }
             <h1 id="userQueue">Начать искать игру</h1>
             <div id="creatingGame">
@@ -245,6 +343,8 @@
         <div id="gameState">
         </div>
         <div id="gameMarket">
+        </div>
+        <div id="deckPartial">
         </div>
     </div>
 </div>
@@ -290,6 +390,38 @@
                 <button type="button" class="btn btn-default" id="throwDiceCloseBtn">Закрыть</button>
 
                 <button type="button" class="btn btn-primary" id="throwDiceBtn">Бросить кубик</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+<!-- Modal -->
+<div class="modal fade" id="freeResourceChoose" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">Выбор ресурсов</h4>
+            </div>
+            <div class="modal-body" style="height:400px">
+                <h1 id="resourceCheckLabe"></h1>
+                <div id="chooseResource0" class="unchooseResourceTemplate" onclick="updateChosenResource(0)">
+                    <img src="~/Sprites/rs0.png" alt="..." class="img-thumbnail" style="width:90px;height:135px;">
+                </div>
+                <div id="chooseResource1" class="unchooseResourceTemplate" onclick="updateChosenResource(1)">
+                    <img src="~/Sprites/rs1.png" alt="..." class="img-thumbnail" style="width: 90px; height: 135px; ">
+                </div>
+                <div id="chooseResource2" class="unchooseResourceTemplate" onclick="updateChosenResource(2)">
+                    <img src="~/Sprites/rs2.png" alt="..." class="img-thumbnail" style="width: 90px; height: 135px; ">
+                </div>
+                <div id="chooseResource3" class="unchooseResourceTemplate" onclick="updateChosenResource(3)">
+                    <img src="~/Sprites/rs3.png" alt="..." class="img-thumbnail" style="width: 90px; height: 135px; ">
+                </div>
+                <div id="chooseResource4" class="unchooseResourceTemplate" onclick="updateChosenResource(4)">
+                    <img src="~/Sprites/rs4.png" alt="..." class="img-thumbnail" style="width: 90px; height: 135px; ">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="freeResourceChooseSendBtn">Выбрать</button>
             </div>
         </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->

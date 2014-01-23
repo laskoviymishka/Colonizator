@@ -7,6 +7,15 @@ namespace GameLogic.Game
 {
     public class Player
     {
+        public Player()
+        {
+            Resources = new ObservableCollection<Resource>();
+            Orders = new ObservableCollection<Order>();
+            Cards = new List<ICard>();
+        }
+
+        public int FreeRoadCount { get; set; }
+        public int KnightCount { get; set; }
         public string PlayerId { get; set; }
         public string PlayerName { get; set; }
         public int PlayerScore { get; set; }

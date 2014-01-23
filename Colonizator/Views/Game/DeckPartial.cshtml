@@ -1,0 +1,32 @@
+﻿@model GameLogic.Game.Player
+<div>
+    @foreach (var card in Model.Cards.Where(c => !c.IsPlayed))
+    {
+        string src = string.Format("/Sprites/c{0}.png", (int)card.CardIndex);
+        <div style="width:80px;height:120px; float: left" onclick="playCard('@card.Id')">
+            <img src="@src" alt="..." class="img-thumbnail" style="width:80px;height:120px;">
+            <div class="resourceCount">@card.Id</div>
+        </div>
+    }
+</div>
+@if (ViewBag.MoveUser.PlayerName == Model.PlayerName)
+{
+    <div class="btn btn-success" onclick="drawCard()">Купить карту</div>
+    <script>
+        playCard = function (card) {
+            console.log("/Game/PlayCard", card);
+            $.post("/Game/PlayCard", $.toDictionary({
+                token: token,
+                playerId: userId,
+                cardId: card
+            }));
+        }
+
+        drawCard = function () {
+            $.post("/Game/DrawCard", $.toDictionary({
+                token: token,
+                playerId: userId
+            }));
+        }
+    </script>
+}

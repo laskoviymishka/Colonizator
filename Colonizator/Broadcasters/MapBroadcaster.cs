@@ -87,20 +87,28 @@ namespace Colonizator.Broadcasters
             return game;
         }
 
-        void Market_OrderPlaced(Game sender, EventArgs args)
+        void Market_OrderPlaced(Game sender, GameStateUpdateArgs args)
         {
             _context.Clients.Group(sender.Id).updateState(
                 new
                 {
                     movePlayer = sender.CurrentPlayer,
-                    isStartUp = sender.IsStartUp
+                    isStartUp = sender.IsStartUp,
+                    Args = args
                 }
             );
         }
 
         void game_DiceThrowen(Game sender, GameStateUpdateArgs args)
         {
-            _context.Clients.Group(sender.Id).throwenDice(args);
+            _context.Clients.Group(sender.Id).updateState(
+                new
+                {
+                    movePlayer = sender.CurrentPlayer,
+                    isStartUp = sender.IsStartUp,
+                    Args = args
+                }
+           );
         }
 
         private void game_GameStateUpdate(Game sender, GameStateUpdateArgs args)
@@ -108,8 +116,9 @@ namespace Colonizator.Broadcasters
             _context.Clients.Group(sender.Id).updateState(
                 new
                 {
-                    movePlayer = sender.CurrentPlayer,
-                    isStartUp = sender.IsStartUp
+                    movePlayer = sender.CurrentPlayer.PlayerName,
+                    isStartUp = sender.IsStartUp,
+                    Args = args
                 }
             );
         }

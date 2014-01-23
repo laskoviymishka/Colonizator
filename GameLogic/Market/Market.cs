@@ -46,7 +46,7 @@ namespace GameLogic.Market
                     _orders.Add(order);
                     if (OrderPlaced != null)
                     {
-                        OrderPlaced(_game, new EventArgs());
+                        OrderPlaced(_game, new GameStateUpdateArgs() { Action = GameAction.RegularUpdate });
                     }
                 }
             }
@@ -81,9 +81,9 @@ namespace GameLogic.Market
 
                 _orders.Remove(order);
                 if (OrderPlaced != null)
-                    {
-                        OrderPlaced(_game, new EventArgs());
-                    }
+                {
+                    OrderPlaced(_game, new GameStateUpdateArgs() { Action = GameAction.RegularUpdate });
+                }
                 return true;
             }
         }
@@ -112,7 +112,7 @@ namespace GameLogic.Market
                 }
                 else
                 {
-                    playerOrders = _orders.Where(p => p.Seller == null && p.Buyer.PlayerName == _game.CurrentPlayer.PlayerName);
+                    playerOrders = _orders.Where(p => p.Seller == null && p.Buyer.PlayerName == _game.CurrentPlayer.PlayerName || p.Seller != null && p.Seller.PlayerName == player.PlayerName);
                 }
 
             }
@@ -228,5 +228,5 @@ namespace GameLogic.Market
         #endregion
     }
 
-    public delegate void OrderPlaced(Game.Game sender, EventArgs args);
+    public delegate void OrderPlaced(Game.Game sender, GameStateUpdateArgs args);
 }

@@ -48,12 +48,21 @@ namespace Colonizator.Controllers
             model.PlayerId = playerId;
             return PartialView(model);
         }
+
         public ActionResult MarketPartial(string token, int playerId)
         {
             var game = GetGame(token);
             ViewBag.CurrentUser = game.Players[playerId];
             ViewBag.MoveUser = game.CurrentPlayer;
             return PartialView(game.Market.GetOrders(game.Players[playerId]));
+        }
+
+        public ActionResult DeckPartial(string token, int playerId)
+        {
+            var game = GetGame(token);
+            ViewBag.CurrentUser = game.Players[playerId];
+            ViewBag.MoveUser = game.CurrentPlayer;
+            return PartialView(game.Players[playerId]);
         }
 
         #endregion
@@ -98,7 +107,8 @@ namespace Colonizator.Controllers
                             new HexagonModel()
                             {
                                 FaceNumber = y.Index > 0 ? y.FaceNumber : 0,
-                                ResourceType = y.ResourceType
+                                ResourceType = y.ResourceType,
+                                HexagonIndex = y.Index
                             }))).ToList(),
                 JsonRequestBehavior.AllowGet);
         }
@@ -149,6 +159,47 @@ namespace Colonizator.Controllers
 
         #region Map Actions
 
+        #region Card Actions
+
+        [HttpPost]
+        public void PlayCard(string token, int playerId, int cardId)
+        {
+            Game game = GetMap(token);
+            game.PlayCard(cardId);
+        }
+
+        [HttpPost]
+        public void DrawCard(string token, int playerId)
+        {
+            Game game = GetMap(token);
+            game.BuyCard(playerId);
+        }
+
+        [HttpPost]
+        public void MoveRobber(string token, int playerId, int hexagonIngex)
+        {
+            Game game = GetMap(token);
+            game.MoveRobber(playerId, hexagonIngex);
+        }
+
+        [HttpPost]
+        public void ChooseFreeResource(string token, int playerId, int first, int second)
+        {
+            Game game = GetMap(token);
+            game.ChooseFreeResource(playerId, (ResourceType)first, (ResourceType)second);
+        }
+
+        [HttpPost]
+        public void ChooseMonopolyResource(string token, int playerId, int resource)
+        {
+            Game game = GetMap(token);
+            game.ChooseMonopolyResource(playerId, (ResourceType)resource);
+        }
+
+        #endregion
+
+        #region Common Actions
+
         [HttpGet]
         public ActionResult ThrowDice(string token, int playerId)
         {
@@ -156,6 +207,17 @@ namespace Colonizator.Controllers
             var model = game.ThrowDice();
             return Json(new DiceViewModel { First = model[0], Second = model[1] }, JsonRequestBehavior.AllowGet);
         }
+
+        [HttpPost]
+        public void PassMove(string token, int playerId)
+        {
+            Game game = GetMap(token);
+            game.PassMove(token, playerId);
+        }
+
+        #endregion
+
+        #region Build Actions
 
         [HttpPost]
         public void BuildCity(string token, int playerId, int hexA, int hexB, int hexC, int hexIndex)
@@ -171,12 +233,9 @@ namespace Colonizator.Controllers
             game.BuildRoad(token, playerId, haxagonIndex, hexA, hexB);
         }
 
-        [HttpPost]
-        public void PassMove(string token, int playerId)
-        {
-            Game game = GetMap(token);
-            game.PassMove(token, playerId);
-        }
+        #endregion
+
+        #region Market Actions
 
         [HttpGet]
         public ActionResult GetTestOrder()
@@ -260,6 +319,8 @@ namespace Colonizator.Controllers
             order.HasSellerAcceptance = true;
             game.Market.AcceptOder(id);
         }
+
+        #endregion
 
         #endregion
 

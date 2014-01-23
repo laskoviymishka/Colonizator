@@ -11,14 +11,14 @@ namespace Model
 
         private static readonly int[,] _hexagonIndices =
         {
-            {0,  0, -1, -2, -3,  -4,   0,  0,  0},
-            {0,  0, -5,  1,  2,   3,  -6,  0,  0},
-            {0, -7,  4,  5,  6,   7,  -8,  0,  0},
-            {0, -9,  8,  9, 10,  11,  12,-10,  0},
-            {0, -11, 13, 14, 15, 16, -12,  0,  0},
-            {0,   0,-13, 17, 18, 19, -14,  0,  0},
-            {0,   0,-15,-16,-17,-18,   0,  0,  0},
-            {0,   0,  0,  0,  0,  0,   0,  0,  0}
+            {0, 0, -1, -2, -3, -4, 0, 0, 0},
+            {0, 0, -5, 1, 2, 3, -6, 0, 0},
+            {0, -7, 4, 5, 6, 7, -8, 0, 0},
+            {0, -9, 8, 9, 10, 11, 12, -10, 0},
+            {0, -11, 13, 14, 15, 16, -12, 0, 0},
+            {0, 0, -13, 17, 18, 19, -14, 0, 0},
+            {0, 0, -15, -16, -17, -18, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0}
         };
 
         private static readonly int[,] _nodeMappings =
@@ -53,6 +53,7 @@ namespace Model
             int columnCount = _hexagonIndices.GetLength(1);
 
             List<Hexagon> row = null;
+
             for (int i = 0; i < rowCount; ++i)
             {
                 for (int j = 0; j < columnCount; ++j)
@@ -69,33 +70,13 @@ namespace Model
                         int rightIndex = _hexagonIndices[i, j + 1];
                         int bottomIndex = _hexagonIndices[i + 1, j - (i & 1)];
                         int rightBottomIndex = _hexagonIndices[i + 1, j + 1 - (i & 1)];
-                        int rightMidIndex = _hexagonIndices[i, j + 1];
-                        AddEdge(currentIndex, rightMidIndex, 0);
 
-                        int rightBottomIndex1 = _hexagonIndices[i + 1, j + 1];
-                        AddEdge(currentIndex, rightBottomIndex1, 1);
+                        AddEdge(currentIndex, rightIndex, 1);
+                        AddEdge(currentIndex, rightBottomIndex, 2);
+                        AddEdge(currentIndex, bottomIndex, 3);
 
-                        int leftBottomIndex = _hexagonIndices[i + 1, j];
-                        AddEdge(currentIndex, leftBottomIndex, 2);
-
-                        if (i != 0)
-                        {
-                            int rightHeaderIndex = _hexagonIndices[i - 1, j + 1];
-                            AddEdge(currentIndex, rightHeaderIndex, 3);
-
-                            int leftHeaderIndex = _hexagonIndices[i - 1, j - 1];
-                            AddEdge(currentIndex, leftHeaderIndex, 5);
-                        }
-
-                        if (j != 0)
-                        {
-                            int leftMidIndex = _hexagonIndices[i, j - 1];
-                            AddEdge(currentIndex, leftMidIndex, 4);
-                        }
-
-                        AddNode(currentIndex, rightMidIndex, rightBottomIndex1, 0);
-                        AddNode(currentIndex, rightBottomIndex1, rightMidIndex, 1);
-
+                        AddNode(currentIndex, rightIndex, rightBottomIndex, 0);
+                        AddNode(currentIndex, rightBottomIndex, bottomIndex, 1);
 
                         row.Add(GetOrCreateHexagon(currentIndex));
                     }
@@ -109,7 +90,6 @@ namespace Model
             }
 
             _map = map.ToArray();
-
         }
 
         #endregion
@@ -163,18 +143,41 @@ namespace Model
                         tiles.Remove(randomPossibleTile);
 
                         int faceNumber = 1 + random.Next(12);
-                        if (randomPossibleTile == 2)
-                        {
-                            hexagon.FaceNumber = 7;
-                        }
-                        else
-                        {
-                            hexagon.FaceNumber = faceNumber >= 7 ? faceNumber + 1 : faceNumber;
-                        }
+
+                        hexagon.FaceNumber = faceNumber >= 7 ? faceNumber + 1 : faceNumber;
                     }
                     else
                     {
                         hexagon.ResourceType = 0;
+                    }
+                }
+            }
+            foreach (var hexagon in _hexagones.Where(h => h != null && h.Edges != null && h.Edges.Count(e => e != null) == 6 && h.Nodes != null && h.Nodes.Count(e => e == null) != 6).ToList())
+            {
+                foreach (var edge in hexagon.Edges)
+                {
+                    foreach (var node in hexagon.Nodes)
+                    {
+                        if (edge.HexagonA.Hexagon.Index == node.HexagonA.Hexagon.Index && edge.HexagonB.Hexagon.Index == node.HexagonB.Hexagon.Index ||
+                            edge.HexagonA.Hexagon.Index == node.HexagonB.Hexagon.Index && edge.HexagonB.Hexagon.Index == node.HexagonC.Hexagon.Index ||
+                            edge.HexagonA.Hexagon.Index == node.HexagonA.Hexagon.Index && edge.HexagonB.Hexagon.Index == node.HexagonC.Hexagon.Index)
+                        {
+                            if (edge.NodeA == null || edge.NodeB == node)
+                            {
+                                edge.NodeA = node;
+                            }
+                            else
+                            {
+                                edge.NodeB = node;
+                            }
+                            if(node.Edges == null) node.Edges = new HashSet<Edge>();
+                            node.Edges.Add(edge);
+                            foreach (var nodeEdge in node.Edges)
+                            {
+                                if (edge.Edges == null) edge.Edges = new HashSet<Edge>();
+                                edge.Edges.Add(nodeEdge);
+                            }
+                        }
                     }
                 }
             }
@@ -216,9 +219,9 @@ namespace Model
             OnStateChanged();
         }
 
-        public void BuildCity(int playerId, int hexA, int hexB, int hexC, int unUsed)
+        public void BuildCity(int playerId, int hexA, int hexB, int hexC, int hexIndex)
         {
-            Node node = GetNode(hexA, hexB, hexC);
+            Node node = GetNode(hexA, hexB, hexC, hexIndex);
 
             node.PlayerId = playerId;
             node.CitySize++;
@@ -230,62 +233,48 @@ namespace Model
 
         #region Misc Methods
 
-        public Node GetNode(int hexA, int hexB, int hexC)
+        public Node GetNode(int hexA, int hexB, int hexC, int hexIndex)
         {
-            return
-                Nodes.FirstOrDefault(
-                    n =>
-                        n.HexagonA.Hexagon.Index == hexA && n.HexagonB.Hexagon.Index == hexB &&
-                        n.HexagonC.Hexagon.Index == hexC);
+            var key = new NodeKey(hexA, hexB, hexC);
+            return _nodes[key];
         }
 
         public Edge GetEdge(int hexA, int hexB, int hexIndex)
         {
-            return
-                Edges.FirstOrDefault(
-                    n =>
-                        n.HexagonA.Hexagon.Index == hexA
-                        && n.HexagonB.Hexagon.Index == hexB);
+            var key = new EdgeKey(hexA, hexB);
+            return _edges[key];
         }
 
         public IEnumerable<Node> GetAvailableNodes(int playerId)
         {
-            var potentialNodes = new HashSet<Node>();
-
-            foreach (Edge edge in _edges.Values)
-            {
-                if (edge.PlayerId == playerId)
-                {
-                    potentialNodes.Add(edge.HexagonA.FirstNode);
-                    potentialNodes.Add(edge.HexagonA.SecondNode);
-                    potentialNodes.Add(edge.HexagonB.FirstNode);
-                    potentialNodes.Add(edge.HexagonB.SecondNode);
-                }
-            }
-
-            IEnumerable<Node> result = potentialNodes.Count > 0 ? potentialNodes : (IEnumerable<Node>)_nodes.Values;
-
-            return result.Where(x => x != null && ((x.PlayerId == playerId) || (x.PlayerId < 0)));
+            return _nodes.Values.Where(n => n.PlayerId < 0 && n.Edges.Any(e => e.PlayerId == playerId));
         }
 
         public IEnumerable<Edge> GetAvailableEdges(int playerId)
         {
             var result = new HashSet<Edge>();
-
-            foreach (Node node in _nodes.Values)
+            foreach (var edge in _edges.Values)
             {
-                if (node.PlayerId == playerId)
+                if (edge.PlayerId < 0)
                 {
-                    result.Add(node.HexagonA.FirstEdge);
-                    result.Add(node.HexagonA.SecondEdge);
-                    result.Add(node.HexagonB.FirstEdge);
-                    result.Add(node.HexagonB.SecondEdge);
-                    result.Add(node.HexagonC.FirstEdge);
-                    result.Add(node.HexagonC.SecondEdge);
+                    if (edge.NodeA != null && edge.NodeA.PlayerId == playerId ||
+                        edge.NodeB != null && edge.NodeB.PlayerId == playerId)
+                    {
+                        result.Add(edge);
+                    }
+                }
+                else
+                {
+                    if (edge.PlayerId == playerId)
+                    {
+                        foreach (var childEdge in edge.Edges)
+                        {
+                            result.Add(childEdge);
+                        }
+                    }
                 }
             }
-
-            return result.Where(x => x != null && x.PlayerId < 0);
+            return result;
         }
 
         public bool IsEdgeAvailable(int hexagonIndex, int hexA, int hexB)
@@ -337,19 +326,15 @@ namespace Model
                     Hexagon next = GetOrCreateHexagon(nextIndex);
 
                     int positionNext = ReverseOrder(positionCurrent);
-                    try
-                    {
-                        var edge = new Edge(
-                            new HexagonPosition(current, positionCurrent),
-                            new HexagonPosition(next, positionNext),
-                            this);
 
-                        _edges.Add(new EdgeKey(currentIndex, nextIndex), edge);
+                    var edge = new Edge(
+                        new HexagonPosition(current, positionCurrent),
+                        new HexagonPosition(next, positionNext));
 
-                        current.Edges[positionCurrent] = edge;
-                        next.Edges[positionNext] = edge;
-                    }
-                    catch (Exception e) { }
+                    _edges.Add(new EdgeKey(currentIndex, nextIndex), edge);
+
+                    current.Edges[positionCurrent] = edge;
+                    next.Edges[positionNext] = edge;
                 }
             }
         }
@@ -422,7 +407,7 @@ namespace Model
 
         public bool IsNodeAvailable(int hexA, int hexB, int hexC, int playerId, int hexIndex)
         {
-            var node = GetNode(hexA, hexB, hexC);
+            var node = GetNode(hexA, hexB, hexC, hexIndex);
             if (node.PlayerId != playerId && node.PlayerId >= 0) { return false; }
             if (node.CitySize != 0) { return false; }
             return true;
@@ -430,7 +415,7 @@ namespace Model
 
         public bool IsUpgradeTown(int hexA, int hexB, int hexC, int playerId, int hexIndex)
         {
-            var node = GetNode(hexA, hexB, hexC);
+            var node = GetNode(hexA, hexB, hexC, hexIndex);
             if (node.PlayerId != playerId) { return false; }
             if (node.CitySize != 1) { return false; }
             return true;

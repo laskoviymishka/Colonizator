@@ -1,47 +1,57 @@
 ﻿.buyBatch {
-        width: 35%;
-        float: left;
-    }
+    width: 35%;
+    float: left;
+}
 
-    .sellBatch {
-        width: 35%;
-        float: left;
-    }
+.sellBatch {
+    width: 35%;
+    float: left;
+}
 
-    .orderAction {
-        margin-left: 20px;
-        float: left !important;
-    }
+.orderAction {
+    margin-left: 20px;
+    float: left !important;
+}
 
-    .order {
-        width: 100%;
-        background: bisque;
-        display: inline-block;
-    }
+.order {
+    width: 100%;
+    background: bisque;
+    display: inline-block;
+}
 
-    .orders {
-        width: 100%;
-        background: white;
-    }
+.orders {
+    width: 100%;
+    background: white;
+}
 
-    .resource {
-        width: 40px;
-        height: 60px;
-    }
+.resource {
+    width: 40px;
+    height: 60px;
+}
 
-    .resourceOrderTemplate {
-        width: 42px;
-        float: left;
-    }
+.resourceOrderTemplate {
+    width: 42px;
+    float: left;
+}
 
-    .resourceCount {
-        width: 16px;
-        height: 16px;
-        border-radius: 8px;
-        background-color: white;
-        border: 1px black solid;
-        text-align: center;
-        font-size: 8pt;
-        position: absolute;
-        margin: -25px 5px 7px 8px;
-    }
+.unchooseResourceTemplate {
+    float: left;
+}
+
+.chooseResourceTemplate {
+    float: left;
+    border: solid;
+    border-color: cadetblue;
+}
+
+.resourceCount {
+    width: 16px;
+    height: 16px;
+    border-radius: 8px;
+    background-color: white;
+    border: 1px black solid;
+    text-align: center;
+    font-size: 8pt;
+    position: absolute;
+    margin: -25px 5px 7px 8px;
+}
