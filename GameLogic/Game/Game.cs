@@ -81,22 +81,17 @@ namespace GameLogic.Game
 
                 if (_isStartUp)
                 {
-                    foreach (Node node in MapController.Nodes)
-                    {
-                        if (node.CitySize == 0)
-                        {
-                            result.Add(new CityModel
-                            {
-                                HexagonIndex = node.HexagonA.Hexagon.Index,
-                                Position = node.HexagonA.Position,
-                                HexA = node.HexagonA.Hexagon.Index,
-                                HexB = node.HexagonB.Hexagon.Index,
-                                HexC = node.HexagonC.Hexagon.Index,
-                                CitySize = 'v',
-                                PlayerId = _currentPlayerId
-                            });
-                        }
-                    }
+                    result = MapController.GetAvailableStartUpNodes(_currentPlayerId).Where(x => x.CitySize < 2).Select(x =>
+                       new CityModel
+                       {
+                           HexagonIndex = x.HexagonA.Hexagon.Index,
+                           Position = x.HexagonA.Position,
+                           HexA = x.HexagonA.Hexagon.Index,
+                           HexB = x.HexagonB.Hexagon.Index,
+                           HexC = x.HexagonC.Hexagon.Index,
+                           CitySize = x.CitySize > 0 ? 't' : 'v',
+                           PlayerId = _currentPlayerId
+                       }).ToList();
                 }
                 else
                 {

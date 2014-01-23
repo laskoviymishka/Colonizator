@@ -248,6 +248,20 @@ namespace Model
             return _edges[key];
         }
 
+        public IEnumerable<Node> GetAvailableStartUpNodes(int playerId)
+        {
+            var result = new HashSet<Node>();
+            foreach (var node in from node in _nodes.Values
+                                 where node.PlayerId < 0 && node.Edges != null
+                                    && node.Edges.All(e => e.NodeA != null && e.NodeB != null)
+                                 where node.Edges.All(e => e.NodeA.PlayerId < 0 && e.NodeB.PlayerId < 0)
+                                 select node)
+            {
+                result.Add(node);
+            }
+            return result;
+        }
+
         public IEnumerable<Node> GetAvailableNodes(int playerId)
         {
             var result = new HashSet<Node>();
