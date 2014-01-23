@@ -15,8 +15,8 @@ namespace Colonizator.Hubs
     public class MapHub : Hub
     {
         private MapBroadcaster _broadcaster;
-        private static readonly ConcurrentDictionary<string, Player> Users
-        = new ConcurrentDictionary<string, Player>();
+        private static readonly ConcurrentDictionary<string, Player> Users = new ConcurrentDictionary<string, Player>();
+
         public override Task OnConnected()
         {
             string userName = Context.User.Identity.Name;
@@ -43,13 +43,24 @@ namespace Colonizator.Hubs
             _broadcaster = MapBroadcaster.Instance;
         }
 
-        public void ResumeGame(string mapId)
+        public void ResumeGame(string mapId, string playerName)
         {
             var game = _broadcaster.Games.Find(m => m.Id == mapId) ?? _broadcaster.CreateGame(mapId);
-            var player1 = game.Players.FirstOrDefault(p => p.PlayerName == Context.User.Identity.Name);
-            player1.ConnectionIds.Add(Context.ConnectionId);
+            Player item;
+            if (string.IsNullOrEmpty(playerName))
+            {
+                item = game.Players.FirstOrDefault(p => p.PlayerName == Context.User.Identity.Name);
+            }
+            else
+            {
+                item = game.Players.FirstOrDefault(p => p.PlayerName == playerName);
+            }
+
+            if (item == null) throw new InvalidOperationException("player not found");
+
+            item.ConnectionIds.Add(Context.ConnectionId);
             Groups.Add(Context.ConnectionId, mapId);
-            Clients.Client(Context.ConnectionId).gameStart(new { token = mapId, playerCount = game.Players.IndexOf(player1) + 1, player = player1 });
+            Clients.Client(Context.ConnectionId).gameStart(new { token = mapId, playerCount = game.Players.IndexOf(item) + 1, player = item });
         }
 
         public void SearchGame(string playerName)
@@ -65,7 +76,7 @@ namespace Colonizator.Hubs
 
         public void NotificateRoadBuild(string mapId, string coord)
         {
-            
+
         }
         public void NotificateCityBuild(string mapId, string coord)
         {

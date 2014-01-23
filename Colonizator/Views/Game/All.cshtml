@@ -241,7 +241,7 @@
     };
 
     function resumeGame(token) {
-        mapHub.server.resumeGame(token);
+        mapHub.server.resumeGame(token, $('#resumeName').val());
     };
 
     var chosenResourcs;
@@ -341,8 +341,9 @@
         <div id="preGameState">
             @foreach (var game in Model)
             {
-                <div class="btn btn-success" onclick="resumeGame('@game.Id')">
-                    Возобновить игру @game.Id
+                <div id="resumeGame">
+                    <input type="text" id="resumeName" value="@User.Identity.Name" />
+                    <button id="resume" onclick="resumeGame('@game.Id')">Возобновить игру @game.Id</button>
                 </div>
             }
             <h1 id="userQueue">Начать искать игру</h1>

@@ -19,7 +19,7 @@ namespace Colonizator.Broadcasters
 
         private MarketBroadcaster()
         {
-            _context = GlobalHost.ConnectionManager.GetHubContext<MarketHub>();
+            _context = null;
             _broadcaster = MapBroadcaster.Instance;
             foreach (var game in _broadcaster.Games)
             {
