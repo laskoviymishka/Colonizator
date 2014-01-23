@@ -22,6 +22,7 @@
         {
             IsPlayed = true;
             _game.RiseUpdate(new GameStateUpdateArgs { Action = GameAction.FreeResource });
+            _game.IsFreeResourceNeedUpdate = true;
         }
 
         public Player Owner { get; set; }

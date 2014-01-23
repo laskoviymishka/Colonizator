@@ -11,12 +11,13 @@ var villageSize = { w: 45, h: 36 };
 var roadSize = { w: 70, h: 14 };
 var tileClick = function(tile) {
     console.log("clicke on tile", tile);
-}
+};
+var tiles;
 function DrawField(field) {
     var maxFieldsInRow = field.length;
     var canvas = document.getElementById('canvas');
     canvas.innerHTML = '';
-
+    this.tiles = field;
     var tile = document.createElement('div');
     tile.setAttribute("class", 'tile');
     tile.style.width = tileWidth + 'px';
@@ -41,6 +42,7 @@ function DrawField(field) {
             newTile.id = i + '-' + j;
             $(newTile).on('click', function () {
                 var t1 = field[this.id.split('-')[0]][this.id.split('-')[1]];
+                t1.id = this.id;
                 tileClick(t1);
             });
             canvas.appendChild(newTile);
@@ -102,7 +104,35 @@ function GetCitiesAdnRoads() {
         DrawTowns(data2.Cities, true);
         DrawRoads(data2.Roads, true);
     });
+    $.getJSON('/Game/RobberPosition?playerId=' + userId + '&token=' + token, function (robber) {
+        console.log('/Game/RobberPosition?playerId=' + userId + '&token=' + token);
+        DrawRobber(robber);
+    });
 }
+
+var DrawRobber = function(robber) {
+    console.log('/Game/RobberPosition?playerId=', robber);
+    var robberElement = document.createElement('div');
+    robberElement.setAttribute("class", 'tile_number');
+    robberElement.style.margin = tileHeight / 2 - 30 + 'px auto';
+    robberElement.id = "robber";
+    $('.tile_number').removeAttr("hidden");
+    $('#robber').remove();
+    var tileed;
+    for (var i = 0; i < tiles.length; i++) {
+        for (var j = 0; j < tiles[i].length; j++) {
+            if (tiles[i][j].HexagonIndex == robber) {
+                tileed = tiles[i][j];
+                tileed.id = i + '-' + j;
+            }
+        }
+    }
+    var selector = '#' + tileed.id + '>div';
+    $(selector).attr('hidden', 'true');
+    var tile = document.getElementById(tileed.id);
+    robberElement.innerHTML = "R";
+    tile.appendChild(robberElement);
+};
 
 function DrawTowns(towns, isPossible) {
     if (!isPossible) ClearNodes(townsContainer);

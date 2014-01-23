@@ -10,6 +10,8 @@
 <script src="~/Scripts/Dice.js"></script>
 <script src="~/Scripts/Serializer.js"></script>
 <link href="~/Content/Market.css" rel="stylesheet" />
+<script src="~/Scripts/toastr.min.js"></script>
+<link href="~/Content/toastr.min.css" rel="stylesheet" />
 <script>
     var gameHub;
     var mapHub;
@@ -23,7 +25,25 @@
     var currentUser;
     $(function () {
         mapHub = $.connection.mapHub;
-
+        mapHub.client.updateToast = function (data) {
+            switch (data.Type) {
+                case 0:
+                    toastr.info(data.Body, data.Title);
+                    break;
+                case 1:
+                    toastr.warning(data.Body, data.Title);
+                    break;
+                case 2:
+                    toastr.success(data.Body, data.Title);
+                    break;
+                case 3:
+                    toastr.error(data.Body, data.Title);
+                    break;
+                default:
+                    toastr.error('Что-то определенно пошло не так', 'Можно глянуть в консольку!!');
+                    break;
+            }
+        };
         mapHub.client.updateState = function (data) {
             console.log("update state", data);
             userMove = data.movePlayer;
@@ -61,6 +81,7 @@
                     GetCitiesAdnRoads();
                     GetPartials();
                     PassMoveAvaible();
+                    moveRobber(data);
                     break;
                 default:
                     console.log("updateState switch (data.Args.Action) default", data);
@@ -96,17 +117,7 @@
 
             $.getJSON('/Game/Map?token=' + token, function (data) {
                 DrawField(data);
-
-                $.getJSON('/Game/MapState?token=' + token, function (data1) {
-                    DrawTowns(data1.Cities);
-                    DrawRoads(data1.Roads);
-                    $.getJSON('/Game/AvailableMap?playerId=' + userId + '&token=' + token, function (data2) {
-                        global_data = data2;
-                        console.log('/Game/AvailableMap?playerId=' + userId + '&token=' + token);
-                        DrawTowns(data2.Cities, true);
-                        DrawRoads(data2.Roads, true);
-                    });
-                });
+                GetCitiesAdnRoads();
             });
             GetPartials();
         };
@@ -188,8 +199,8 @@
         }
         $('#throwDiceCloseBtn').show();
         $('#throwDiceBtn').hide();
-        togleCube(0, data.First);
-        togleCube(1, data.Second);
+        togleCube(0, data.Args.First);
+        togleCube(1, data.Args.Second);
         GetPartials();
     }
 
@@ -209,12 +220,22 @@
     }
 
     var moveRobber = function (args) {
+        var robberElement = document.createElement('div');
+        robberElement.setAttribute("class", 'tile_number');
+        robberElement.style.margin = tileHeight / 2 - 30 + 'px auto';
+        robberElement.id = "robber";
         if (currentUser.PlayerName == userMove) {
             tileClick = function (parameters) {
+                $('.tile_number').removeAttr("hidden");
                 console.log("MoveRobber", parameters, args);
                 var contract = { token: token, playerId: userId, hexagonIngex: parameters.HexagonIndex };
                 $.post("/Game/MoveRobber", $.toDictionary(contract));
                 console.log("/Game/MoveRobber", contract);
+                $('#robber').remove();
+                $('#2-3>div').attr('hidden', 'true');
+                var tile = document.getElementById(parameters.id);
+                robberElement.innerHTML = "R";
+                tile.appendChild(robberElement);
             };
         }
     };
@@ -226,7 +247,7 @@
     var chosenResourcs;
     var neededResourceCount = 7;
     var neededResourceQty = -1;
-    var chooseMonopolyResource = function(args) {
+    var chooseMonopolyResource = function (args) {
         chosenResourcs = [
             { Type: 0, Qty: 0 },
             { Type: 1, Qty: 0 },
@@ -240,7 +261,7 @@
             $('#freeResourceChoose').modal('show');
             $('#resourceCheckLabe').html('Играя эту карточку, игрок выбирает один тип ресурса. Остальные игроки должны отдать ему все карточки ресурсов этого типа');
             $('#freeResourceChooseSendBtn').hide();
-            $('#freeResourceChooseSendBtn').on('click', function(parameters) {
+            $('#freeResourceChooseSendBtn').on('click', function (parameters) {
                 console.log('chooseMonopolyResource', parameters);
                 var contract = {
                     Token: token,
@@ -253,7 +274,7 @@
         }
     };
 
-    var chooseFreeResouce = function(args) {
+    var chooseFreeResouce = function (args) {
         chosenResourcs = [
             { Type: 0, Qty: 0 },
             { Type: 1, Qty: 0 },
@@ -320,9 +341,9 @@
         <div id="preGameState">
             @foreach (var game in Model)
             {
-            <div class="btn btn-success" onclick="resumeGame('@game.Id')">
-                Возобновить игру @game.Id
-            </div>
+                <div class="btn btn-success" onclick="resumeGame('@game.Id')">
+                    Возобновить игру @game.Id
+                </div>
             }
             <h1 id="userQueue">Начать искать игру</h1>
             <div id="creatingGame">

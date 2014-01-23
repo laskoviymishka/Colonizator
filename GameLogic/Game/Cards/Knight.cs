@@ -23,6 +23,7 @@
         {
             IsPlayed = true;
             _game.RiseUpdate(new GameStateUpdateArgs { Action = GameAction.MoveRobber });
+            _game.IsRobberNeedUpdate = true;
         }
 
         public Player Owner { get; set; }

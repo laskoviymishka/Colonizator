@@ -27,7 +27,10 @@ namespace GameLogic.Game
         public event OrderUpdate OrderUpdate;
         public event GameStateUpdate GameMoveUpdate;
         public event DiceThrowen DiceThrowen;
-        public event CardPlayed CardPlayed;
+        public event ToasterUpdate ToasterUpdate;
+        internal bool IsRobberNeedUpdate;
+        internal bool IsFreeResourceNeedUpdate;
+        internal bool IsMonopolyUpdate;
 
         #endregion
 
@@ -48,6 +51,7 @@ namespace GameLogic.Game
 
             Market = new Market.Market(this);
             Deck = new Deck(this);
+            _robberHex = MapController.RobberInitPosition;
         }
 
         #endregion
@@ -61,6 +65,8 @@ namespace GameLogic.Game
         public List<Player> Players { get; set; }
         public MapController MapController { get; set; }
         public IMarket Market { get; set; }
+
+        public int RobberPosition { get { return _robberHex; } }
 
         public bool IsStartUp
         {
@@ -142,6 +148,45 @@ namespace GameLogic.Game
             CurrentPlayer.Resources.First(r => r.Type == first).Qty += 2;
             CurrentPlayer.Resources.First(r => r.Type == second).Qty += 2;
             RiseUpdate(new GameStateUpdateArgs { Action = GameAction.RegularUpdate });
+            IsFreeResourceNeedUpdate = false;
+            ToasterUpdate(
+                 this,
+                 new ToasterUpdateArgs
+                 {
+                     Title = "Халяяяяява",
+                     Body = string.Format("Игрок {0} получает одну еденицу {1} и {2} одну еденицу полностью даром.", CurrentPlayer.PlayerName, first, second),
+                     Type = ToastType.Warning
+                 });
+        }
+
+        public void ChooseMonopolyResource(int playerId, ResourceType resourceType)
+        {
+            if (Players[playerId] != CurrentPlayer)
+            {
+                throw new InvalidOperationException("Invalid player");
+            }
+
+            int bonusResource = 0;
+            foreach (var player in Players)
+            {
+                if (player.PlayerName == CurrentPlayer.PlayerName) continue;
+
+                bonusResource += player.Resources.First(r => r.Type == resourceType).Qty;
+                player.Resources.First(r => r.Type == resourceType).Qty = 0;
+            }
+
+            CurrentPlayer.Resources.First(r => r.Type == resourceType).Qty += bonusResource;
+
+            RiseUpdate(new GameStateUpdateArgs() { Action = GameAction.RegularUpdate });
+            ToasterUpdate(
+                 this,
+                 new ToasterUpdateArgs
+                 {
+                     Title = "Чертовы монополисты",
+                     Body = string.Format("Игрок {0} стал монополистом теперь все {1} достается ему.", CurrentPlayer.PlayerName, resourceType),
+                     Type = ToastType.Warning
+                 });
+            IsMonopolyUpdate = false;
         }
 
         public void MoveRobber(int playerId, int robberNewPosition)
@@ -150,51 +195,54 @@ namespace GameLogic.Game
             {
                 throw new InvalidOperationException("Cannot draw card not your move.");
             }
+            if (!IsRobberNeedUpdate)
+            {
+                throw new InvalidOperationException("Cannot move robber u must play card or draw 7.");
+            }
             var random = new Random();
             _robberHex = robberNewPosition;
-            //foreach (var node in MapController.Nodes)
-            //{
-            //    if ((node.PlayerId >= 0 && node.PlayerId <= 5) &&
-            //        node.HexagonA.Hexagon.Index == _robberHex ||
-            //        node.HexagonB.Hexagon.Index == _robberHex ||
-            //        node.HexagonB.Hexagon.Index == _robberHex)
-            //    {
-            //        int resourceType = random.Next(0, 5);
-            //        if (node.PlayerId >= 0 && Players[node.PlayerId] != CurrentPlayer)
-            //        {
-            //            Players[node.PlayerId].Resources.First(
-            //                r => r.Type == (ResourceType)(resourceType)).Qty--;
-            //            CurrentPlayer.Resources.First(
-            //                r => r.Type == (ResourceType)(resourceType)).Qty++;
-            //        }
-            //    }
-            //}
+
             foreach (var hexagons in MapController.GetMap())
             {
-                Hexagon hexagon = hexagons.FirstOrDefault(h => h.Index == _robberHex);
-                if (hexagon != null)
+                var hexagon = hexagons.FirstOrDefault(h => h.Index == _robberHex);
+                if (hexagon == null) continue;
+
+                foreach (var node in hexagon.Nodes.Where(n => n.PlayerId >= 0 && n.PlayerId != _currentPlayerId))
                 {
-                    foreach (Node node in hexagon.Nodes.Where(n => n != null && n.PlayerId >= 0 && n.PlayerId <= 5))
-                    {
-                        int resourceType = random.Next(0, 5);
-                        if (Players[node.PlayerId] != CurrentPlayer)
-                        {
-                            Players[node.PlayerId].Resources.First(
-                                r => r.Type == (ResourceType)(resourceType)).Qty--;
-                            CurrentPlayer.Resources.First(
-                                r => r.Type == (ResourceType)(resourceType)).Qty++;
-                        }
-                    }
+                    var robPlayer = Players[node.PlayerId];
+                    var avaibleResources = robPlayer.Resources.Where(r => r.Qty > 0).ToList();
+                    if (!avaibleResources.Any()) continue;
+
+                    var resourceToRob = random.Next(0, avaibleResources.Count());
+                    robPlayer.Resources.First(r => r.Type == avaibleResources[resourceToRob].Type).Qty--;
+                    CurrentPlayer.Resources.First(r => r.Type == avaibleResources[resourceToRob].Type).Qty++;
                 }
             }
 
-            RiseUpdate(new GameStateUpdateArgs() { Action = GameAction.RegularUpdate });
+            RiseUpdate(new GameStateUpdateArgs { Action = GameAction.RegularUpdate });
+            ToasterUpdate(
+                 this,
+                 new ToasterUpdateArgs
+                 {
+                     Title = "Грабитель переместился",
+                     Body = string.Format("Игрок {0} передвинул грабителя.", CurrentPlayer.PlayerName),
+                     Type = ToastType.Success
+                 });
+            IsRobberNeedUpdate = false;
         }
 
         public void PlayCard(int cardId)
         {
             var card = CurrentPlayer.Cards.First(c => c.Id == cardId);
             card.PlayCard();
+            ToasterUpdate(
+                 this,
+                 new ToasterUpdateArgs
+                 {
+                     Title = "Розыгрыш карты",
+                     Body = string.Format("Игрок {0} играет карту. {1}", CurrentPlayer.PlayerName, card.CardDescription),
+                     Type = ToastType.Success
+                 });
         }
 
         public void BuyCard(int playerId)
@@ -215,6 +263,14 @@ namespace GameLogic.Game
             CurrentPlayer.Resources.First(r => r.Type == ResourceType.Wool).Qty--;
             CurrentPlayer.Resources.First(r => r.Type == ResourceType.Corn).Qty--;
             GameMoveUpdate(this, new GameStateUpdateArgs() { Action = GameAction.CardUpdate });
+            ToasterUpdate(
+                 this,
+                 new ToasterUpdateArgs
+                 {
+                     Title = "Покупка карты",
+                     Body = string.Format("Игрок {0} покупает карту.", CurrentPlayer.PlayerName),
+                     Type = ToastType.Success
+                 });
         }
 
         #endregion
@@ -240,6 +296,7 @@ namespace GameLogic.Game
                 RobberTime();
                 DiceThrowen(this, new GameStateUpdateArgs { First = cubeValue1, Second = cubeValue2, Action = GameAction.DiceThrowen });
                 GameMoveUpdate(this, new GameStateUpdateArgs { Action = GameAction.MoveRobber });
+                IsRobberNeedUpdate = true;
                 return result;
             }
 
@@ -325,6 +382,10 @@ namespace GameLogic.Game
                 }
                 throw new InvalidOperationException("Illegal move player");
             }
+            if (IsRobberNeedUpdate || IsMonopolyUpdate || IsFreeResourceNeedUpdate)
+            {
+                throw new InvalidOperationException("Illegal move player. Firstly play card.");
+            }
             if (Players[playerId] != CurrentPlayer)
             {
                 throw new InvalidOperationException("Invalid player");
@@ -357,7 +418,7 @@ namespace GameLogic.Game
                 {
                     MapController.BuildRoad(haxagonIndex, hexA, hexB, playerId);
                     _startUpRoads[CurrentPlayer]--;
-                    if (!_startUpRoads.Any(k => k.Value != 0))
+                    if (_startUpRoads.All(k => k.Value == 0))
                     {
                         _isStartUp = false;
                     }
@@ -379,7 +440,14 @@ namespace GameLogic.Game
             {
                 throw new InvalidOperationException("Edge is not available.");
             }
-
+            ToasterUpdate(
+                this,
+                new ToasterUpdateArgs
+                {
+                    Title = "Дороги, кругом дороги",
+                    Body = string.Format("Игрок {0} построил новую дорогу.", CurrentPlayer.PlayerName),
+                    Type = ToastType.Success
+                });
             Market.BuildRoad(Players[playerId]);
             MapController.BuildRoad(haxagonIndex, hexA, hexB, playerId);
             NextPlayer();
@@ -395,6 +463,14 @@ namespace GameLogic.Game
             Market.UpgardeCity(Players[playerId]);
             MapController.BuildCity(playerId, hexA, hexB, hexC, hexIndex);
             CurrentPlayer.PlayerScore++;
+            ToasterUpdate(
+                this,
+                new ToasterUpdateArgs
+                {
+                    Title = "Масштабное строительство",
+                    Body = string.Format("Игрок {0} улучшил свое поселение до города.", CurrentPlayer.PlayerName),
+                    Type = ToastType.Success
+                });
             NextPlayer();
         }
 
@@ -407,6 +483,11 @@ namespace GameLogic.Game
         internal void RiseUpdate(GameStateUpdateArgs args)
         {
             GameMoveUpdate(this, args);
+        }
+
+        public void RiseToast(ToasterUpdateArgs args)
+        {
+            ToasterUpdate(this, args);
         }
 
         private Edge GetCommonEdge(Hexagon hexA, Hexagon hexB)
@@ -447,10 +528,27 @@ namespace GameLogic.Game
                     }
                 }
             }
+
+            ToasterUpdate(
+                this,
+                new ToasterUpdateArgs
+                {
+                    Title = "Грабеж средь бела дня",
+                    Body = string.Format("Игрок {0} выбросил 7, все у кого было больше 7 ресурсов теряют все накопления.", CurrentPlayer.PlayerName),
+                    Type = ToastType.Warning
+                });
         }
 
         private void NextPlayer()
         {
+            ToasterUpdate(
+                this,
+                new ToasterUpdateArgs
+                {
+                    Title = "Ну вот и все.",
+                    Body = string.Format("Игрок {0} закончил ход.", CurrentPlayer.PlayerName),
+                    Type = ToastType.Info
+                });
             if (Players.Count > 0)
             {
                 _currentPlayerId = (_currentPlayerId + 1) % Players.Count;
@@ -467,19 +565,24 @@ namespace GameLogic.Game
                 player.PlayerScore += score;
             }
             GameMoveUpdate(this, new GameStateUpdateArgs() { Action = GameAction.NextMove });
+            ToasterUpdate(
+                this,
+                new ToasterUpdateArgs
+                {
+                    Title = "Все только начинается",
+                    Body = string.Format("Игрок {0} начал ход.", CurrentPlayer.PlayerName),
+                    Type = ToastType.Info
+                });
         }
 
         #endregion
 
-        public void ChooseMonopolyResource(int playerId, ResourceType resourceType)
-        {
-            throw new NotImplementedException();
-        }
     }
 
+    public delegate void CardPlayed(Game sender, GameStateUpdateArgs args);
     public delegate void OrderUpdate(Game sender, OrderUpdateArgs args);
     public delegate void ResourceUpdate(Game sender, ResourceUpdateArgs args);
     public delegate void GameStateUpdate(Game sender, GameStateUpdateArgs args);
     public delegate void DiceThrowen(Game sender, GameStateUpdateArgs args);
-    public delegate void CardPlayed(Game sender, GameStateUpdateArgs args);
+    public delegate void ToasterUpdate(Game sender, ToasterUpdateArgs args);
 }

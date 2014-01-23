@@ -202,12 +202,15 @@
     <Content Include="Content\Dice.css" />
     <Content Include="Content\Market.css" />
     <Content Include="Content\SlideControl.css" />
+    <Content Include="Content\toastr.css" />
+    <Content Include="Content\toastr.min.css" />
     <Content Include="favicon.ico" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
+    <Content Include="Content\toastr.less" />
     <None Include="Properties\PublishProfiles\colonizatory - FTP.pubxml" />
     <None Include="Properties\PublishProfiles\colonizatory - Web Deploy.pubxml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
@@ -227,6 +230,8 @@
     <Content Include="Scripts\respond.min.js" />
     <Content Include="Scripts\Serializer.js" />
     <Content Include="Scripts\SlideControl.js" />
+    <Content Include="Scripts\toastr.js" />
+    <Content Include="Scripts\toastr.min.js" />
     <Content Include="Scripts\_references.js" />
     <Content Include="Sprites\a0.png" />
     <Content Include="Sprites\a1.png" />
@@ -297,6 +302,7 @@
     <Content Include="Views\Game\MarketPartial.cshtml" />
     <Content Include="Views\Game\GameStatePartial.cshtml" />
     <Content Include="Views\Game\DeckPartial.cshtml" />
+    <Content Include="Scripts\toastr.min.js.map" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

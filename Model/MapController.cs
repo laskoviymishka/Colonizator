@@ -101,7 +101,7 @@ namespace Model
         #endregion
 
         #region Initialize
-
+        public int RobberInitPosition { get; set; }
         public void Initialize()
         {
             var random = new Random();
@@ -131,20 +131,24 @@ namespace Model
             {
                 if (hexagon != null)
                 {
-                    if (hexagon.Index == 10)
-                    {
-                        hexagon.FaceNumber = 7;
-                        hexagon.ResourceType = 7;
-                    }
                     if (hexagon.Index > 0)
                     {
+                        if (hexagon.Index == 10)
+                        {
+                        }
                         var randomPossibleTile = tiles[random.Next(tiles.Count)];
                         hexagon.ResourceType = randomPossibleTile;
                         tiles.Remove(randomPossibleTile);
-
-                        int faceNumber = 1 + random.Next(12);
-
-                        hexagon.FaceNumber = faceNumber >= 7 ? faceNumber + 1 : faceNumber;
+                        if (randomPossibleTile == 2)
+                        {
+                            hexagon.FaceNumber = 7;
+                            RobberInitPosition = hexagon.Index;
+                        }
+                        else
+                        {
+                            int faceNumber = 1 + random.Next(12);
+                            hexagon.FaceNumber = faceNumber >= 7 ? faceNumber + 1 : faceNumber;
+                        }
                     }
                     else
                     {
@@ -247,18 +251,14 @@ namespace Model
         public IEnumerable<Node> GetAvailableNodes(int playerId)
         {
             var result = new HashSet<Node>();
-            foreach (var node in _nodes.Values)
+            foreach (var node in from node in _nodes.Values
+                                 where node.PlayerId < 0 && node.Edges != null
+                                    && node.Edges.All(e => e.NodeA != null && e.NodeB != null)
+                                 where node.Edges.Any(e => e.PlayerId == playerId)
+                                 where node.Edges.All(e => e.NodeA.PlayerId < 0 && e.NodeB.PlayerId < 0)
+                                 select node)
             {
-                if (node.PlayerId < 0 && node.Edges != null && node.Edges.All(e => e.NodeA != null && e.NodeB != null))
-                {
-                    if (node.Edges.Any(e => e.PlayerId == playerId))
-                    {
-                        if(node.Edges.All(e => e.NodeA.PlayerId < 0 && e.NodeB.PlayerId < 0))
-                        {
-                            result.Add(node);
-                        }
-                    }
-                }
+                result.Add(node);
             }
             return result;
         }
@@ -278,12 +278,10 @@ namespace Model
                 }
                 else
                 {
-                    if (edge.PlayerId == playerId)
+                    if (edge.PlayerId != playerId) continue;
+                    foreach (var childEdge in edge.Edges)
                     {
-                        foreach (var childEdge in edge.Edges)
-                        {
-                            result.Add(childEdge);
-                        }
+                        result.Add(childEdge);
                     }
                 }
             }

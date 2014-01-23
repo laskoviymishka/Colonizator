@@ -47,6 +47,7 @@ namespace GameLogic.Market
                     if (OrderPlaced != null)
                     {
                         OrderPlaced(_game, new GameStateUpdateArgs() { Action = GameAction.RegularUpdate });
+                        _game.RiseToast(new ToasterUpdateArgs{Title = "Новое предложение на рынке. Возможны скидки.", Body = order.ToString(),Type = ToastType.Info});
                     }
                 }
             }
@@ -83,6 +84,7 @@ namespace GameLogic.Market
                 if (OrderPlaced != null)
                 {
                     OrderPlaced(_game, new GameStateUpdateArgs() { Action = GameAction.RegularUpdate });
+                    _game.RiseToast(new ToasterUpdateArgs { Title = "Зарегестрирована сделка.", Body = order.ToString(), Type = ToastType.Success });
                 }
                 return true;
             }

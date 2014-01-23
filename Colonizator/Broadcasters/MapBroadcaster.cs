@@ -83,6 +83,7 @@ namespace Colonizator.Broadcasters
             game.GameMoveUpdate += game_GameStateUpdate;
             game.DiceThrowen += game_DiceThrowen;
             game.Market.OrderPlaced += Market_OrderPlaced;
+            game.ToasterUpdate += (sender, args) => _context.Clients.Group(sender.Id).updateToast(args);
             _games.Add(game);
             return game;
         }
@@ -92,7 +93,7 @@ namespace Colonizator.Broadcasters
             _context.Clients.Group(sender.Id).updateState(
                 new
                 {
-                    movePlayer = sender.CurrentPlayer,
+                    movePlayer = sender.CurrentPlayer.PlayerName,
                     isStartUp = sender.IsStartUp,
                     Args = args
                 }
@@ -104,7 +105,7 @@ namespace Colonizator.Broadcasters
             _context.Clients.Group(sender.Id).updateState(
                 new
                 {
-                    movePlayer = sender.CurrentPlayer,
+                    movePlayer = sender.CurrentPlayer.PlayerName,
                     isStartUp = sender.IsStartUp,
                     Args = args
                 }
