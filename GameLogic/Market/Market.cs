@@ -47,7 +47,7 @@ namespace GameLogic.Market
                     if (OrderPlaced != null)
                     {
                         OrderPlaced(_game, new GameStateUpdateArgs() { Action = GameAction.RegularUpdate });
-                        _game.RiseToast(new ToasterUpdateArgs{Title = "Новое предложение на рынке. Возможны скидки.", Body = order.ToString(),Type = ToastType.Info});
+                        _game.RiseToast(new ToasterUpdateArgs { Title = "Новое предложение на рынке. Возможны скидки.", Body = order.ToString(), Type = ToastType.Info });
                     }
                 }
             }
@@ -190,7 +190,7 @@ namespace GameLogic.Market
             }
             else
             {
-                throw new InvalidOperationException("not available resource");
+                throw new InvalidOperationException("Да вы батенька тот еще бомжара. Для постройка поселения нужно 1 глина 1 шерсть 1 пшеница и 1 деревяшка, укрепления для");
             }
         }
 
@@ -204,7 +204,7 @@ namespace GameLogic.Market
             }
             else
             {
-                throw new InvalidOperationException("not available resource");
+                throw new InvalidOperationException("Да вы батенька тот еще бомжара. Для агрейда города нужно 3 камня и 2 пшеницы");
             }
         }
 
@@ -218,7 +218,10 @@ namespace GameLogic.Market
             }
             else
             {
-                throw new InvalidOperationException("not available resource");
+                if (player.FreeRoadCount <= 0)
+                {
+                    throw new InvalidOperationException("Да вы батенька тот еще бомжара. Для постройки дороги требуется 1 кирпич и 1 деревяшка");
+                }
             }
         }
 

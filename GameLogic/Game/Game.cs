@@ -58,6 +58,7 @@ namespace GameLogic.Game
 
         #region Properties
 
+        internal bool CouldDrawCard { get; set; }
         public Achive Achive { get; set; }
         public Deck Deck { get; set; }
         public Player CurrentPlayer { get; private set; }
@@ -158,7 +159,7 @@ namespace GameLogic.Game
         {
             if (Players[playerId] != CurrentPlayer)
             {
-                throw new InvalidOperationException("Invalid player");
+                throw new InvalidOperationException("Куда перед батькой в пекло. Не твой ход.");
             }
 
             int bonusResource = 0;
@@ -188,7 +189,7 @@ namespace GameLogic.Game
         {
             if (CurrentPlayer != Players[playerId])
             {
-                throw new InvalidOperationException("Cannot draw card not your move.");
+                throw new InvalidOperationException("Куда перед батькой в пекло. Не твой ход.");
             }
             if (!IsRobberNeedUpdate)
             {
@@ -244,15 +245,19 @@ namespace GameLogic.Game
         {
             if (CurrentPlayer != Players[playerId])
             {
-                throw new InvalidOperationException("Cannot draw card not your move.");
+                throw new InvalidOperationException("Куда перед батькой в пекло. Не твой ход.");
             }
             if (CurrentPlayer.Resources.First(r => r.Type == ResourceType.Minerals).Qty <= 0 &&
                 CurrentPlayer.Resources.First(r => r.Type == ResourceType.Wool).Qty <= 0 &&
                 CurrentPlayer.Resources.First(r => r.Type == ResourceType.Corn).Qty <= 0)
             {
-                throw new InvalidOperationException("Cannot draw card not enough resources.");
+                throw new InvalidOperationException("Да вы батенька бомжара. Карты на халяву не раздаем - трэбо камень шерсть и пшеничка. Всего по 1й штучке.");
             }
-
+            if (!CouldDrawCard)
+            {
+                throw new InvalidOperationException("Вас много карт мало. По одной карте за ход. Имейте совесть.");
+            }
+            CouldDrawCard = false;
             Deck.DrawCard(CurrentPlayer);
             CurrentPlayer.Resources.First(r => r.Type == ResourceType.Minerals).Qty--;
             CurrentPlayer.Resources.First(r => r.Type == ResourceType.Wool).Qty--;
@@ -375,22 +380,22 @@ namespace GameLogic.Game
                     GameMoveUpdate(this, new GameStateUpdateArgs());
                     return;
                 }
-                throw new InvalidOperationException("Illegal move player");
+                throw new InvalidOperationException("Куда перед батькой в пекло. Не твой ход.");
             }
             if (IsRobberNeedUpdate || IsMonopolyUpdate || IsFreeResourceNeedUpdate)
             {
-                throw new InvalidOperationException("Illegal move player. Firstly play card.");
+                throw new InvalidOperationException("Куда перед батькой в пекло. Сперва карту разыграй.");
             }
             if (Players[playerId] != CurrentPlayer)
             {
-                throw new InvalidOperationException("Invalid player");
+                throw new InvalidOperationException("Куда перед батькой в пекло. Не твой ход.");
             }
 
             if (!MapController.IsNodeAvailable(hexA, hexB, hexC, playerId, hexIndex))
             {
                 if (!MapController.IsUpgradeTown(hexA, hexB, hexC, playerId, hexIndex))
                 {
-                    throw new InvalidOperationException("Node is not available.");
+                    throw new InvalidOperationException("Куда то не туда вы тыкнули сударь.");
                 }
                 UpgradeCity(token, playerId, hexA, hexB, hexC, hexIndex);
             }
@@ -420,21 +425,20 @@ namespace GameLogic.Game
                     NextPlayer();
                     return;
                 }
-                throw new InvalidOperationException("Illegal move player");
+                throw new InvalidOperationException("Куда перед батькой в пекло. Не твой ход.");
             }
             if (Players[playerId] != CurrentPlayer)
             {
-                throw new InvalidOperationException("Invalid player");
+                throw new InvalidOperationException("Куда перед батькой в пекло. Не твой ход.");
             }
 
-            if (Players[playerId] != CurrentPlayer)
-            {
-                throw new InvalidOperationException("Invalid player");
-            }
             if (!MapController.IsEdgeAvailable(haxagonIndex, hexA, hexB))
             {
-                throw new InvalidOperationException("Edge is not available.");
+                throw new InvalidOperationException("Ну куда ты тыкаешь не видишь - ЗАНЯТО.");
             }
+
+            Market.BuildRoad(Players[playerId]);
+            MapController.BuildRoad(haxagonIndex, hexA, hexB, playerId);
             ToasterUpdate(
                 this,
                 new ToasterUpdateArgs
@@ -443,8 +447,6 @@ namespace GameLogic.Game
                     Body = string.Format("Игрок {0} построил новую дорогу.", CurrentPlayer.PlayerName),
                     Type = ToastType.Success
                 });
-            Market.BuildRoad(Players[playerId]);
-            MapController.BuildRoad(haxagonIndex, hexA, hexB, playerId);
             NextPlayer();
         }
 
@@ -452,7 +454,7 @@ namespace GameLogic.Game
         {
             if (Players[playerId] != CurrentPlayer)
             {
-                throw new InvalidOperationException("Invalid player");
+                throw new InvalidOperationException("Куда перед батькой в пекло. Не твой ход.");
             }
 
             Market.UpgardeCity(Players[playerId]);
@@ -536,14 +538,6 @@ namespace GameLogic.Game
 
         private void NextPlayer()
         {
-            ToasterUpdate(
-                this,
-                new ToasterUpdateArgs
-                {
-                    Title = "Ну вот и все.",
-                    Body = string.Format("Игрок {0} закончил ход.", CurrentPlayer.PlayerName),
-                    Type = ToastType.Info
-                });
             if (Players.Count > 0)
             {
                 _currentPlayerId = (_currentPlayerId + 1) % Players.Count;
@@ -560,6 +554,7 @@ namespace GameLogic.Game
                 player.PlayerScore += score;
             }
             GameMoveUpdate(this, new GameStateUpdateArgs() { Action = GameAction.NextMove });
+            CouldDrawCard = true;
             ToasterUpdate(
                 this,
                 new ToasterUpdateArgs

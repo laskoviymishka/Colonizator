@@ -56,11 +56,11 @@ namespace GameLogic.Game.Cards
             _deck.Add(new FreeResource(_game, 4));
             _deck.Add(new Road(_game, 5));
             _deck.Add(new Road(_game, 6));
-            _deck.Add(new WinPoint(_game, 7, 1, "Костел"));
-            _deck.Add(new WinPoint(_game, 8, 2, "Университет"));
-            _deck.Add(new WinPoint(_game, 9, 3, "рынок"));
-            _deck.Add(new WinPoint(_game, 10, 4, "Библиотека"));
-            _deck.Add(new WinPoint(_game, 11, 5, "Мэрия"));
+            _deck.Add(new WinPoint(_game, 7, 1, "Костел - молимся богу и получаем 1 очко победы"));
+            _deck.Add(new WinPoint(_game, 8, 2, "Университет - учим гранит науки и получаем 1 очко победы"));
+            _deck.Add(new WinPoint(_game, 9, 3, "Рынок - торгуем беляшами и получам 1 очко победы"));
+            _deck.Add(new WinPoint(_game, 10, 4, "Библиотека - читаем Дарью Донцову и почему то тоже получаем 1 очко победы"));
+            _deck.Add(new WinPoint(_game, 11, 5, "Мэрия - поставили кого-то главным а он нам 1 очко победы"));
             _deck.Add(new Knight(_game, 12));
             _deck.Add(new Knight(_game, 13));
             _deck.Add(new Knight(_game, 14));
