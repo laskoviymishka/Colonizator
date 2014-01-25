@@ -9,6 +9,7 @@ using GameLogic.Market;
 using GameLogic.Model;
 using GameLogic.Models;
 using Model;
+using System.ComponentModel;
 
 namespace Colonizator.Controllers
 {
@@ -31,6 +32,87 @@ namespace Colonizator.Controllers
         public ActionResult All()
         {
             return View(MapBroadcaster.Instance.Games);
+        }
+
+        public ActionResult Create()
+        {
+            return View(new CreateGameViewModel());
+        }
+
+        [HttpPost]
+        public ActionResult Create(CreateGameViewModel model)
+        {
+            var players = new List<Player>();
+            if (string.IsNullOrEmpty(model.Player1))
+            {
+                players.Add(new Player() { PlayerName = "Мистер белый" });
+            }
+            else
+            {
+                players.Add(new Player() { PlayerName = model.Player1 });
+            }
+
+            if (string.IsNullOrEmpty(model.Player2))
+            {
+                players.Add(new Player() { PlayerName = "Мистер розовый" });
+            }
+            else
+            {
+                players.Add(new Player() { PlayerName = model.Player2 });
+            }
+
+            if (string.IsNullOrEmpty(model.Player3))
+            {
+                players.Add(new Player() { PlayerName = "Мистер Коричневый" });
+            }
+            else
+            {
+                players.Add(new Player() { PlayerName = model.Player3 });
+            }
+
+            if (string.IsNullOrEmpty(model.GameName))
+            {
+                model.GameName = Guid.NewGuid().ToString().Substring(0, 6);
+            }
+            else
+            {
+                players.Add(new Player() { PlayerName = model.Player2 });
+            }
+            _broadcaster.CreateGame(model.GameName, players);
+            return RedirectToAction("Details", "Game", new { token = model.GameName });
+        }
+
+        public class CreateGameViewModel
+        {
+            [Description("Имя игры")]
+            public string GameName { get; set; }
+
+            [Description("Имя белого игрока")]
+            public string Player1 { get; set; }
+
+            [Description("Имя красного игрока")]
+            public string Player2 { get; set; }
+
+            [Description("Имя коричневого угрока")]
+            public string Player3 { get; set; }
+
+        }
+
+        public ActionResult Details(string token)
+        {
+            var game = GetGame(token);
+            return View(game);
+        }
+        public ActionResult List()
+        {
+            return View(MapBroadcaster.Instance.Games);
+        }
+
+        public ActionResult Join(string token, int playerId)
+        {
+            ViewBag.Token = token;
+            ViewBag.PlayerId = playerId;
+            return View();
         }
 
         #endregion
@@ -479,5 +561,6 @@ namespace Colonizator.Controllers
         }
 
         #endregion
+
     }
 }

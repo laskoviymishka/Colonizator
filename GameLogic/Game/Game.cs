@@ -6,6 +6,7 @@ using GameLogic.Models;
 using Model;
 using Model.Elements;
 using GameLogic.Game.Cards;
+using System.Timers;
 
 namespace GameLogic.Game
 {
@@ -13,6 +14,7 @@ namespace GameLogic.Game
     {
         #region Private Fields
 
+        private readonly Timer _timer;
         private readonly Dictionary<Player, int> _startUpRoads = new Dictionary<Player, int>();
         private readonly Dictionary<Player, int> _startUpTowns = new Dictionary<Player, int>();
         private int _currentPlayerId;
@@ -53,6 +55,10 @@ namespace GameLogic.Game
             Market = new Market.Market(this);
             Deck = new Deck(this);
             _robberHex = MapController.RobberInitPosition;
+            _timer = new Timer();
+            _timer.Interval = 600000;
+            _timer.Start();
+            _timer.Elapsed += (sender, args) => GameEnded(this, new GameEndArgs { Winner = CurrentPlayer });
         }
 
         #endregion
@@ -573,6 +579,9 @@ namespace GameLogic.Game
                     Body = string.Format("Игрок {0} начал ход.", CurrentPlayer.PlayerName),
                     Type = ToastType.Info
                 });
+
+            _timer.Stop();
+            _timer.Start();
         }
 
         #endregion

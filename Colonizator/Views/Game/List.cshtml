@@ -1,0 +1,49 @@
+﻿@model IEnumerable<GameLogic.Game.Game>
+
+@{
+    ViewBag.Title = "Игры";
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>List</title>
+</head>
+<body>
+    <p>
+        @Html.ActionLink("Create New", "Create")
+    </p>
+    <table class="table">
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Id)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IsStartUp)
+            </th>
+            <th>Возврат в игру</th>
+        </tr>
+
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Id)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.IsStartUp)
+                </td>
+                <td>
+                    @for (int i = 0; i < item.Players.Count; i++)
+                    {
+                        @Html.ActionLink("В игру за " + item.Players[i].Color, "Join", new {token = item.Id, playerId = i})
+                    }
+                </td>
+            </tr>
+        }
+
+    </table>
+</body>
+</html>

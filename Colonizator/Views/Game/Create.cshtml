@@ -1,0 +1,51 @@
+﻿@model Colonizator.Controllers.GameController.CreateGameViewModel
+
+@{
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Создать игру</title>
+</head>
+<body>
+    @using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+
+        <div class="form-horizontal" style="border: solid; width: 300px; margin: auto">
+            <h4>Новая игра</h4>
+            <hr />
+            <div>
+                <h4>Имя игры</h4>
+                @Html.EditorFor(m => m.GameName)
+            </div>
+            <div>
+                <h4>Имя белого игрока</h4>
+                @Html.EditorFor(m => m.Player1)
+            </div>
+            <div>
+                <h4>Имя красного игрока</h4>
+
+                @Html.EditorFor(m => m.Player2)
+            </div>
+            <div>
+                <h4>Имя коричневого игрока</h4>
+
+                @Html.EditorFor(m => m.Player3)
+            </div>
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md-10">
+                    <input type="submit" value="Создать игру" class="btn btn-default" />
+                </div>
+            </div>
+        </div>
+    }
+
+    <div>
+        @Html.ActionLink("Ко всем играм", "List")
+    </div>
+</body>
+</html>

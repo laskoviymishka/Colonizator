@@ -90,6 +90,30 @@ namespace Colonizator.Broadcasters
             return game;
         }
 
+        public Game CreateGame(string mapId, List<Player> players)
+        {
+            var mapControll = new MapController();
+            for (int i = 0; i < players.Count; i++)
+            {
+                players[i].Color = (Color)i;
+                players[i].Resources = new ObservableCollection<Resource>();
+                players[i].Resources.Add(new Resource() { Type = ResourceType.Corn, Qty = 10 });
+                players[i].Resources.Add(new Resource() { Type = ResourceType.Wool, Qty = 10 });
+                players[i].Resources.Add(new Resource() { Type = ResourceType.Wood, Qty = 10 });
+                players[i].Resources.Add(new Resource() { Type = ResourceType.Soil, Qty = 10 });
+                players[i].Resources.Add(new Resource() { Type = ResourceType.Minerals, Qty = 10 });
+            }
+            mapControll.Initialize();
+            var game = new Game(mapId, players, mapControll);
+            game.GameMoveUpdate += game_GameStateUpdate;
+            game.DiceThrowen += game_DiceThrowen;
+            game.Market.OrderPlaced += Market_OrderPlaced;
+            game.ToasterUpdate += (sender, args) => _context.Clients.Group(sender.Id).updateToast(args);
+            game.GameEnded += GameOnGameEnded;
+            _games.Add(game);
+            return game;
+        }
+
         private void GameOnGameEnded(Game sender, GameEndArgs args)
         {
             _context.Clients.Group(sender.Id).gameEnd(args.Winner.PlayerName);

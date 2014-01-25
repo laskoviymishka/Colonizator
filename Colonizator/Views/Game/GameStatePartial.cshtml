@@ -7,15 +7,13 @@
     <tr>
         <th>Name</th>
         <th>Score</th>
-        <th>Color</th>
     </tr>
 
     @foreach (var player in Model.Game.Players)
     {
-        <tr>
+        <tr style="background: @player.Color">
             <td>@player.PlayerName</td>
             <td>@player.PlayerScore</td>
-            <td>@player.Color</td>
         </tr>
     }
 </table>
@@ -23,7 +21,7 @@
 <table class="table">
     @foreach (var player in Model.Game.Players)
     {
-        <tr>
+        <tr style="background: @player.Color">
             <td>@player.PlayerName</td>
             <td>
                 @if (player.Resources.Any(r => r.Type == GameLogic.Game.ResourceType.Wood))

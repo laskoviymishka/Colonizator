@@ -9,7 +9,7 @@ namespace GameLogic.Game
     {
         White,
         Red,
-        Brown,
+        Orange,
         Blue,
         Yellow
     }

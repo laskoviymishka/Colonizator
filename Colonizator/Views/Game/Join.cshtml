@@ -1,8 +1,7 @@
-﻿@model List<GameLogic.Game.Game>
+﻿
 @{
     ViewBag.Title = "Игра";
 }
-
 <script src="~/Scripts/jquery.signalR-2.0.1.min.js"></script>
 <script src="~/signalr/hubs"></script>
 <script src="~/Scripts/game.js"></script>
@@ -14,35 +13,29 @@
 <link href="~/Content/toastr.min.css" rel="stylesheet" />
 <script src="~/Scripts/GameComunicator.js"></script>
 <script>
+    window.onload = function(data) {
+        userId = "@ViewBag.PlayerId";
+        token = "@ViewBag.Token";
+        $('#UserName').html(userName);
+        $('#UserColor').html(userId);
+        $('#tokenGame').html(token);
+        $.connection.hub.start().done(function () {
+            mapHub.server.joinGame(token);
+        });
+        $.getJSON('/Game/Map?token=' + token, function (data) {
+            DrawField(data);
+            GetCitiesAdnRoads();
+        });
+        GetPartials();
+        console.log("init game", userId, token);
+    };
 </script>
-
 <div style="width: 100%">
     <div style="position:relative;width:65%;height:700px; float: left">
         <div id="canvas" style="position:relative;width:100%;height:700px;">
         </div>
     </div>
     <div style="position: relative; width: 35%; float: right">
-        <div id="preGameState">
-            @foreach (var game in Model)
-            {
-                <div id="resumeGame">
-                    <input type="text" id="resumeName" value="@User.Identity.Name" />
-                    <button id="resume" onclick="resumeGame('@game.Id')">Возобновить игру @game.Id</button>
-                </div>
-            }
-            <h1 id="userQueue">Начать искать игру</h1>
-            <div id="creatingGame">
-                <input type="text" id="displayname" value="@User.Identity.Name" />
-                <button id="search">Найти игру</button>
-            </div>
-            <p id="tokenGame"></p>
-            <table class="table" style="width: 200px; height: 100px;">
-                <tbody>
-                    <tr id="UserName"></tr>
-                    <tr id="UserColor"></tr>
-                </tbody>
-            </table>
-        </div>
         <div id="passMove" class="btn btn-danger">
             Пропустить ход
         </div>

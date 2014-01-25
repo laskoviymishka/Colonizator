@@ -43,6 +43,15 @@ namespace Colonizator.Hubs
             _broadcaster = MapBroadcaster.Instance;
         }
 
+        public void JoinGame(string mapId)
+        {
+            var game = _broadcaster.Games.Find(m => m.Id == mapId);
+            if (game != null)
+            {
+                Groups.Add(Context.ConnectionId, mapId);
+            }
+        }
+
         public void ResumeGame(string mapId, string playerName)
         {
             var game = _broadcaster.Games.Find(m => m.Id == mapId) ?? _broadcaster.CreateGame(mapId);
