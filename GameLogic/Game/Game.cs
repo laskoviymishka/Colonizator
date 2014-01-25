@@ -227,8 +227,12 @@ namespace GameLogic.Game
             IsRobberNeedUpdate = false;
         }
 
-        public void PlayCard(int cardId)
+        public void PlayCard(int cardId, int playerId)
         {
+            if (CurrentPlayer != Players[playerId])
+            {
+                throw new InvalidOperationException("Куда перед батькой в пекло. Не твой ход.");
+            }
             var card = CurrentPlayer.Cards.First(c => c.Id == cardId);
             card.PlayCard();
             ToasterUpdate(

@@ -174,7 +174,7 @@ namespace Model
                             {
                                 edge.NodeB = node;
                             }
-                            if(node.Edges == null) node.Edges = new HashSet<Edge>();
+                            if (node.Edges == null) node.Edges = new HashSet<Edge>();
                             node.Edges.Add(edge);
                             foreach (var nodeEdge in node.Edges)
                             {
@@ -265,14 +265,23 @@ namespace Model
         public IEnumerable<Node> GetAvailableNodes(int playerId)
         {
             var result = new HashSet<Node>();
-            foreach (var node in from node in _nodes.Values
-                                 where node.PlayerId < 0 && node.Edges != null
-                                    && node.Edges.All(e => e.NodeA != null && e.NodeB != null)
-                                 where node.Edges.Any(e => e.PlayerId == playerId)
-                                 where node.Edges.All(e => e.NodeA.PlayerId < 0 && e.NodeB.PlayerId < 0)
-                                 select node)
+            foreach (var node in _nodes.Values)
             {
-                result.Add(node);
+                if (node.PlayerId < 0 && node.Edges != null && node.Edges.All(e => e.NodeA != null && e.NodeB != null))
+                {
+                    if (node.Edges.Any(e => e.PlayerId == playerId))
+                    {
+                        if (node.Edges.All(e => e.NodeA.PlayerId < 0 && e.NodeB.PlayerId < 0))
+                        {
+                            result.Add(node);
+                        }
+                    }
+                }
+
+                if ((node.PlayerId == playerId && node.CitySize == 1))
+                {
+                    result.Add(node);
+                }
             }
             return result;
         }
@@ -293,7 +302,7 @@ namespace Model
                 else
                 {
                     if (edge.PlayerId != playerId) continue;
-                    foreach (var childEdge in edge.Edges)
+                    foreach (var childEdge in edge.Edges.Where(e => e.PlayerId < 0))
                     {
                         result.Add(childEdge);
                     }

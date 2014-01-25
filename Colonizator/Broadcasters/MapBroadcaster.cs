@@ -25,6 +25,7 @@ namespace Colonizator.Broadcasters
         private const string InQueueUsers = "in_queue_users";
         private IHubContext _context;
         private List<Player> Players;
+        private object _syncObject = new object();
 
         #endregion
 
@@ -126,35 +127,38 @@ namespace Colonizator.Broadcasters
 
         public void SearchGame(Player player1)
         {
-            Player player = player1;
-            player.PlayerId = player1.ConnectionIds.Last();
-            player.Color = (Color)Players.Count;
-            player.Resources = new ObservableCollection<Resource>();
-            player.Resources.Add(new Resource() { Type = ResourceType.Corn, Qty = 10 });
-            player.Resources.Add(new Resource() { Type = ResourceType.Wool, Qty = 10 });
-            player.Resources.Add(new Resource() { Type = ResourceType.Wood, Qty = 10 });
-            player.Resources.Add(new Resource() { Type = ResourceType.Soil, Qty = 10 });
-            player.Resources.Add(new Resource() { Type = ResourceType.Minerals, Qty = 10 });
-
-            player.Orders = new ObservableCollection<Order>();
-
-            Players.Add(player);
-            var eventArgs = new UpdateGameQueueArgs();
-            if (Players.Count == 3)
+            lock (_syncObject)
             {
-                eventArgs.Players = Players;
-                eventArgs.Game = CreateGame(Guid.NewGuid().ToString().Substring(0, 6));
-                Players = new List<Player>();
-            }
-            else
-            {
-                eventArgs.Players = Players;
-            }
-            UpdateGameQueue(this, eventArgs);
+                Player player = player1;
+                player.PlayerId = player1.ConnectionIds.Last();
+                player.Color = (Color)Players.Count;
+                player.Resources = new ObservableCollection<Resource>();
+                player.Resources.Add(new Resource() { Type = ResourceType.Corn, Qty = 10 });
+                player.Resources.Add(new Resource() { Type = ResourceType.Wool, Qty = 10 });
+                player.Resources.Add(new Resource() { Type = ResourceType.Wood, Qty = 10 });
+                player.Resources.Add(new Resource() { Type = ResourceType.Soil, Qty = 10 });
+                player.Resources.Add(new Resource() { Type = ResourceType.Minerals, Qty = 10 });
 
-            if (_queue.Players.Any(p => p.PlayerId == player.PlayerId))
-            {
-                throw new InvalidOperationException("Cannot added user in game twice");
+                player.Orders = new ObservableCollection<Order>();
+
+                Players.Add(player);
+                var eventArgs = new UpdateGameQueueArgs();
+                if (Players.Count == 3)
+                {
+                    eventArgs.Players = Players;
+                    eventArgs.Game = CreateGame(Guid.NewGuid().ToString().Substring(0, 6));
+                    Players = new List<Player>();
+                }
+                else
+                {
+                    eventArgs.Players = Players;
+                }
+                UpdateGameQueue(this, eventArgs);
+
+                if (_queue.Players.Any(p => p.PlayerId == player.PlayerId))
+                {
+                    throw new InvalidOperationException("Cannot added user in game twice");
+                }
             }
         }
 

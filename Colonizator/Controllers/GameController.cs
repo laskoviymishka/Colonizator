@@ -174,7 +174,7 @@ namespace Colonizator.Controllers
             Game game = GetMap(token);
             try
             {
-                game.PlayCard(cardId);
+                game.PlayCard(cardId, playerId);
             }
             catch (Exception exception)
             {

@@ -15,11 +15,11 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
+    <Optimize>true</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+    <WarningLevel>0</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -58,6 +58,10 @@
     <Compile Include="Model\HexagonModel.cs" />
     <Compile Include="Model\MapStateModel.cs" />
     <Compile Include="Model\RoadModel.cs" />
+    <Compile Include="Search\GameCreateArgs.cs" />
+    <Compile Include="Search\GameManager.cs" />
+    <Compile Include="Search\QueueUpdateArgs.cs" />
+    <Compile Include="Search\SearchUpdateArgs.cs" />
     <Compile Include="Search\UpdateGameQueueArgs.cs" />
     <Compile Include="Search\SearchGameQueue.cs" />
     <Compile Include="Game\Color.cs" />
