@@ -31,7 +31,7 @@ namespace Colonizator.Controllers
 
         public ActionResult All()
         {
-            return View(MapBroadcaster.Instance.Games);
+            return RedirectToAction("Create");
         }
 
         public ActionResult Create()
