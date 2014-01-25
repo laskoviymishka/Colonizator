@@ -564,6 +564,7 @@ namespace GameLogic.Game
             }
             GameMoveUpdate(this, new GameStateUpdateArgs() { Action = GameAction.NextMove });
             CouldDrawCard = true;
+            Market.ScavengeOrders(Players);
             ToasterUpdate(
                 this,
                 new ToasterUpdateArgs

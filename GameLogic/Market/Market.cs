@@ -69,6 +69,16 @@ namespace GameLogic.Market
                 var order = _orders.FirstOrDefault(o => o.Id == orderId);
                 if (order == null) return false;
                 if (!order.HasBuyerAcceptance || !order.HasSellerAcceptance) return false;
+
+                if (order.BuyResources.Any(resourceToBuy => order.Seller.Resources.First(r => r.Type == resourceToBuy.Type).Qty < resourceToBuy.Qty))
+                {
+                    throw new InvalidOperationException("Продавец бомж, да у него столько нету. Сделка не прокатит");
+                }
+                if (order.SellResources.Any(resourceToSell => order.Buyer.Resources.First(r => r.Type == resourceToSell.Type).Qty < resourceToSell.Qty))
+                {
+                    throw new InvalidOperationException("Покупатель бомж, да у него столько нету. Сделка не прокатит");
+                }
+
                 foreach (var resourceToBuy in order.BuyResources)
                 {
                     order.Buyer.Resources.First(r => r.Type == resourceToBuy.Type).Qty += resourceToBuy.Qty;
@@ -129,45 +139,23 @@ namespace GameLogic.Market
 
         public void ScavengeOrders(IEnumerable<Player> players)
         {
-            ExceptionHelper.ThrowIfNull(players, "players");
-
-            List<Order> ordersList;
-            List<Order> ordersToRemove = new List<Order>();
-
-            foreach (Player p in players)
+            lock (_syncObject)
             {
-                ordersToRemove.Clear();
-
-                lock (_syncObject)
+                var orderToDestroy = new List<Order>();
+                foreach (var order in _orders)
                 {
-                    //if (_orders.TryGetValue(p.PlayerId, out ordersList))
-                    //{
-                    //    ResourceType rsType;
-                    //    for (int i = 0; i < ordersList.Count; i++)
-                    //    {
-                    //        //if (p.PlayerId != ordersList[i].Seller)
-                    //        //    throw new InvalidOperationException("Order owner (Seller) is invalid");
-
-                    //        if (ordersList[i].OrderType == OrderType.Sell)
-                    //        {
-                    //            rsType = ordersList[i].ResourceType;
-                    //            Resource playerResource = p.Resources.FirstOrDefault(r => r.Type == rsType);
-
-                    //            if (playerResource == null || playerResource.Qty == 0)
-                    //            {
-                    //                ordersToRemove.Add(ordersList[i]);
-                    //                continue;
-                    //            }
-
-                    //            ordersList[i].Qty = playerResource.Qty;
-                    //        }
-                    //    }
-
-                    //    foreach (Order o in ordersToRemove)
-                    //    {
-                    //        ordersList.Remove(o);
-                    //    }
-                    //}
+                    if (order.HasSellerAcceptance && order.BuyResources.Any(resourceToBuy => order.Seller.Resources.First(r => r.Type == resourceToBuy.Type).Qty < resourceToBuy.Qty))
+                    {
+                        orderToDestroy.Add(order);
+                    }
+                    if (order.HasBuyerAcceptance && order.SellResources.Any(resourceToSell => order.Buyer.Resources.First(r => r.Type == resourceToSell.Type).Qty < resourceToSell.Qty))
+                    {
+                        orderToDestroy.Add(order);
+                    }
+                }
+                foreach (var destroyOrer in orderToDestroy)
+                {
+                    _orders.Remove(destroyOrer);
                 }
             }
         }
