@@ -85,8 +85,16 @@ namespace Colonizator.Broadcasters
             game.DiceThrowen += game_DiceThrowen;
             game.Market.OrderPlaced += Market_OrderPlaced;
             game.ToasterUpdate += (sender, args) => _context.Clients.Group(sender.Id).updateToast(args);
+            game.GameEnded += GameOnGameEnded;
             _games.Add(game);
             return game;
+        }
+
+        private void GameOnGameEnded(Game sender, GameEndArgs args)
+        {
+            _context.Clients.Group(sender.Id).gameEnd(args.Winner.PlayerName);
+            _games.Remove(sender);
+            sender.Dispose();
         }
 
         void Market_OrderPlaced(Game sender, GameStateUpdateArgs args)

@@ -28,6 +28,7 @@ namespace GameLogic.Game
         public event GameStateUpdate GameMoveUpdate;
         public event DiceThrowen DiceThrowen;
         public event ToasterUpdate ToasterUpdate;
+        public event GameEnd GameEnded;
         internal bool IsRobberNeedUpdate;
         internal bool IsFreeResourceNeedUpdate;
         internal bool IsMonopolyUpdate;
@@ -556,6 +557,10 @@ namespace GameLogic.Game
                     score += node.CitySize;
                 }
                 player.PlayerScore += score;
+                if (player.PlayerScore >= 10)
+                {
+                    GameEnded(this, new GameEndArgs { Winner = player });
+                }
             }
             GameMoveUpdate(this, new GameStateUpdateArgs() { Action = GameAction.NextMove });
             CouldDrawCard = true;
@@ -571,8 +576,22 @@ namespace GameLogic.Game
 
         #endregion
 
+
+        public void Dispose()
+        {
+            GameEnded = null;
+            DiceThrowen = null;
+            ToasterUpdate = null;
+            MapController = null;
+            GameMoveUpdate = null;
+            CurrentPlayer = null;
+            Players = null;
+            Deck = null;
+            Market = null;
+        }
     }
 
+    public delegate void GameEnd(Game sender, GameEndArgs args);
     public delegate void CardPlayed(Game sender, GameStateUpdateArgs args);
     public delegate void OrderUpdate(Game sender, OrderUpdateArgs args);
     public delegate void ResourceUpdate(Game sender, ResourceUpdateArgs args);

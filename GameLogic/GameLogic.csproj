@@ -48,6 +48,7 @@
     <Compile Include="Game\Cards\Road.cs" />
     <Compile Include="Game\Cards\WinPoint.cs" />
     <Compile Include="Game\GameAction.cs" />
+    <Compile Include="Game\GameEndArgs.cs" />
     <Compile Include="Game\GameStateUpdateArgs.cs" />
     <Compile Include="Game\OrderUpdateArgs.cs" />
     <Compile Include="Game\ResourceUpdateArgs.cs" />

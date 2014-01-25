@@ -25,6 +25,11 @@
     var currentUser;
     $(function () {
         mapHub = $.connection.mapHub;
+
+        mapHub.client.gameEnd = function(data) {
+            toastr.success("Поздравляем победителя. Все остальные лузеры.", data);
+        };
+
         mapHub.client.updateToast = function (data) {
             switch (data.Type) {
                 case 0:
