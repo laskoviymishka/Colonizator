@@ -151,6 +151,10 @@ namespace Model
                             {
                                 hexagon.FaceNumber = 12;
                             }
+                            else
+                            {
+                                hexagon.FaceNumber = faceNumber >= 7 ? faceNumber - 1 : faceNumber;
+                            }
                         }
                     }
                     else
