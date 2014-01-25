@@ -146,8 +146,11 @@ namespace Model
                         }
                         else
                         {
-                            int faceNumber = 1 + random.Next(12);
-                            hexagon.FaceNumber = faceNumber >= 7 ? faceNumber + 1 : faceNumber;
+                            int faceNumber = 2 + random.Next(11);
+                            if (faceNumber == 7)
+                            {
+                                hexagon.FaceNumber = 12;
+                            }
                         }
                     }
                     else

@@ -576,7 +576,6 @@ namespace GameLogic.Game
 
         #endregion
 
-
         public void Dispose()
         {
             GameEnded = null;

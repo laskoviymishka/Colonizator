@@ -94,7 +94,13 @@ namespace Colonizator.Broadcasters
         {
             _context.Clients.Group(sender.Id).gameEnd(args.Winner.PlayerName);
             _games.Remove(sender);
+
+            foreach (var player in sender.Players)
+            {
+                Players.Remove(player);
+            }
             sender.Dispose();
+            
         }
 
         void Market_OrderPlaced(Game sender, GameStateUpdateArgs args)
