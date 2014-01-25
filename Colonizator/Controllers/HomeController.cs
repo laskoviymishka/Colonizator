@@ -10,7 +10,7 @@ namespace Colonizator.Controllers
     {
         public ActionResult Index()
         {
-            return RedirectToAction("All", "Game");
+            return RedirectToAction("List", "Game");
         }
     }
 }
