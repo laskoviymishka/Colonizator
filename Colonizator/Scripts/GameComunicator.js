@@ -144,7 +144,7 @@ function toQueue() {
 
 function NeedThrowDice() {
     console.log('NeedThrowDice');
-    if (currentUser.PlayerName == userMove) {
+    if (currentUser == userMove) {
         $('#throwDiceResult').html('Ваш ход, бросьте кубики');
         $('#throwDiceModal').modal('show');
         $('#throwDiceCloseBtn').hide();
@@ -161,7 +161,7 @@ function NeedThrowDice() {
 
 function PassMoveAvaible() {
     console.log('PassMoveAvaible');
-    if (currentUser.PlayerName == userMove) {
+    if (currentUser == userMove) {
         $('#passMove').show();
     } else {
         $('#passMove').hide();
@@ -170,7 +170,7 @@ function PassMoveAvaible() {
 
 function PassMove() {
     console.log('PassMove');
-    if (currentUser.PlayerName == userMove) {
+    if (currentUser == userMove) {
         $('#passMove').show();
         $.post(
                 "/Game/PassMove",
@@ -183,7 +183,7 @@ function PassMove() {
 
 function throwenDice(data) {
     console.log('throwenDice', data);
-    if (currentUser.PlayerName == userMove) {
+    if (currentUser == userMove) {
         $('#throwDiceResult').html('Вам выпало ' + data.Args.First + ' и ' + data.Args.Second);
     } else {
         $('#throwDiceResult').html(userMove + ' выпало ' + data.Args.First + ' и ' + data.Args.Second);
@@ -215,7 +215,7 @@ var moveRobber = function (args) {
     robberElement.setAttribute("class", 'tile_number');
     robberElement.style.margin = tileHeight / 2 - 30 + 'px auto';
     robberElement.id = "robber";
-    if (currentUser.PlayerName == userMove) {
+    if (currentUser == userMove) {
         tileClick = function (parameters) {
             $('.tile_number').removeAttr("hidden");
             console.log("MoveRobber", parameters, args);
@@ -248,7 +248,7 @@ var chooseMonopolyResource = function (args) {
     ];
     neededResourceCount = 1;
     neededResourceQty = 1;
-    if (currentUser.PlayerName == userMove) {
+    if (currentUser == userMove) {
         $('#freeResourceChoose').modal('show');
         $('#resourceCheckLabe').html('Играя эту карточку, игрок выбирает один тип ресурса. Остальные игроки должны отдать ему все карточки ресурсов этого типа');
         $('#freeResourceChooseSendBtn').hide();
@@ -275,7 +275,7 @@ var chooseFreeResouce = function (args) {
     ];
     neededResourceCount = 2;
     neededResourceQty = 1;
-    if (currentUser.PlayerName == userMove) {
+    if (currentUser == userMove) {
         $('#freeResourceChoose').modal('show');
         $('#resourceCheckLabe').html('Выберете 2 ресурса, которые получите бесплатно в результате розыгрыша карты "изобилие"');
         $('#freeResourceChooseSendBtn').hide();
