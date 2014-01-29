@@ -33,7 +33,7 @@
 	$scope.skip = {
 		show: false,
 		showModal: false,
-		action : 'Вы действительно собираетесь пропустить свой ход?',
+		action: 'Вы действительно собираетесь пропустить свой ход?',
 		click: function () {
 			this.showModal = true;
 		},
@@ -47,6 +47,19 @@
 			this.show = false;
 			this.showModal = false;
 		},
+		decline: function () {
+			this.showModal = false;
+		}
+	};
+
+	$scope.moveRobber = {
+		show: false,
+		showModal: false,
+		action: 'Вы действительно передвинуть сюда грабителя?',
+		click: function () {
+			this.showModal = true;
+		},
+		accept: function () { },
 		decline: function () {
 			this.showModal = false;
 		}
@@ -275,7 +288,26 @@
 	};
 
 	$scope.tileClick = function (tile) {
+		if ($scope.moveRobber.show) {
+			$scope.moveRobber.showModal = true;
+		}
 		console.log("newTile.tileClick", tile);
+		$scope.moveRobber.accept = function (tile) {
+			tileClick = function (parameters) {
+				$('.tile_number').removeAttr("hidden");
+				console.log("MoveRobber", parameters, args);
+				var contract =
+					{
+						token: $scope.token,
+						playerId: $scope.playerId,
+						hexagonIngex: tile.hexagonIndex
+					};
+				$http.post("/Game/MoveRobber", contract);
+				tile.appendChild(robberElement);
+			};
+			$scope.moveRobber.show = false;
+			$scope.moveRobber.showModal = false;
+		}
 	};
 
 	$scope.roadClick = function (road) {
@@ -304,7 +336,7 @@
 				throwenDice(data);
 				break;
 			case 2://"MoveRobber":
-				moveRobber(data);
+				$scope.moveRobber.show = true;
 				console.log("updateState switch (data.Args.Action) MoveRobber", data);
 				break;
 			case 3://"Monopoly":
@@ -519,6 +551,7 @@
 				var newTile = {};
 				newTile.resourceType = field[i][j].ResourceType;
 				newTile.left = offsetPx;
+				newTile.hexagonIndex = field[i][j].HexagonIndex;
 				newTile.width = tileWidth;
 				newTile.height = tileHeight;
 				newTile.top = offsetPy;

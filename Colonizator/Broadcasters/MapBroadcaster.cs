@@ -114,6 +114,9 @@ namespace Colonizator.Broadcasters
 			var game = new Game(mapId, players, mapControll);
 			game.Players[0].Cards.Add(new FreeResource(game, 26));
 			game.Players[0].Cards.Add(new Monopoly(game, 27));
+			game.Players[0].Cards.Add(new Knight(game, 28));
+			game.Players[0].Cards.Add(new WinPoint(game, 29, 2, "asd"));
+			game.Players[0].Cards.Add(new Road(game, 30));
 
 			game.GameMoveUpdate += game_GameStateUpdate;
 			game.DiceThrowen += game_DiceThrowen;

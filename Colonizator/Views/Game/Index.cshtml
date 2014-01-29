@@ -127,6 +127,22 @@
                 </div><!-- /.modal-dialog -->
             </div><!-- /.modal monopolyResource -->
 
+            <div ng-show="moveRobber.showModal" class="modal fade in" id="cofirmMoveRobber" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="false" style="display: block;">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title" id="myModalLabel">Вы уверены</h4>
+                        </div>
+                        <div class="modal-body" style="height:100px">
+                            <h3>{{moveRobber.action}}</h3>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-success" id="freeResourceChooseSendBtn" ng-click="moveRobber.accept()">Потвердить</button>
+                            <button type="button" class="btn btn-danger" id="freeResourceChooseSendBtn" ng-click="moveRobber.decline()">Отменить</button>
+                        </div>
+                    </div><!-- /.modal-content -->
+                </div><!-- /.modal-dialog -->
+            </div><!-- /.modal cofirmMoveRobber -->
             <div ng-show="skip.showModal" class="modal fade in" id="freeResource" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="false" style="display: block;">
                 <div class="modal-dialog">
                     <div class="modal-content">

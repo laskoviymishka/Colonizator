@@ -221,7 +221,6 @@ namespace GameLogic.Game
 					CurrentPlayer.Resources.First(r => r.Type == avaibleResources[resourceToRob].Type).Qty++;
 				}
 			}
-
 			RiseUpdate(new GameStateUpdateArgs { Action = GameAction.RegularUpdate });
 			ToasterUpdate(
 				 this,
