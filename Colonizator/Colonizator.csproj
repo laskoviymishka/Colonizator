@@ -205,6 +205,7 @@
     <Content Include="Content\Dice.css" />
     <Content Include="Content\Market.css" />
     <Content Include="Content\SlideControl.css" />
+    <Content Include="Content\templates\PassMoveModal.html" />
     <Content Include="Content\toastr.css" />
     <Content Include="Content\toastr.min.css" />
     <Content Include="favicon.ico" />

@@ -1,4 +1,6 @@
-﻿var hub = (function () {
+﻿angular.module('myModule', ['ui.bootstrap']);
+
+var hub = (function () {
     function Singleton() {
 
         var updateStateHandlers = [];

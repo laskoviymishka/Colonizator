@@ -112,7 +112,9 @@ namespace Colonizator.Broadcasters
 			}
 			mapControll.Initialize();
 			var game = new Game(mapId, players, mapControll);
-			game.Players[0].Cards.Add(new FreeResource(game,26));
+			game.Players[0].Cards.Add(new FreeResource(game, 26));
+			game.Players[0].Cards.Add(new Monopoly(game, 27));
+
 			game.GameMoveUpdate += game_GameStateUpdate;
 			game.DiceThrowen += game_DiceThrowen;
 			game.Market.OrderPlaced += Market_OrderPlaced;
