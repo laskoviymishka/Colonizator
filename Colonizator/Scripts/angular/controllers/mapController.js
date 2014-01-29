@@ -292,19 +292,14 @@
 			$scope.moveRobber.showModal = true;
 		}
 		console.log("newTile.tileClick", tile);
-		$scope.moveRobber.accept = function (tile) {
-			tileClick = function (parameters) {
-				$('.tile_number').removeAttr("hidden");
-				console.log("MoveRobber", parameters, args);
-				var contract =
-					{
-						token: $scope.token,
-						playerId: $scope.playerId,
-						hexagonIngex: tile.hexagonIndex
-					};
-				$http.post("/Game/MoveRobber", contract);
-				tile.appendChild(robberElement);
-			};
+		$scope.moveRobber.accept = function () {
+			var contract =
+				{
+					token: $scope.token,
+					playerId: $scope.playerId,
+					hexagonIngex: tile.hexagonIndex
+				};
+			$http.post("/Game/MoveRobber", contract);
 			$scope.moveRobber.show = false;
 			$scope.moveRobber.showModal = false;
 		}
