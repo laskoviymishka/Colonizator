@@ -15,5 +15,17 @@ namespace GameLogic.Models
 			get;
 			set;
 		}
+
+		public List<CityModel> PossibleCities
+		{
+			get;
+			set;
+		}
+
+		public List<RoadModel> PossibleRoads
+		{
+			get;
+			set;
+		}
 	}
 }

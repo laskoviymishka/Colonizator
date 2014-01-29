@@ -16,7 +16,7 @@ namespace GameLogic.Game
 
         public int FreeRoadCount { get; set; }
         public int KnightCount { get; set; }
-        public string PlayerId { get; set; }
+        public int PlayerId { get; set; }
         public string PlayerName { get; set; }
         public int PlayerScore { get; set; }
         public Color Color { get; set; }

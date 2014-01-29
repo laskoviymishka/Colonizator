@@ -1,63 +1,214 @@
 ﻿@{
     ViewBag.Title = "Index";
 }
+<style type="text/css">
+    .bonuses {
+    }
 
+    .userStat {
+    }
 
-<div id="canvas" style="position:relative;width:100%;height:700px;">
+    .cards {
+    }
 
+    .leftPanel {
+        position: relative;
+        width: 35%;
+        float: left;
+    }
 
-
-</div>
-
+    .rightPanel {
+        position: relative;
+        width: 65%;
+        height: 700px;
+        float: right;
+    }
+</style>
 <script src="~/Scripts/jquery-1.10.2.min.js"></script>
 <script src="~/Scripts/jquery.signalR-2.0.1.min.js"></script>
 <script src="~/signalr/hubs"></script>
-<script src="~/Scripts/game.js"></script>
-
+<script src="~/Scripts/Dice.js"></script>
+<script src="~/Scripts/Serializer.js"></script>
+<link href="~/Content/Market.css" rel="stylesheet" />
+<script src="~/Scripts/toastr.min.js"></script>
+<link href="~/Content/toastr.min.css" rel="stylesheet" />
+<script src="~/Scripts/angular.min.js"></script>
+<script src="~/Scripts/angular/controllers/mapController.js"></script>
+<script src="~/Scripts/angular/controllers/userController.js"></script>
+<script src="~/Scripts/angular/controllers/marketController.js"></script>
+<script src="~/Scripts/angular/services/GameApiService.js"></script>
+<script src="~/Scripts/angular/services/GameEventHubService.js"></script>
 <script>
-    
-    var gameHub;
-    var mapHub;
-    var markethub;
-    $(function () {
-        mapHub = $.connection.mapHub;
-        mapHub.client.updateQueue = function (eventArgs) {
-            $('#userQueue').html(eventArgs.toString());
-        };
-
-        mapHub.client.gameStart = function (eventArgs) {
-            $('#userQueue').html(eventArgs.toString());
-        };
-
-        $('#displayname').focus();
-        // Start the connection.
-        $.connection.hub.start().done(function () {
-            $('#search').click(function () {
-                mapHub.server.searchGame($('#displayname').val());
-            });
-        });
-    });
-    // This optional function html-encodes messages for display in the page.
-    function htmlEncode(value) {
-        var encodedValue = $('<div />').text(value).html();
-        return encodedValue;
-    }
-
-    function toQueue() {
-    }
-
-    $.getJSON('/Game/Game', function(data) {
-        DrawField(data);
-
-        $.getJSON('/Game/GameState', function(data1) {
-            DrawTowns(data1.Cities);
-            DrawRoads(data1.Roads);
-            $.getJSON('/Game/AvailableGame?playerId=1', function (data2) {
-                DrawTowns(data2.Cities, true);
-                DrawRoads(data2.Roads, true);
-            });
-
-        });
-    });
-
 </script>
+<div ng-app="colonizatory">
+    <div class="leftPanel">
+        <div ng-controller="userController">
+            <h1>{{userName}}</h1>
+            <p>{{currentUser}}</p>
+            <div class="userStat">
+                <div class="bonuses">
+                    <div style="width:100px;height:150px;">
+                        <img src="/Sprites/c7.png" alt="..." class="img-thumbnail" style="width:100px;height:150px;">
+                        <div class="resourceCount">{{currentUser.FreeRoadCount}}</div>
+                    </div>
+                    <div style="width:100px;height:150px;">
+                        <img src="/Sprites/c0.png" alt="..." class="img-thumbnail" style="width:100px;height:150px;">
+                        <div class="resourceCount">{{currentUser.KnightCount}}</div>
+                    </div>
+                    <div>Ваши очки {{currentUser.PlayerScore}}</div>
+                </div>
+                <div class="cards">
+                    <div ng-repeat="elem in currentUser.Cards" style="width: 80px; height: 120px;">
+                        <img src="/Sprites/rs{{elem.CardIndex}}.png" alt="..." class="img-thumbnail" style="width: 80px; height: 120px;">
+                    </div>
+                </div>
+                <div class="resource" style="display: inline-flex; width: 50%;">
+                    <div ng-repeat="elem in currentUser.Resources" style="width:40px;height:60px;">
+                        <img src="/Sprites/rs{{elem.Type}}.png" alt="..." class="img-thumbnail" style="width:40px;height:60px;">
+                        <div class="resourceCount">{{elem.Qty}}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="btn btn-danger" ng-click="testClick()"></div>
+            <input ng-model="token" />
+            <input ng-model="playerId" />
+        </div>
+        <div ng-controller="marketController">
+            <div class="btn btn-danger" ng-click="loadMarket()"></div>
+            <input ng-model="token" />
+            <input ng-model="playerId" />
+            <p>{{currentUser.PlayerName}}</p>
+            <p>{{orders.length}}</p>
+            <div class="orders" ng-repeat="order in orders">
+                <div class="order">
+                    <div class="buyBatch" style="display: inline-flex; width: 50%;">
+                        <div ng-repeat="elem in order.BuyList" style="width:40px;height:60px;">
+                            <img src="/Sprites/rs{{elem.Type}}.png" alt="..." class="img-thumbnail" style="width:40px;height:60px;">
+                            <div class="resourceCount">{{elem.Qty}}</div>
+                        </div>
+                    </div>
+                    <div class="sellBatch" style="display: inline-flex; width:50%;">
+                        <div ng-repeat="elem in order.SellList" style="width:40px;height:60px;">
+                            <img src="/Sprites/rs{{elem.Type}}.png" alt="..." class="img-thumbnail" style="width:40px;height:60px;">
+                            <div class="resourceCount">{{elem.Qty}}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="rightPanel">
+        <div ng-controller="mapController">
+            <div>
+                <div class="btn btn-danger" ng-click="GetMap()"></div>
+                <div class="btn btn-danger" ng-click="UpdateMapViewState(0)"></div>
+                <input ng-model="token" />
+            </div>
+
+            <div ng-show="freeResource.show" class="modal fade in" id="buyConfirmation" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="false" style="display: block;">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title" id="myModalLabel">{{freeResource.action}}</h4>
+                        </div>
+                        <div class="modal-body" style="height:200px">
+                            <h3>Выберете {{freeResource.needCount}} ресурса</h3>
+                            <div ng-repeat="elem in freeResource.chosableResource" style="width:95px;height:135px;float:left;" ng-click="elem.Choose()">
+                                <img src="/Sprites/rs{{elem.Type}}.png" alt="..." class="img-thumbnail" style="width: 95px; height: 135px;">
+                                <div class="resourceCount" ng-show="elem.IsChoosen"> </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-success" id="freeResourceChooseSendBtn" ng-click="freeResource.accept()" ng-show="freeResource.acceptShow">Потвердить</button>
+                            <button type="button" class="btn btn-danger" id="freeResourceChooseSendBtn" ng-click="freeResource.decline()">Отменить</button>
+                        </div>
+                    </div><!-- /.modal-content -->
+                </div><!-- /.modal-dialog -->
+            </div><!-- /.modal buyConfirmation -->
+            <div ng-show="confirmationBuy.show" class="modal fade in" id="buyConfirmation" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="false" style="display: block;">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title" id="myModalLabel">{{confirmationBuy.action}}</h4>
+                        </div>
+                        <div class="modal-body" style="height:200px">
+                            <h3>Вы уверены? Это вам обойдется в:</h3>
+                            <div ng-repeat="elem in confirmationBuy.resourcesCost" style="width:95px;height:135px;float:left;">
+                                <img src="/Sprites/rs{{elem.Type}}.png" alt="..." class="img-thumbnail" style="width: 95px; height: 135px;">
+                                <div class="resourceCount">{{elem.Qty}}</div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-success" id="freeResourceChooseSendBtn" ng-click="confirmationBuy.acceptClick()">Потвердить</button>
+                            <button type="button" class="btn btn-danger" id="freeResourceChooseSendBtn" ng-click="confirmationBuy.declineClick()">Отменить</button>
+                        </div>
+                    </div><!-- /.modal-content -->
+                </div><!-- /.modal-dialog -->
+            </div><!-- /.modal buyConfirmation -->
+            <div ng-show="dice.show" class="modal fade in" id="throwDiceModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="false" style="display: block;">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title" id="myModalLabel">Бросок кубика</h4>
+                        </div>
+                        <div class="modal-body" style="height:300px">
+                            <h3 id="throwDiceResult">{{dice.result}}</h3>
+                            <div id="coubes">
+                                <div style="width:50%;float:left">
+                                    <section id="cubecontainer0" class="cubecontainer">
+                                        <div id="cube" class="show-front panels-backface-invisible">
+                                            <figure class="front">1</figure>
+                                            <figure class="back">2</figure>
+                                            <figure class="right">3</figure>
+                                            <figure class="left">4</figure>
+                                            <figure class="top">5</figure>
+                                            <figure class="bottom">6</figure>
+                                        </div>
+                                    </section>
+                                </div>
+                                <div style="width:50%;float:right">
+                                    <section id="cubecontainer1" class="cubecontainer">
+                                        <div id="cube" class="show-front panels-backface-invisible">
+                                            <figure class="front">1</figure>
+                                            <figure class="back">2</figure>
+                                            <figure class="right">3</figure>
+                                            <figure class="left">4</figure>
+                                            <figure class="top">5</figure>
+                                            <figure class="bottom">6</figure>
+                                        </div>
+                                    </section>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" id="throwDiceCloseBtn" ng-click="dice.declineAction()" ng-show="dice.declineShow">Закрыть</button>
+                            <button type="button" class="btn btn-success" id="throwDiceBtn" ng-click="dice.throwAction()" ng-show="dice.throwShow">Бросить кубик</button>
+                        </div>
+                    </div><!-- /.modal-content -->
+                </div><!-- /.modal-dialog -->
+            </div><!-- /.modal throwDiceModal-->
+            <div class="btn btn-danger" ng-show="skip.show" ng-click="skip.click()">Пропустить ход</div>
+            <div id="canvas" style="position:relative;width:100%;height:700px;">
+                <div ng-repeat="tile in tiles" class="tile"
+                     style="{{tile.tileStyle}}"
+                     id="{{tile.id}}"
+                     ng-click="tileClick(tile)">
+                    &nbsp;
+                    <div class="tile_number" style="{{tile.isFaceNumberStyle}}">{{tile.faceNumber}}</div>
+                </div>
+                <div ng-repeat="town in towns" class="{{town.class}}"
+                     style="{{town.style}}"
+                     id="{{town.id}}"
+                     ng-click="townClick(town)">
+                    &nbsp;
+                </div>
+                <div ng-repeat="road in roads" class="{{road.class}}"
+                     style="{{road.style}}"
+                     id="{{road.id}}"
+                     ng-click="roadClick(road)">
+                    &nbsp;
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

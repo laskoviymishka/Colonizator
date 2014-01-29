@@ -150,7 +150,7 @@ function NeedThrowDice() {
         $('#throwDiceCloseBtn').hide();
         $('#throwDiceBtn').show();
     } else {
-        $('#throwDiceResult').html('Ход ' + userMove + ' , ждите пока он бросит кубики')
+        $('#throwDiceResult').html('Ход ' + userMove + ' , ждите пока он бросит кубики');
         $('#throwDiceModal').modal('show');
         $('#throwDiceCloseBtn').hide();
         $('#throwDiceBtn').hide();
